@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="{% static 'admin_login.css' %}">
+</head>
+<body>
+    <main>
+        <div class="wrapper">
+            <h1>Admin Login</h1>
+            <form method="POST">
+                {% csrf_token %}
+                {% if form.errors %}
+                    <ul class="messages error">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                {{ form.as_p }}
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

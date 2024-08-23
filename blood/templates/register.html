@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'registration.css' %}">
+</head>
+<body>
+    <div class="wrapper">
+        <form action="{% url 'register' %}" method="post">
+            {% csrf_token %}
+            <h1>Registration Form</h1>
+            
+            <div class="input-box">
+                <input 
+                    type="text" 
+                    name="fname" 
+                    placeholder="First Name" 
+                    required 
+                    pattern="^[A-Za-z]{2,}$" 
+                    title="First name must contain at least 2 letters and no numbers or special characters"
+                    value="{{ form.fname.value|default_if_none:'' }}">
+            </div>
+            
+            <div class="input-box">
+                <input 
+                    type="text" 
+                    name="lname" 
+                    placeholder="Last Name" 
+                    required 
+                    pattern="^[A-Za-z]{2,}$" 
+                    title="Last name must contain at least 2 letters and no numbers or special characters"
+                    value="{{ form.lname.value|default_if_none:'' }}">
+            </div>
+            
+            <div class="input-box">
+                <input 
+                    type="date" 
+                    name="dob" 
+                    placeholder="DOB" 
+                    required 
+                    value="{{ form.dob.value|default_if_none:'' }}" 
+                    min="1900-01-01" 
+                    max="{{ current_date|date:'Y-m-d' }}" 
+                    title="Date of birth must be between 01/01/1900 and today's date">
+            </div>
+            
+            <div class="input-box">
+                <input 
+                    type="text" 
+                    name="username" 
+                    placeholder="Username" 
+                    required 
+                    pattern="^[A-Za-z0-9_]{5,15}$" 
+                    title="Username must be 5-15 characters long and can include letters, numbers, and underscores"
+                    value="{{ form.username.value|default_if_none:'' }}">
+            </div>
+
+            <div class="input-box">
+                <input 
+                    type="password" 
+                    name="password" 
+                    placeholder="Password" 
+                    required 
+                    pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$" 
+                    title="Password must be at least 8 characters long and include at least one letter and one number"
+                    value="{{ form.password.value|default_if_none:'' }}">
+            </div>
+            
+            <div class="input-box">
+                <input 
+                    type="text" 
+                    name="phone_number" 
+                    placeholder="Phone Number" 
+                    required 
+                    pattern="\d{10}" 
+                    title="Phone number must be 10 digits" 
+                    value="{{ form.phone_number.value|default_if_none:'' }}">
+            </div>
+
+            <div class="input-box">
+                <select name="gender" required>
+                    <option value="" disabled selected>Select Gender</option>
+                    <option value="male" {% if form.gender.value == "male" %}selected{% endif %}>Male</option>
+                    <option value="female" {% if form.gender.value == "female" %}selected{% endif %}>Female</option>
+                    <option value="other" {% if form.gender.value == "other" %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+            
+            <div class="input-box">
+                <select name="blood_group" required>
+                    <option value="" disabled selected>Select Blood Group</option>
+                    <option value="A+" {% if form.blood_group.value == "A+" %}selected{% endif %}>A+</option>
+                    <option value="A-" {% if form.blood_group.value == "A-" %}selected{% endif %}>A-</option>
+                    <option value="B+" {% if form.blood_group.value == "B+" %}selected{% endif %}>B+</option>
+                    <option value="B-" {% if form.blood_group.value == "B-" %}selected{% endif %}>B-</option>
+                    <option value="O+" {% if form.blood_group.value == "O+" %}selected{% endif %}>O+</option>
+                    <option value="O-" {% if form.blood_group.value == "O-" %}selected{% endif %}>O-</option>
+                    <option value="AB+" {% if form.blood_group.value == "AB+" %}selected{% endif %}>AB+</option>
+                    <option value="AB-" {% if form.blood_group.value == "AB-" %}selected{% endif %}>AB-</option>
+                </select>
+            </div>
+
+            <div class="input-box">
+                <select name="role" required>
+                    <option value="" disabled selected>Select Role</option>
+                    <option value="donate" {% if form.role.value == "donate" %}selected{% endif %}>Donate Blood</option>
+                    <option value="request" {% if form.role.value == "request" %}selected{% endif %}>Request Blood</option>
+                </select>
+            </div>
+
+            <button type="submit">Register</button>
+        </form>
+    </div>
+</body>
+</html>

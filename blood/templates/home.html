@@ -1,0 +1,55 @@
+<!-- blood/templates/blood/home.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Bank Home</title>
+    <link rel="stylesheet" href="{% static '/home.css' %}">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Blood Bank</h1>
+            <nav>
+                <ul>
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="{% url 'login' %}">Login</a></li>
+                    <li><a href="{% url 'register' %}">Register</a></li>
+                    <li><a href="{% url 'admin_login' %}">Admin</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="#">About</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h2>Save Lives, Donate Blood</h2>
+                <p>Your donation can make a difference. Join us in our mission to help those in need.</p>
+                
+            </div>
+        </section>
+        <section class="info">
+            <div class="container">
+                <div class="info-item">
+                    <h3>Our Mission</h3>
+                    <p>We provide safe and reliable blood supplies to hospitals and patients. Learn how you can help or donate today!</p>
+                </div>
+                <div class="info-item">
+                    <h3>How to Donate</h3>
+                    <p>Find out more about our donation process and get involved in saving lives.</p>
+                    <a href="#" class="btn-secondary">Learn More</a>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Blood Bank. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,119 @@
+/* static/user_home.css */
+body {
+    font-family: Arial, sans-serif;
+    background: url("/static/image/bloodcolor.jpeg") no-repeat center center fixed;
+    background-size: cover;
+    margin: 0;
+    padding: 0;
+    background-color:white;
+}
+
+header {
+    background-color: darkred;
+    color: #fff;
+    padding: 1rem;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    margin: 0;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+nav ul li {
+    margin-right: 1rem;
+}
+
+nav ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+nav ul li a:hover {
+    text-decoration: underline;
+}
+
+main {
+    padding: 6rem 1rem 2rem; /* Adjust top padding to account for the fixed header */
+}
+
+.wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+h1 {
+    color: white;
+    margin-bottom: 1rem;
+}
+
+p {
+    color: #666;
+    font-size: 1rem;
+    margin-bottom: 2rem;
+}
+
+.cards {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.card {
+    background: #e9ecef;
+    border-radius: 8px;
+    padding: 2rem;
+    flex: 1 1 300px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.card h2 {
+    margin-top: 0;
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color:darkred;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: red;
+}
+
+footer {
+    background-color: darkred;
+    color: #fff;
+    text-align: center;
+    padding: 1rem;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+}
