@@ -1,55 +1,90 @@
-<!-- blood/templates/blood/home.html -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blood Bank Home</title>
-    <link rel="stylesheet" href="{% static '/home.css' %}">
+    <title>Home | Lifeline Blood Bank</title>
+    <link rel="stylesheet" href="{% static 'home.css' %}">
 </head>
 <body>
-    <header>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
         <div class="container">
-            <h1>Blood Bank</h1>
-            <nav>
-                <ul>
-                    <li><a href="{% url 'home' %}">Home</a></li>
-                    <li><a href="{% url 'login' %}">Login</a></li>
-                    <li><a href="{% url 'register' %}">Register</a></li>
-                    <li><a href="{% url 'admin_login' %}">Admin</a></li>
-                    <li><a href="#">Contact</a></li>
-                    <li><a href="#">About</a></li>
-                </ul>
-            </nav>
+            <a href="#" class="logo">Lifeline Blood Bank</a>
+            <ul class="nav-links">
+                <li><a href="#hero">Home</a></li>
+                <li><a href="#about">About Us</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="{% url 'login' %}">Login</a></li>
+                <li><a href="{% url 'register' %}">Register</a></li>
+                <li><a href="{% url 'admin_login' %}">Admin</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
         </div>
-    </header>
-    <main>
-        <section class="hero">
-            <div class="hero-content">
-                <h2>Save Lives, Donate Blood</h2>
-                <p>Your donation can make a difference. Join us in our mission to help those in need.</p>
-                
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero-section">
+        <h1>Welcome to Lifeline Blood Bank</h1>
+        <p>Your Health, Our Priority</p>
+        <a href="#services" class="cta-button">Learn More</a>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <h2>About Us</h2>
+        <p>Lifeline Blood Bank is a trusted name in the community, providing safe and sufficient blood supplies to those in need. Our mission is to save lives through the power of voluntary blood donations, ensuring that no one has to wait for the blood they need.</p>
+        <p>We work tirelessly to connect donors with recipients, ensuring that every donation counts. Our state-of-the-art facilities and dedicated staff ensure that the blood we collect is of the highest quality and safety standards.</p>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="services-section">
+        <h2>Our Services</h2>
+        <div class="services-list">
+            <div class="service-item">
+                <h3>Blood Donation</h3>
+                <p>Join our life-saving community of donors. Your donation can make a difference and save lives.</p>
             </div>
-        </section>
-        <section class="info">
-            <div class="container">
-                <div class="info-item">
-                    <h3>Our Mission</h3>
-                    <p>We provide safe and reliable blood supplies to hospitals and patients. Learn how you can help or donate today!</p>
-                </div>
-                <div class="info-item">
-                    <h3>How to Donate</h3>
-                    <p>Find out more about our donation process and get involved in saving lives.</p>
-                    <a href="#" class="btn-secondary">Learn More</a>
-                </div>
+            <div class="service-item">
+                <h3>Blood Storage</h3>
+                <p>Our advanced storage facilities ensure that blood is available when it's needed most.</p>
             </div>
-        </section>
-    </main>
-    <footer>
-        <div class="container">
-            <p>&copy; 2024 Blood Bank. All rights reserved.</p>
+            <div class="service-item">
+                <h3>Blood Distribution</h3>
+                <p>We distribute blood to hospitals and clinics across the region, ensuring timely and efficient delivery.</p>
+            </div>
+            <div class="service-item">
+                <h3>Donor Eligibility Assessment</h3>
+                <p>We assess donors to ensure that all blood donations are safe for both donors and recipients.</p>
+            </div>
         </div>
-    </footer>
-</body>
-</html>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="testimonials-section">
+        <h2>What Our Donors Say</h2>
+        <div class="testimonial">
+            <p>"Donating blood at Lifeline was an incredible experience. The staff were professional, and I felt safe throughout the process. I’m glad to be making a difference!"</p>
+            <span>- Jane Doe, Donor</span>
+        </div>
+        <div class="testimonial">
+            <p>"Lifeline Blood Bank helped me when I needed it most. Their quick response and efficient service saved my life."</p>
+            <span>- John Smith, Recipient</span>
+        </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section id="cta" class="cta-section">
+        <h2>Ready to Save Lives?</h2>
+        <p>Join us in our mission to provide life-saving blood to those in need. Become a donor today!</p>
+        <a href="{% url 'register' %}" class="cta-button">Donate Now</a>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <h2>Contact Us</h2>
+        <p>Reach out to us for any inquiries or to learn more about how you can contribute.</p>
+        <p>Email: support@lifelinebloodbank.com</p>
+    

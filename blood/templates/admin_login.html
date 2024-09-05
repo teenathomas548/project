@@ -1,31 +1,38 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login</title>
-    <link rel="stylesheet" href="{% static 'admin_login.css' %}">
-</head>
-<body>
-    <main>
-        <div class="wrapper">
-            <h1>Admin Login</h1>
-            <form method="POST">
-                {% csrf_token %}
-                {% if form.errors %}
-                    <ul class="messages error">
-                        {% for field in form %}
-                            {% for error in field.errors %}
-                                <li>{{ error }}</li>
-                            {% endfor %}
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-                {{ form.as_p }}
-                <button type="submit">Login</button>
-            </form>
-        </div>
-    </main>
-</body>
-</html>
+<form method="POST">
+    {% csrf_token %}
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li class="{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    
+    <div class="input-box">
+        <input 
+            type="text" 
+            name="username" 
+            placeholder="Username" 
+            required 
+            pattern="^[A-Za-z0-9_]{5,15}$" 
+            title="Username must be 5-15 characters long and can include letters, numbers, and underscores"
+            value="{{ form.username.value|default_if_none:'' }}">
+    </div>
+
+    <div class="input-box">
+        <input 
+            type="password" 
+            name="password" 
+            placeholder="Password" 
+            required 
+            pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$" 
+            title="Password must be at least 8 characters long and include at least one letter and one number"
+            value="{{ form.password.value|default_if_none:'' }}">
+    </div>
+    <p>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required minlength="8">
+    </p>
+    
+    <button type="submit">Login</button>
+</form>
