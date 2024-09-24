@@ -19,7 +19,7 @@
                     <a class="nav-link" href="#">Dashboard</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">User Management</a>
+                    <a class="nav-link" href="{% url 'manage_users' %}">User Management</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Inventory</a>
@@ -28,7 +28,7 @@
                     <a class="nav-link" href="#">Reports</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Campaigns</a>
+                    <a class="nav-link" href="{% url 'manage_campaigns' %}">Campaigns</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Logout</a>
@@ -44,10 +44,9 @@
                     <div class="card-header">Menu</div>
                     <div class="card-body">
                         <ul class="list-group">
-                            <li class="list-group-item"><a href="#">Manage Donors</a></li>
-                            <li class="list-group-item"><a href="#">Manage Recipients</a></li>
+                            <li class="list-group-item"><a href="{% url 'manage_users' %}">UserManagement</a></li>
                             <li class="list-group-item"><a href="#">Blood Inventory</a></li>
-                            <li class="list-group-item"><a href="#">Donation Campaigns</a></li>
+                            <li class="list-group-item"><a href="{% url 'manage_campaigns' %}">Donation Campaigns</a></li>
                             <li class="list-group-item"><a href="#">Reports</a></li>
                         </ul>
                     </div>

@@ -1,0 +1,125 @@
+/* General Styling */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #eef2f7;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-top: 20px;
+}
+
+/* Form Container */
+.container {
+    width: 100%;
+    max-width: 600px;
+    margin: 40px auto;
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Title */
+.container h2 {
+    text-align: center;
+    color: #2980b9;
+    margin-bottom: 25px;
+}
+
+/* Form Labels */
+.container label {
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: block;
+    color: #34495e;
+}
+
+/* Input Fields */
+.container input[type="text"],
+.container input[type="email"],
+.container input[type="password"],
+.container input[type="date"],
+.container select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 15px;
+}
+
+/* Input Field Focus */
+.container input:focus,
+.container select:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+}
+
+/* Placeholder Styling */
+.container input::placeholder {
+    color: #95a5a6;
+    font-size: 14px;
+}
+
+/* Button Styling */
+.container button[type="submit"] {
+    width: 100%;
+    padding: 14px;
+    background-color: #2980b9;
+    border: none;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.container button[type="submit"]:hover {
+    background-color: #1f6691;
+}
+
+/* Cancel Button */
+.container .cancel-button {
+    width: 100%;
+    padding: 14px;
+    background-color: #e74c3c;
+    border: none;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.container .cancel-button:hover {
+    background-color: #c0392b;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 600px) {
+    .container {
+        width: 90%;
+    }
+}
+
+/* Form Feedback */
+.form-message {
+    text-align: center;
+    color: #e74c3c;
+    margin-top: 10px;
+}
+
+/* Success Message */
+.form-success {
+    text-align: center;
+    color: #27ae60;
+    margin-top: 10px;
+}

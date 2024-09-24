@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'donardashboard.css' %}">
+    <title>Donor Dashboard</title>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Welcome to Your Dashboard, {{ user.fname }}!</h1>
+            <nav>
+                <ul>
+                    <li><a href="#">Edit Profile</a></li>
+                    <li><a href="#">My Donations</a></li>
+                    <li><a href="#">Request Blood</a></li>
+                    <li><a href="#">Logout</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main>
+            <section class="stats">
+                <div class="stat">
+                    <h2>Total Donations</h2>
+                    <p>5</p>
+                </div>
+                <div class="stat">
+                    <h2>Next Appointment</h2>
+                    <p>12th Oct, 2024</p>
+                </div>
+                <div class="stat">
+                    <h2>Blood Type</h2>
+                    <p>{{ user.blood_group }}</p>
+                </div>
+            </section>
+
+            <section class="recent-donations">
+                <h2>Recent Donations</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Location</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>01st Sept, 2024</td>
+                            <td>Community Center</td>
+                            <td>1 Unit</td>
+                        </tr>
+                        <tr>
+                            <td>15th Aug, 2024</td>
+                            <td>City Hospital</td>
+                            <td>1 Unit</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 Lifeline Blood Bank. All Rights Reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>

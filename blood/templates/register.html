@@ -75,11 +75,11 @@
                     name="phone_number" 
                     placeholder="Phone Number" 
                     required 
-                    pattern="\d{10}" 
-                    title="Phone number must be 10 digits" 
+                    pattern="^(?!.*1234567890)(?!.*[A-Za-z])([789]\d{9})$" 
+                    title="Phone number must be 10 digits, start with 7, 8, or 9, and cannot be '1234567890'"
                     value="{{ form.phone_number.value|default_if_none:'' }}">
             </div>
-
+            
             <div class="input-box">
                 <select name="gender" required>
                     <option value="" disabled selected>Select Gender</option>

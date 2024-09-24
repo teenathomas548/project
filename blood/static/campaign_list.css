@@ -1,0 +1,162 @@
+/* General styling for the page */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #d9534f;
+    font-size: 36px;
+    margin-bottom: 30px;
+}
+
+/* Campaign list styles */
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f1f1f1;
+}
+
+li h2 {
+    color: #0275d8;
+    margin: 0 0 10px;
+}
+
+li p {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+/* Styling for labels */
+li p strong {
+    color: #555;
+}
+
+/* Hover effect for campaign items */
+li:hover {
+    background-color: #e9ecef;
+    border-color: #0275d8;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container {
+        width: 100%;
+        padding: 15px;
+    }
+
+    li {
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 28px;
+    }
+
+    li p {
+        font-size: 14px;
+    }
+}
+/* General styling for the page */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #d9534f;
+    font-size: 36px;
+    margin-bottom: 30px;
+}
+
+/* Campaign list styles */
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f1f1f1;
+}
+
+li h2 {
+    color: #0275d8;
+    margin: 0 0 10px;
+}
+
+li p {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+/* Styling for labels */
+li p strong {
+    color: #555;
+}
+
+/* Hover effect for campaign items */
+li:hover {
+    background-color: #e9ecef;
+    border-color: #0275d8;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container {
+        width: 100%;
+        padding: 15px;
+    }
+
+    li {
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 28px;
+    }
+
+    li p {
+        font-size: 14px;
+    }
+}

@@ -1,0 +1,26 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaign List</title>
+    <link rel="stylesheet" href="{% static 'campaign_list.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Blood Donation Campaigns</h1>
+        <ul>
+            {% for campaign in campaigns %}
+            <li>
+                <h2>{{ campaign.name }}</h2>
+                <p><strong>Start Date:</strong> {{ campaign.start_date }}</p>
+                <p><strong>End Date:</strong> {{ campaign.end_date }}</p>
+                <p><strong>Location:</strong> {{ campaign.location }}</p>
+                <p>{{ campaign.description }}</p>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>

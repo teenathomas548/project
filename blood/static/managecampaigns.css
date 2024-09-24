@@ -1,0 +1,74 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+    overflow: hidden;
+}
+
+header {
+    background: #35424a;
+    color: #ffffff;
+    padding: 20px 0; /* Adjusted for consistent vertical padding */
+    min-height: 70px;
+    border-bottom: #e8491d 3px solid;
+}
+
+header h1 {
+    text-align: center;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+table th, table td {
+    padding: 12px; /* Increased padding for better spacing */
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+table th {
+    background-color: #35424a;
+    color: white;
+}
+
+.btn {
+    background-color: #e8491d;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block; /* Ensure the button is treated as a block */
+    margin-top: 10px; /* Added margin for spacing */
+}
+
+.btn:hover {
+    background-color: #333;
+}
+
+form {
+    margin: 20px 0;
+}
+
+input[type="text"], input[type="date"], textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0 15px 0; /* Adjusted bottom margin for better spacing */
+    border: 1px solid #ccc; /* Added border for input fields */
+    border-radius: 4px; /* Rounded corners for inputs */
+}
+
+.form-group {
+    margin-bottom: 20px; /* Increased bottom margin for spacing */
+}

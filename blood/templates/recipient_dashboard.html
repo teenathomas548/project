@@ -1,0 +1,39 @@
+{%load static%}
+<!-- templates/blood/recipient_dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipient Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'blood/styles.css' %}">
+</head>
+<body>
+    <h1>Recipient Dashboard</h1>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Blood Group</th>
+                <th>Phone Number</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for recipient in recipients %}
+            <tr>
+                <td>{{ recipient.first_name }}</td>
+                <td>{{ recipient.last_name }}</td>
+                <td>{{ recipient.blood_group }}</td>
+                <td>{{ recipient.phone_number }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="empty-row">No recipients found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

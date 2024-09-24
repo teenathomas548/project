@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Delete Campaign</title>
+</head>
+<body>
+    <h1>Are you sure you want to delete "{{ campaign.name }}"?</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit">Confirm Deletion</button>
+    </form>
+    <a href="{% url 'campaign_list' %}">Cancel</a>
+</body>
+</html>

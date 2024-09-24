@@ -15,3 +15,14 @@ class LoginForm(forms.Form):
     email = forms.CharField(max_length=100)
     password = forms.CharField(widget=forms.PasswordInput)
 
+
+from .models import Campaign
+
+class CampaignForm(forms.ModelForm):
+    class Meta:
+        model = Campaign
+        fields = ['name', 'start_date', 'end_date', 'location', 'description']
+        widgets = {
+            'start_date': forms.DateInput(attrs={'type': 'date'}),
+            'end_date': forms.DateInput(attrs={'type': 'date'}),
+        }

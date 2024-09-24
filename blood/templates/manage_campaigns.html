@@ -1,0 +1,76 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Campaigns</title>
+    <link rel="stylesheet" href="{% static 'managecampaigns.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Manage Blood Donation Campaigns</h1>
+    </header>
+
+    <div class="container">
+        <h2>Add Campaign</h2>
+        <form method="post" action="{% url 'add_campaign' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="name">Campaign Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="start_date">Start Date:</label>
+                <input type="date" id="start_date" name="start_date" required>
+            </div>
+            <div class="form-group">
+                <label for="end_date">End Date:</label>
+                <input type="date" id="end_date" name="end_date" required>
+            </div>
+            <div class="form-group">
+                <label for="location">Location:</label>
+                <input type="text" id="location" name="location" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="btn">Add Campaign</button>
+        </form>
+
+        <h2>Campaign List</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Location</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for campaign in campaigns %}
+                <tr>
+                    <td>{{ campaign.name }}</td>
+                    <td>{{ campaign.start_date }}</td>
+                    <td>{{ campaign.end_date }}</td>
+                    <td>{{ campaign.location }}</td>
+                    <td>{{ campaign.description }}</td>
+                    <td>
+                        <a href="{% url 'campaign_edit' campaign.campaign_id %}">Edit</a>
+                        <a href="{% url 'campaign_delete' campaign.campaign_id %}" class="btn">Delete</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">No campaigns available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
