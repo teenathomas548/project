@@ -31,7 +31,7 @@
                     <a class="nav-link" href="{% url 'manage_campaigns' %}">Campaigns</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Logout</a>
+                    <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                 </li>
             </ul>
         </div>
@@ -44,8 +44,8 @@
                     <div class="card-header">Menu</div>
                     <div class="card-body">
                         <ul class="list-group">
-                            <li class="list-group-item"><a href="{% url 'manage_users' %}">UserManagement</a></li>
-                            <li class="list-group-item"><a href="#">Blood Inventory</a></li>
+                            <li class="list-group-item"><a href="{% url 'manage_users' %}">User Management</a></li>
+                            <li class="list-group-item"><a href="{% url 'inventory_list' %}">Blood Inventory</a></li>
                             <li class="list-group-item"><a href="{% url 'manage_campaigns' %}">Donation Campaigns</a></li>
                             <li class="list-group-item"><a href="#">Reports</a></li>
                         </ul>
@@ -61,7 +61,7 @@
                                 <div class="card text-white bg-primary mb-3">
                                     <div class="card-body">
                                         <h5 class="card-title">Total Donors</h5>
-                                        <p class="card-text"></p>
+                                        <p class="card-text">{{ total_donors }}</p> <!-- Display total donors -->
                                     </div>
                                 </div>
                             </div>
@@ -69,7 +69,7 @@
                                 <div class="card text-white bg-success mb-3">
                                     <div class="card-body">
                                         <h5 class="card-title">Blood Units Available</h5>
-                                        <p class="card-text"></p>
+                                        <p class="card-text">{{ blood_units }}</p> <!-- Display total blood units -->
                                     </div>
                                 </div>
                             </div>
@@ -77,7 +77,7 @@
                                 <div class="card text-white bg-danger mb-3">
                                     <div class="card-body">
                                         <h5 class="card-title">Pending Requests</h5>
-                                        <p class="card-text"></p>
+                                        <p class="card-text">{{ pending_requests }}</p> <!-- Display pending requests -->
                                     </div>
                                 </div>
                             </div>
@@ -94,21 +94,21 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>2024-08-16</td>
-                                            <td>Donor John Doe scheduled an appointment</td>
-                                            <td><span class="badge bg-success">Completed</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>2024-08-15</td>
-                                            <td>Blood donation campaign created</td>
-                                            <td><span class="badge bg-warning">Pending</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>2024-08-14</td>
-                                            <td>Recipient Jane Doe requested blood</td>
-                                            <td><span class="badge bg-danger">Urgent</span></td>
-                                        </tr>
+                                        {% for activity in recent_activities %} <!-- Loop through recent activities -->
+                                            <tr>
+                                                <td>{{ activity.date }}</td>
+                                                <td>{{ activity.activity }}</td>
+                                                <td>
+                                                    {% if activity.status == "Completed" %}
+                                                        <span class="badge bg-success">{{ activity.status }}</span>
+                                                    {% elif activity.status == "Pending" %}
+                                                        <span class="badge bg-warning">{{ activity.status }}</span>
+                                                    {% elif activity.status == "Urgent" %}
+                                                        <span class="badge bg-danger">{{ activity.status }}</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
                                     </tbody>
                                 </table>
                             </div>

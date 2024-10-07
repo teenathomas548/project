@@ -1,0 +1,126 @@
+/* Style for the body and background */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: url("/static/image/image4.jpeg") no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Navbar styling */
+nav {
+    width: 100%;
+    background-color: darkred;
+    padding: 10px;
+}
+
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Lifeline Blood Bank heading */
+.logo h2 {
+    color: white;
+    font-size: 24px;
+    margin: 0;
+}
+
+/* Navbar links */
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: space-around;
+}
+
+nav ul li {
+    display: inline;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    padding: 5px 10px;
+    transition: color 0.3s ease;
+}
+
+nav ul li a:hover {
+    color: red;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+}
+
+/* Main container for recipient page content */
+.container {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 30px;
+    border-radius: 10px;
+    width: 500px;
+    margin-top: 20px;
+    box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.2);
+}
+
+/* Headings */
+h1 {
+    color: black;
+    text-align: center;
+}
+
+/* Information box styling */
+.info-box {
+    margin-top: 20px;
+    text-align: left;
+}
+
+.info-box h3, .info-box h4, .info-box p {
+    margin: 5px 0;
+}
+
+/* Action button section */
+.actions {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.actions .btn {
+    background-color: darkred;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.actions .btn:hover {
+    background-color: red;
+    cursor: pointer;
+}
+
+/* Responsive layout */
+@media (max-width: 768px) {
+    .container {
+        width: 90%;
+        padding: 20px;
+    }
+    
+    nav ul {
+        justify-content: center;
+    }
+
+    nav ul li {
+        margin: 0 10px;
+    }
+
+    .logo h2 {
+        font-size: 20px;
+    }
+}

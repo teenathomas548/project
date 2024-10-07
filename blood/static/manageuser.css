@@ -1,7 +1,7 @@
 /* General Styling */
 body {
     font-family: Arial, sans-serif;
-    background: url("/static/image/blood.png") no-repeat center center fixed;
+    background: url("/static/image/image1.jpg") no-repeat center center fixed;
     background-size: cover;
     margin: 0;
     padding: 0;
@@ -21,7 +21,7 @@ h1 {
 
 .header h1 {
     font-size: 24px;
-    color: #4CAF50; /* Change to your preferred color */
+    color: black; /* Change to your preferred color */
 }
 
 /* Form Container */
@@ -141,7 +141,7 @@ th {
 
 .alert-success {
     background-color: #dff0d8;
-    color: #3c763d;
+    color: red;
     border: 1px solid #d6e9c6;
 }
 
@@ -149,4 +149,39 @@ th {
     background-color: #f2dede;
     color: #a94442;
     border: 1px solid #ebccd1;
+}
+/* CSS for buttons and status */
+.status-active {
+    color:black;
+    font-weight: bold;
+}
+
+.status-inactive {
+    color: red;
+    font-weight: bold;
+}
+
+.btn-disable, .btn-enable {
+    padding: 5px 10px;
+    text-decoration: none;
+    border-radius: 5px;
+    color: white;
+}
+
+.btn-disable {
+    background-color: #b30000;
+}
+
+.btn-enable {
+    background-color: red;
+}
+
+.btn-add-user {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
 }

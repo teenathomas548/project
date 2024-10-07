@@ -1,85 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration Form</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'registration.css' %}">
+    <style>
+        /* Add styling for the logout button */
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        
+       
+
+        .wrapper {
+            margin-top: 60px;
+        }
+    </style>
 </head>
+
 <body>
+
+    <!-- Logout Button -->
+    <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+
+    <!-- Registration Form -->
     <div class="wrapper">
         <form action="{% url 'register' %}" method="post">
             {% csrf_token %}
             <h1>Registration Form</h1>
-            
+
             <div class="input-box">
-                <input 
-                    type="text" 
-                    name="fname" 
-                    placeholder="First Name" 
-                    required 
-                    pattern="^[A-Za-z]{2,}$" 
-                    title="First name must contain at least 2 letters and no numbers or special characters"
+                <input type="text" name="first_name" placeholder="First Name" required pattern="^[A-Za-z]{2,30}$"
+                    title="First name must contain between 2 and 30 letters with no numbers or special characters."
                     value="{{ form.fname.value|default_if_none:'' }}">
-            </div>
-            
-            <div class="input-box">
-                <input 
-                    type="text" 
-                    name="lname" 
-                    placeholder="Last Name" 
-                    required 
-                    pattern="^[A-Za-z]{2,}$" 
-                    title="Last name must contain at least 2 letters and no numbers or special characters"
-                    value="{{ form.lname.value|default_if_none:'' }}">
-            </div>
-            
-            <div class="input-box">
-                <input 
-                    type="date" 
-                    name="dob" 
-                    placeholder="DOB" 
-                    required 
-                    value="{{ form.dob.value|default_if_none:'' }}" 
-                    min="1900-01-01" 
-                    max="{{ current_date|date:'Y-m-d' }}" 
-                    title="Date of birth must be between 01/01/1900 and today's date">
-            </div>
-            
-            <div class="input-box">
-                <input 
-                    type="email" 
-                    name="email" 
-                    placeholder="Email" 
-                    required 
-                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-                     title="Please enter a valid email address."
-                >
             </div>
 
             <div class="input-box">
-                <input 
-                    type="password" 
-                    name="password" 
-                    placeholder="Password" 
-                    required 
-                    pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$" 
+                <input type="text" name="last_name" placeholder="Last Name" required pattern="^[A-Za-z]{2,30}$"
+                    title="Last name must contain between 2 and 30 letters with no numbers or special characters."
+                    value="{{ form.lname.value|default_if_none:'' }}">
+            </div>
+
+            <div class="input-box">
+                <input type="date" name="dob" id="dob" placeholder="DOB" required
+                    value="{{ form.dob.value|default_if_none:'' }}" min="1900-01-01"
+                    title="Date of birth must be between 01/01/1900 and the previous day">
+            </div>
+
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    var today = new Date();
+                    today.setDate(today.getDate() - 1);
+                    var maxDate = today.toISOString().split('T')[0];
+                    document.getElementById('dob').setAttribute('max', maxDate);
+                });
+            </script>
+
+            <div class="input-box">
+                <input type="email" name="email" placeholder="Email" required
+                    pattern="([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$)|([a-z0-9._%+-]+@gmail\.com$)"
+                    title="Please enter a valid email address, or a Gmail address.">
+            </div>
+
+            <div class="input-box">
+                <input type="password" name="password" placeholder="Password" required
+                    pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
                     title="Password must be at least 8 characters long and include at least one letter and one number"
                     value="{{ form.password.value|default_if_none:'' }}">
             </div>
-            
+
             <div class="input-box">
-                <input 
-                    type="text" 
-                    name="phone_number" 
-                    placeholder="Phone Number" 
-                    required 
-                    pattern="^(?!.*1234567890)(?!.*[A-Za-z])([789]\d{9})$" 
+                <input type="text" name="phone_number" placeholder="Phone Number" required
+                    pattern="^(?!.*1234567890)(?!.*[A-Za-z])([789]\d{9})$"
                     title="Phone number must be 10 digits, start with 7, 8, or 9, and cannot be '1234567890'"
                     value="{{ form.phone_number.value|default_if_none:'' }}">
             </div>
-            
+
             <div class="input-box">
                 <select name="gender" required>
                     <option value="" disabled selected>Select Gender</option>
@@ -88,7 +97,7 @@
                     <option value="other" {% if form.gender.value == "other" %}selected{% endif %}>Other</option>
                 </select>
             </div>
-            
+
             <div class="input-box">
                 <select name="blood_group" required>
                     <option value="" disabled selected>Select Blood Group</option>
@@ -107,12 +116,20 @@
                 <select name="role" required>
                     <option value="" disabled selected>Select Role</option>
                     <option value="donate" {% if form.role.value == "donate" %}selected{% endif %}>Donate Blood</option>
-                    <option value="request" {% if form.role.value == "request" %}selected{% endif %}>Request Blood</option>
+                    <option value="recipient" {% if form.role.value == "recipient" %}selected{% endif %}>Request Blood</option>
                 </select>
             </div>
+
+            <div class="input-box">
+                <label for="last_donation_date">Last Donation Date (Optional)</label>
+                <input type="date" name="last_donation_date" id="last_donation_date" 
+                       value="{{ form.last_donation_date.value|default_if_none:'' }}">
+            </div>
+            
 
             <button type="submit">Register</button>
         </form>
     </div>
 </body>
+
 </html>

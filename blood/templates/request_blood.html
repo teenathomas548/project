@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Blood</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url("/static/image/image8.jpg") no-repeat center center fixed;
+            background-size: cover;        }
+        header {
+            background-color: darkred;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        nav {
+            background-color: #f1faee;
+            padding: 15px;
+            text-align: center;
+        }
+        nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: white;
+        }
+        h1 {
+            color: white;
+        }
+        .container {
+    width: 50%;
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 4%;
+    align-items: center;
+    margin-left: 25%;
+}
+        button {
+            background-color: red;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: darkred;
+        }
+        .form-field {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .success-message {
+            color: green;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Lifeline Blood Bank</h1>
+    </header>
+
+    <div class="container">
+        <h2>Request Blood</h2>
+        {% if success_message %}
+            <div class="success-message">{{ success_message }}</div>
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-field">
+                <label for="recipient_id">Recipient ID:</label>
+                {{ form.recipient_id }}
+            </div>
+            <div class="form-field">
+                <label for="blood_type_id">Blood Type:</label>
+                {{ form.blood_type_id }}
+            </div>
+            <div class="form-field">
+                <label for="units_requested">Units Requested:</label>
+                {{ form.units_requested }}
+            </div>
+            <div class="form-field">
+                <label for="request_date">Request Date:</label>
+                {{ form.request_date }}
+            </div>
+            <button type="submit">Request Blood</button>
+        </form>
+    </div>
+
+</body>
+</html>

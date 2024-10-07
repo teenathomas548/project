@@ -1,3 +1,4 @@
+<!-- home.html -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -20,7 +21,7 @@
                 <li><a href="{% url 'login' %}">Login</a></li>
                 <li><a href="{% url 'register' %}">Register</a></li>
                 <li><a href="{% url 'admin_login' %}">Admin</a></li>
-                <li><a href="{% url 'campaign_list' %}">campaign</a></li>
+                <li><a href="{% url 'latest_campaigns' %}">Campaign</a></li>
                 <li><a href="#contact">Contact</a></li>
             </ul>
         </div>
@@ -39,6 +40,8 @@
         <p>Lifeline Blood Bank is a trusted name in the community, providing safe and sufficient blood supplies to those in need. Our mission is to save lives through the power of voluntary blood donations, ensuring that no one has to wait for the blood they need.</p>
         <p>We work tirelessly to connect donors with recipients, ensuring that every donation counts. Our state-of-the-art facilities and dedicated staff ensure that the blood we collect is of the highest quality and safety standards.</p>
     </section>
+
+    
 
     <!-- Services Section -->
     <section id="services" class="services-section">
@@ -88,4 +91,10 @@
         <h2>Contact Us</h2>
         <p>Reach out to us for any inquiries or to learn more about how you can contribute.</p>
         <p>Email: support@lifelinebloodbank.com</p>
-    
+    </section>
+
+    <footer>
+        <p>&copy; 2024 Lifeline Blood Bank. All rights reserved.</p>
+    </footer>
+</body>
+</html>

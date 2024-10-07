@@ -1,0 +1,47 @@
+<!-- disable_inventory.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'disableenable.css' %}">
+    <title>Disable Inventory</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Disable Inventory</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Blood Type</th>
+                    <th>Units Available</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for inventory in inventories %}
+                {% if inventory.is_active %}
+                <tr>
+                    <td>{{ inventory.blood_type.blood_group }}</td>
+                    <td>{{ inventory.units_available }}</td>
+                    <td>{{ inventory.price }}</td>
+                    <td>
+                        <span class="status enabled">Enabled</span>
+                    </td>
+                    <td>
+                        <form method="POST" action="{% url 'disable_inventory' inventory.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn disable">Disable</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{% url 'inventory_list' %}" class="btn cancel">Back to Inventory List</a>
+    </div>
+</body>
+</html>

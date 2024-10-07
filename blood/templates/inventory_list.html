@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'inventorylist.css' %}">
+    <title>Inventory List</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Blood Inventory Management</h1>
+    
+        <table>
+            <thead>
+                <tr>
+                    <th>Blood Type</th>
+                    <th>Units Available</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in inventory %}
+                <tr>
+                    <td>{{ item.blood_type }}</td>
+                    <td>{{ item.units_available }}</td>
+                    <td>${{ item.price }}</td>
+                    <td>{{ item.is_active|yesno:"Active,Inactive" }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'edit_inventory' item.inventory_id %}" class="btn">Edit</a>
+                            {% if item.is_active %}
+                                <!-- Show Disable Button if item is Active -->
+                                <a href="{% url 'disable_inventory' item.inventory_id %}" class="btn disable">Disable</a>
+                            {% else %}
+                                <!-- Show Enable Button if item is Inactive -->
+                                <a href="{% url 'enable_inventory' item.inventory_id %}" class="btn enable">Enable</a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

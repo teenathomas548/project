@@ -1,24 +1,78 @@
-{%load static%}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'your_css_file.css' %}"> <!-- Link to your CSS file -->
+    <link rel="stylesheet" href="{% static 'addcampaign.css' %}">
     <title>Add Campaign</title>
 </head>
 <body>
     <div class="container">
         <h1>Add New Campaign</h1>
-        
+
+        <!-- Display form-level non-field errors (e.g. errors not tied to a specific field) -->
+        {% if form.non_field_errors %}
+            <div class="form-errors">
+                <ul>
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
         <form method="POST">
             {% csrf_token %}
-            {{ form.as_p }} <!-- Render the form fields -->
-            <button type="submit">Add Campaign</button>
+            
+            <!-- Loop through form fields and display individual field errors -->
+            <div class="form-group">
+                {{ form.as_p }}
+                {% for field in form %}
+                    {% if field.errors %}
+                        <div class="field-errors">
+                            <strong>{{ field.label }}:</strong>
+                            <ul>
+                                {% for error in field.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                <!-- Campaign Start Date with validation for future dates only -->
+                <div class="input-box">
+                    <label for="start_date">Campaign Start Date:</label>
+                    <input type="date" name="start_date" id="start_date" required
+                           value="{{ form.start_date.value|default_if_none:'' }}"
+                           title="Start date must be in the future" min="{{ today }}">
+                </div>
+
+                <!-- Campaign End Date with validation for future dates only -->
+                <div class="input-box">
+                    <label for="end_date">Campaign End Date:</label>
+                    <input type="date" name="end_date" id="end_date" required
+                           value="{{ form.end_date.value|default_if_none:'' }}"
+                           title="End date must be in the future" min="{{ today }}">
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">Add Campaign</button>
         </form>
 
         <br>
-        <a href="{% url 'manage_campaigns' %}">Back to Manage Campaigns</a> <!-- Link to manage campaigns -->
+        <a href="{% url 'manage_campaigns' %}" class="back-link">Back to Manage Campaigns</a>
     </div>
+
+    <script>
+        // Get today's date in YYYY-MM-DD format
+        var today = new Date().toISOString().split('T')[0];
+
+        // Set the min attribute for the start date and end date to today
+        document.getElementById("start_date").setAttribute("min", today);
+        document.getElementById("end_date").setAttribute("min", today);
+    </script>
+
 </body>
 </html>

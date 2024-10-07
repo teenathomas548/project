@@ -1,0 +1,76 @@
+/* CSS for recipient_profile.html */
+
+/* General Body Styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Container for the profile details */
+.container {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    max-width: 500px;
+    width: 100%;
+    margin: 20px auto;
+}
+
+/* Profile Details Styling */
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+.profile-details {
+    margin-top: 20px;
+    font-size: 16px;
+}
+
+.profile-details p {
+    margin: 10px 0;
+}
+
+.profile-details strong {
+    color: #555;
+}
+
+/* Styling the link to go back */
+a {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+a:hover {
+    background-color: #0056b3;
+}
+
+/* Additional Styling for Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+        width: 90%;
+    }
+
+    .profile-details p {
+        font-size: 14px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+}

@@ -1,4 +1,5 @@
 from pyexpat.errors import messages
+from urllib.request import Request
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib import messages
 from django.db import connection
@@ -17,6 +18,17 @@ from django.views.generic import TemplateView
 from django.shortcuts import render
 from .models import Campaign
 from .forms import CampaignForm
+from django.utils import timezone
+from .models import Inventory,BloodType
+from .forms import InventoryForm
+from django.core.exceptions import ValidationError
+from django.db import connection, IntegrityError
+from .models import BloodDonor
+from .models import Recipient
+from django.db.models import Count, Sum  # Import Sum here
+from datetime import date
+from .forms import BloodRequestForm
+
 
 # About page view
 def about(request):
@@ -26,32 +38,63 @@ def about(request):
 
 def register(request):
     if request.method == 'POST':
-        first_name = request.POST['fname']
-        last_name = request.POST['lname']
-        email = request.POST['email']
-        password = request.POST['password']
-        phone_number = request.POST['phone_number']
-        gender = request.POST['gender']
-        blood_group = request.POST['blood_group']
-        date_of_birth = request.POST['dob']
-        role = request.POST['role']
-        email = request.POST['email']
-  
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute("""
-                    INSERT INTO `registrations`
-                    (`first_name`, `last_name`, `date_of_birth`, `email`, `password`, `phone_number`, `gender`, `blood_group`, `role`)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-                """, [first_name, last_name,date_of_birth, email, password, phone_number, gender, blood_group, role])
-            return redirect('login')  # Redirect to a success page
-        except IntegrityError:
-            error_message = "Username already exists."
+        # Retrieving form data
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        phone_number = request.POST.get('phone_number')
+        gender = request.POST.get('gender')
+        blood_group_str = request.POST.get('blood_group')  # This should be the blood group string (e.g., 'AB+')
+        date_of_birth = request.POST.get('date_of_birth')
+        role = request.POST.get('role')  # Make sure 'role' is correctly set
+
+        # Validate that no fields are empty (simple validation)
+        if not all([first_name, last_name, email, password, phone_number, gender, blood_group_str, date_of_birth, role]):
+            error_message = "Please fill in all the fields."
             return render(request, 'register.html', {'error_message': error_message})
 
+        try:
+            # Get the blood type object based on the blood group string
+            blood_group = get_object_or_404(BloodType, blood_group=blood_group_str)
+
+            # Create the registration instance, with the password hashed
+            registration = Registration.objects.create(
+                first_name=first_name,
+                last_name=last_name,
+                date_of_birth=date_of_birth,
+                email=email,
+                password=password,  # Hashing the password for security
+                phone_number=phone_number,
+                gender=gender,
+                blood_group=blood_group,  # Use the BloodType object directly
+                role=role
+            )
+
+            # If the role is 'donate', insert into 'blood_donors' table
+            if role == 'donate':
+                BloodDonor.objects.create(
+                    user=registration,
+                    blood_type=blood_group,
+                    last_donation_date=None  # You can set this to a specific date if applicable
+                )
+
+            # If the role is 'recipient', insert into 'recipient' table
+            elif role == 'recipient':
+                Recipient.objects.create(
+                    user=registration,
+                    blood_type=blood_group
+                )
+
+            # Redirect to login page or success page after registration
+            return redirect('login')
+
+        except IntegrityError:
+            error_message = "A user with this email already exists."
+            return render(request, 'register.html', {'error_message': error_message})
+
+    # For GET requests, render the registration page
     return render(request, 'register.html')
-
-
 
 def userhome(request):
     """
@@ -80,10 +123,10 @@ def login(request):
                 request.session['role'] = role
 
                 # Redirect based on role
-                if role == 'donor':
+                if role == 'donate':
                     return redirect('donor_dashboard')  # Redirect to donor dashboard
                 elif role == 'recipient':
-                    return redirect('recipient_dashboard')  # Redirect to recipient dashboard
+                    return redirect('recipient_home')  # Redirect to recipient dashboard
                 else:
                     messages.error(request, 'Invalid user role')
 
@@ -119,61 +162,58 @@ def admin_login(request):
     return render(request, 'login.html', {'form': form})
 
 def home(request):
-    return render(request, 'home.html') 
+    # Fetch only active campaigns
+    active_campaigns = Campaign.objects.filter(is_active=True)
+    context = {
+        'campaigns': active_campaigns,
+    }
+    return render(request, 'home.html', context)
+
 
 def userrhome(request):
     return render(request, 'userrhome.html')
 
 def blood_admin(request):
-    # Example data - replace with your actual model queries
-    total_donors = 200  # Replace with your model query
-    blood_units_available = 150  # Replace with your model query
-    pending_requests = 10  # Replace with your model query
+    # Total donors count - assuming 'Registration' model corresponds to the 'registrations' table
+    total_donors = Registration.objects.filter(role='donate').count()
+
+    # Total available blood units - assuming 'Inventory' model corresponds to 'blood_inventory' table
+    blood_units = Inventory.objects.aggregate(total_units=Sum('units_available'))['total_units'] or 0
+
+    # Pending requests count - assuming you have a 'Request' model (if not, remove this line)
+    pending_requests = Request.objects.filter(status='pending').count()
+
+    # Example recent activities
     recent_activities = [
         {"date": "2024-08-16", "activity": "Donor John Doe scheduled an appointment", "status": "Completed"},
         {"date": "2024-08-15", "activity": "Blood donation campaign created", "status": "Pending"},
         {"date": "2024-08-14", "activity": "Recipient Jane Doe requested blood", "status": "Urgent"},
     ]
-    
+
     context = {
         "total_donors": total_donors,
-        "blood_units_available": blood_units_available,
-        "pending_requests": pending_requests,
+        "blood_units": blood_units,
+        'pending_requests': pending_requests,
         "recent_activities": recent_activities,
     }
+
     return render(request, 'blood_admin.html', context)
 
-def add_user(request):
-    if request.method == 'POST':
-        form = RegistrationForm(request.POST)
-        if form.is_valid():
-            form.save() 
-            messages.success(request, 'User added successfully!') 
-            return redirect('manage_users')
-    else:
-        form = RegistrationForm()
-    return render(request, 'add_user.html', {'form': form})
 
-
-def edit_user(request, user_id):
+def disable_user(request, user_id):
     user = get_object_or_404(Registration, pk=user_id)
-    if request.method == 'POST':
-        form = RegistrationForm(request.POST, instance=user)
-        if form.is_valid():
-            form.save()  
-            messages.success(request, 'Update  successfully!')
-            return redirect('manage_users')
-    else:
-        form = RegistrationForm(instance=user)
-    return render(request, 'edit_user.html', {'form': form})
+    user.is_active = False
+    user.save()
+    messages.success(request, f'{user.first_name} {user.last_name} has been disabled.')
+    return redirect('manage_users')
 
-def delete_user(request, user_id):
+def enable_user(request, user_id):
     user = get_object_or_404(Registration, pk=user_id)
-    if request.method == 'POST':
-        user.delete()  
-        messages.success(request, 'Delete a user successfully!')
-        return redirect('manage_users')
-    return render(request, 'delete_user.html', {'user': user})
+    user.is_active = True
+    user.save()
+    messages.success(request, f'{user.first_name} {user.last_name} has been enabled.')
+    return redirect('manage_users')
+
 
 def show_donors(request):
     donors = Registration.objects.filter(role='donor')  # Fetch only donors
@@ -213,12 +253,41 @@ def campaign_list(request):
 def add_campaign(request):
     if request.method == 'POST':
         form = CampaignForm(request.POST)
+        
         if form.is_valid():
-            form.save()
-            return redirect('campaign_list')
+            start_date = form.cleaned_data.get('start_date')
+            end_date = form.cleaned_data.get('end_date')
+
+            # Validation: Start date cannot be in the past
+            if start_date < date.today():
+                form.add_error('start_date', "Start date cannot be in the past.")
+
+            # Validation: End date cannot be before the start date
+            if end_date < start_date:
+                form.add_error('end_date', "End date cannot be earlier than the start date.")
+
+            # If no errors are added, save the form
+            if not form.errors:
+                form.save()
+                return redirect('manage_campaigns')
     else:
         form = CampaignForm()
-    return render(request, 'campaign_form.html', {'form': form, 'action': 'Add'})
+
+    return render(request, 'add_campaign.html', {'form': form})
+
+def disable_campaign(request, campaign_id):
+    campaign = get_object_or_404(Campaign, pk=campaign_id)
+    campaign.is_active = False  # Set is_active to False
+    campaign.save()
+    messages.success(request, f'Campaign "{campaign.name}" has been disabled.')
+    return redirect('manage_campaigns')  # Redirect back to the campaign management page
+
+def enable_campaign(request, campaign_id):
+    campaign = get_object_or_404(Campaign, pk=campaign_id)
+    campaign.is_active = True  # Set is_active to True
+    campaign.save()
+    messages.success(request, f'Campaign "{campaign.name}" has been enabled.')
+    return redirect('manage_campaigns') 
 
 # View to edit a campaign
 def campaign_edit(request, campaign_id):
@@ -233,12 +302,6 @@ def campaign_edit(request, campaign_id):
     return render(request, 'campaign_form.html', {'form': form, 'action': 'Edit'})
 
 # View to delete a campaign
-def campaign_delete(request, campaign_id):
-    campaign = get_object_or_404(Campaign, campaign_id=campaign_id)
-    if request.method == 'POST':
-        campaign.delete()  # Delete the campaign
-        return redirect('campaign_list')  # Redirect to a campaign list or any other page after deletion
-    return render(request, 'campaign_confirm_delete.html', {'campaign': campaign})
 
 def manage_campaigns(request):
     if request.method == 'POST':
@@ -267,3 +330,144 @@ def recipient_dashboard(request):
     recipients = Registration.objects.filter(role='recipient')
     return render(request, 'recipient_dashboard.html', {'recipients': recipients})
 
+def logout_view(request):
+    if request.session:
+        request.session.flush()  # Clears all session data
+    return redirect('login') 
+
+def latest_campaigns(request):
+    now = timezone.now().date()
+    
+    # Disable expired campaigns
+    expired_campaigns = Campaign.objects.filter(end_date__lt=now, is_active=True)
+    expired_campaigns.update(is_active=False)
+
+    # Fetch only active campaigns
+    campaigns = Campaign.objects.filter(is_active=True)
+
+    return render(request, 'latest_campaigns.html', {'campaigns': campaigns})
+def logout_view(request):
+    try:
+        # Remove session data or cookies related to authentication
+        del request.session['user_id']  # Example for session-based logout
+    except KeyError:
+        pass  # Session was already cleared or doesn't exist
+    
+    # Optionally, you can clear the entire session
+    request.session.flush()
+
+    # Redirect to a specific page after logging out
+    return redirect('login')
+
+def recipient_home(request):
+    # Assuming you have a `registrations` table and filtering users with the role of 'recipient'
+    recipient = request.user  # The logged-in recipient
+    
+    # Pass recipient data to the template
+    context = {
+        'recipient': recipient,
+        # Add more context if needed, like recipient requests or notifications
+    }
+    return render(request, 'recipient_home.html', context)
+
+
+def recipient_profile(request):
+    # Example of filtering based on email (if the user is logged in)
+    user_email = request.user.email  # Assuming `request.user` has an email field
+    recipient = get_object_or_404(Registration, email=user_email)  # Filter by email
+    
+    return render(request, 'recipient/profile.html', {'recipient': recipient})
+
+
+def inventory_list(request):
+    inventory = Inventory.objects.all()  # Fetch all inventory records
+    return render(request, 'inventory_list.html', {'inventory': inventory})
+
+# View to enable a disabled inventory record
+def enable_inventory(request, pk):
+    inventory = get_object_or_404(Inventory, pk=pk)
+    inventory.is_active = True
+    inventory.save()
+    return redirect('inventory_list')
+
+# View to disable an active inventory record
+def disable_inventory(request, pk):
+    inventory = get_object_or_404(Inventory, pk=pk)
+    inventory.is_active = False
+    inventory.save()
+    return redirect('inventory_list')
+
+
+def add_inventory(request):
+    if request.method == 'POST':
+        blood_type_id = request.POST.get('blood_type_id')
+        units_available = request.POST.get('units_available')
+        price = request.POST.get('price')
+
+        # Create a new inventory record
+        inventory = Inventory.objects.create(
+            blood_type_id=blood_type_id,
+            units_available=units_available,
+            price=price,
+            is_active=True  # Set default active status
+        )
+
+        return redirect('inventory_list')  # Redirect to the inventory list page
+
+    # If GET request, render the form
+    blood_types = BloodType.objects.all()  # Fetch all blood types for the dropdown
+    return render(request, 'add_inventory.html', {'blood_types': blood_types})
+
+
+
+
+def edit_inventory(request, inventory_id):
+    # Fetch the inventory item to edit
+    inventory = get_object_or_404(Inventory, inventory_id=inventory_id)
+    blood_types = BloodType.objects.all()  # Fetch all blood types for the dropdown
+
+    if request.method == 'POST':
+        # Get data from the form
+        blood_type_id = request.POST.get('blood_type_id')
+        units_available = request.POST.get('units_available')
+        price = request.POST.get('price')
+
+        # Update inventory object with new data
+        inventory.blood_type_id = blood_type_id
+        inventory.units_available = units_available
+        inventory.price = price
+
+        try:
+            inventory.full_clean()  # Validate data
+            inventory.save()  # Save changes to the database
+            return redirect('inventory_list')  # Redirect to inventory list after successful update
+        except ValidationError as e:
+            # If validation fails, render the template again with error messages
+            context = {
+                'inventory': inventory,
+                'blood_types': blood_types,
+                'errors': e.messages,
+            }
+            return render(request, 'edit_inventory.html', context)
+
+    # Render the template with the inventory item and blood types
+    context = {
+        'inventory': inventory,
+        'blood_types': blood_types,
+    }
+    return render(request, 'edit_inventory.html', context)
+
+
+def request_blood(request):
+    if request.method == 'POST':
+        form = BloodRequestForm(request.POST)
+        if form.is_valid():
+            form.save()  # Save the blood request to the database
+            return redirect('success')  # Redirect to a success page or wherever you want
+    else:
+        form = BloodRequestForm()
+    
+    return render(request, 'request_blood.html', {'form': form})
+
+def success_view(request):
+    return render(request, 'success.html')

@@ -1,0 +1,53 @@
+body {
+    font-family: Arial, sans-serif;
+    background: url("/static/image/bloodcolor.jpeg") no-repeat center center fixed;
+    background-size: cover;    margin: 0;
+    padding: 0;
+}
+
+h2 {
+    text-align: center;
+    margin-top: 20px;
+    color:white;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    max-width: 800px;  /* Maximum width for alignment */
+    margin: 20px auto;  /* Center the list */
+}
+
+li {
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 10px 0;  /* Space between list items */
+    padding: 15px;  /* Space inside each list item */
+    transition: transform 0.2s;
+}
+
+li:hover {
+    transform: scale(1.02);  /* Slight scale on hover */
+}
+
+h3 {
+    margin: 0 0 10px 0;  /* Bottom margin for spacing */
+    color: #007BFF;  /* Campaign name color */
+}
+
+p {
+    margin: 5px 0;  /* Uniform margin for paragraphs */
+    color: #555;  /* Text color */
+}
+
+strong {
+    color: #333;  /* Strong text color */
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    ul {
+        padding: 0 10px;  /* Add padding for smaller screens */
+    }
+}

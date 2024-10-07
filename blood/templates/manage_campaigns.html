@@ -1,4 +1,4 @@
-{%load static%}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -48,6 +48,7 @@
                     <th>End Date</th>
                     <th>Location</th>
                     <th>Description</th>
+                    <th>Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -60,13 +61,24 @@
                     <td>{{ campaign.location }}</td>
                     <td>{{ campaign.description }}</td>
                     <td>
+                        {% if campaign.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-danger">Disabled</span>
+                        {% endif %}
+                    </td>
+                    <td>
                         <a href="{% url 'campaign_edit' campaign.campaign_id %}">Edit</a>
-                        <a href="{% url 'campaign_delete' campaign.campaign_id %}" class="btn">Delete</a>
+                        {% if campaign.is_active %}
+                            <a href="{% url 'disable_campaign' campaign.campaign_id %}" class="btn btn-warning">Disable</a>
+                        {% else %}
+                            <a href="{% url 'enable_campaign' campaign.campaign_id %}" class="btn btn-success">Enable</a>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6">No campaigns available.</td>
+                    <td colspan="7">No campaigns available.</td>
                 </tr>
                 {% endfor %}
             </tbody>
