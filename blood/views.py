@@ -28,6 +28,10 @@ from .models import Recipient
 from django.db.models import Count, Sum  # Import Sum here
 from datetime import date
 from .forms import BloodRequestForm
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from .models import Registration
+from .models import Admin  # Assuming you have a BloodAdmin model
 
 
 # About page view
@@ -109,15 +113,12 @@ def login(request):
         if form.is_valid():
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
+            
+            # Use Django ORM to authenticate the user
+            try:
+                user = Registration.objects.get(email=email, password=password)
+                role = user.role  # Assuming the role is stored in the `role` field
 
-            # Use raw SQL to authenticate the user
-            with connection.cursor() as cursor:
-                cursor.execute('SELECT role FROM registrations WHERE email = %s AND password = %s', [email, password])
-                user = cursor.fetchone()
-
-            if user:
-                role = user[0]  # Assuming `role` is stored in the first column of the result
-                
                 # Set user in session
                 request.session['email'] = email
                 request.session['role'] = role
@@ -130,13 +131,12 @@ def login(request):
                 else:
                     messages.error(request, 'Invalid user role')
 
-            else:
+            except Registration.DoesNotExist:
                 messages.error(request, 'Invalid email or password')
     else:
         form = LoginForm()
 
     return render(request, 'login.html', {'form': form})
-
 
 def admin_login(request):
     if request.method == 'POST':
@@ -145,21 +145,21 @@ def admin_login(request):
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
 
-            # Use raw SQL to authenticate the user
-            with connection.cursor() as cursor:
-                cursor.execute('SELECT * FROM blood_admin WHERE email = %s AND password = %s', [email, password])
-                user = cursor.fetchone()
+            # Use Django ORM to authenticate the user
+            try:
+                admin_user = Admin.objects.get(email=email, password=password)
 
-            if user:
-                # Set user in session or perform other login actions
+                # Set user in session
                 request.session['email'] = email
                 return redirect('blood_admin')  # Redirect to a page after successful login
-            else:
+
+            except Admin.DoesNotExist:
                 messages.error(request, 'Invalid username or password')
     else:
         form = LoginForm()
 
     return render(request, 'login.html', {'form': form})
+
 
 def home(request):
     # Fetch only active campaigns
@@ -181,7 +181,6 @@ def blood_admin(request):
     blood_units = Inventory.objects.aggregate(total_units=Sum('units_available'))['total_units'] or 0
 
     # Pending requests count - assuming you have a 'Request' model (if not, remove this line)
-    pending_requests = Request.objects.filter(status='pending').count()
 
     # Example recent activities
     recent_activities = [
@@ -193,7 +192,6 @@ def blood_admin(request):
     context = {
         "total_donors": total_donors,
         "blood_units": blood_units,
-        'pending_requests': pending_requests,
         "recent_activities": recent_activities,
     }
 
@@ -371,12 +369,6 @@ def recipient_home(request):
     return render(request, 'recipient_home.html', context)
 
 
-def recipient_profile(request):
-    # Example of filtering based on email (if the user is logged in)
-    user_email = request.user.email  # Assuming `request.user` has an email field
-    recipient = get_object_or_404(Registration, email=user_email)  # Filter by email
-    
-    return render(request, 'recipient/profile.html', {'recipient': recipient})
 
 
 def inventory_list(request):
@@ -471,3 +463,47 @@ def request_blood(request):
 
 def success_view(request):
     return render(request, 'success.html')
+
+
+# def recipient_profile(request):
+#     try:
+#         # Get the Registration object related to the logged-in user using user_id
+#         registration = Registration.objects.get(user_id=request.user.id)
+#     except Registration.DoesNotExist:
+#         registration = None  # Handle the case where the registration is not found
+
+#     return render(request, 'recipient_profile1.html', {
+#         'registration': registration,
+#         'error': 'Profile not found' if registration is None else None
+#     })      
+
+
+from django.shortcuts import render
+from .models import Registration
+
+from django.shortcuts import render
+from .models import Registration
+
+from django.shortcuts import render
+from .models import Registration
+from django.http import Http404
+
+
+def recipient_profile(request):
+    email = request.session.get('email')
+
+    if email:
+        try:
+            registration = Registration.objects.get(email=email, role='recipient')
+            error = None
+        except Registration.DoesNotExist:
+            registration = None
+            error = 'Profile not found for recipient'
+    else:
+        registration = None
+        error = 'Email not found in session'
+
+    return render(request, 'recipient_profile.html', {
+        'registration': registration,
+        'error': error
+    })

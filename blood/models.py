@@ -60,7 +60,7 @@ class Registration(models.Model):
     is_active = models.BooleanField(default=True)  # Default: user is active
 
     class Meta:
-        db_table = 'registrations'
+        db_table = 'registrations'          
 def __str__(self):
         return f"{self.first_name} {self.last_name}"
 

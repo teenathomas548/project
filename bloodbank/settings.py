@@ -137,3 +137,4 @@ EMAIL_HOST_USER = 'teenathomas2025@mca.ajce.in'
 EMAIL_HOST_PASSWORD = 'Zoom#2023'  # Ensure this is correct
 DEFAULT_FROM_EMAIL = 'teenathomas2025@mca.ajce.in'
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default session engine

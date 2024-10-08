@@ -18,7 +18,7 @@
                 <h2>Lifeline Blood Bank</h2>
             </div>
             <ul>
-                <li><a href="#">Profile</a></li>
+                <li><a href="{% url 'recipient_profile' %}?email={{ user.email }}">View Profile</a></li>
                 <li><a href="{% url 'logout' %}">Logout</a></li>
             </ul>
         </div>

@@ -1,27 +1,84 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'recipientprofile.css' %}">
+    <link rel="stylesheet" href="{% static 'recipientsprofile.css' %}">
     <title>Recipient Profile</title>
 </head>
-<body>
-    <div class="container">
-        <h1>Recipient Profile</h1>
-        <div class="profile-details">
-            <p><strong>First Name:</strong> {{ recipient.first_name }}</p>
-            <p><strong>Last Name:</strong> {{ recipient.last_name }}</p>
-            <p><strong>Date of Birth:</strong> {{ recipient.date_of_birth|date:"F j, Y" }}</p>
-            <p><strong>Email:</strong> {{ recipient.email }}</p>
-            <p><strong>Phone Number:</strong> {{ recipient.phone_number }}</p>
-            <p><strong>Gender:</strong> {{ recipient.gender }}</p>
-            <p><strong>Blood Group:</strong> {{ recipient.blood_group }}</p>
-            <p><strong>Role:</strong> {{ recipient.role }}</p>
-        </div>
 
-        <a href="{% url 'recipient_home' %}">Back to Dashboard</a> <!-- Link back to dashboard or other relevant page -->
+<body>
+    <!-- Navbar -->
+    <nav>
+        <div class="navbar-container">
+            <div class="logo">
+                <h2>Lifeline Blood Bank</h2>
+            </div>
+            <ul>
+                <li><a href="{% url 'recipient_home' %}">Home</a></li>
+                <li><a href="{% url 'logout' %}" class="logout-btn">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Profile container -->
+    <div class="profile-container">
+        <h1>Your Profile</h1>
+
+        {% if registration %}
+        <!-- Table to display user's profile data -->
+        <table class="profile-table">
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Information</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>First Name</td>
+                    <td>{{ registration.first_name }}</td>
+                </tr>
+                <tr>
+                    <td>Last Name</td>
+                    <td>{{ registration.last_name }}</td>
+                </tr>
+                <tr>
+                    <td>Email</td>
+                    <td>{{ registration.email }}</td>
+                </tr>
+                <tr>
+                    <td>Date of Birth</td>
+                    <td>{{ registration.date_of_birth }}</td>
+                </tr>
+                <tr>
+                    <td>Phone Number</td>
+                    <td>{{ registration.phone_number }}</td>
+                </tr>
+                <tr>
+                    <td>Blood Group</td>
+                    <td>{{ registration.blood_group_id }}</td> <!-- Adjusted from blood_group to blood_group_id -->
+                </tr>
+                <tr>
+                    <td>Gender</td>
+                    <td>{{ registration.gender }}</td>
+                </tr>
+                <tr>
+                    <td>Role</td>
+                    <td>{{ registration.role }}</td>
+                </tr>
+            </tbody>
+        </table>
+    {% else %}
+        <p>{{ error }}</p>
+    {% endif %}
+    
     </div>
+
+    <!-- Footer -->
+    
 </body>
+
 </html>

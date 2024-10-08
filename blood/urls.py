@@ -7,6 +7,7 @@ from .views import recipient_dashboard
 from .views import logout_view
 from .views import inventory_list, add_inventory, enable_inventory, disable_inventory,edit_inventory
 from .views import request_blood,success_view
+from .views import recipient_profile
 
 
 
@@ -44,5 +45,8 @@ urlpatterns = [
     path('inventory/disable/<int:pk>/', disable_inventory, name='disable_inventory'),
     path('request-blood/', request_blood, name='request_blood'),
     path('success/', success_view, name='success'),  # URL for the success page
+    path('recipient/profile/', recipient_profile, name='recipient_profile'),
+    
+
 
 ]

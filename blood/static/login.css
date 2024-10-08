@@ -31,7 +31,7 @@ header nav ul {
     padding: 0;
     margin: 0;
     display: flex;
-    justify-content: right;
+    justify-content: flex-end;
 }
 
 header nav ul li {
@@ -46,8 +46,6 @@ header nav ul li a {
 header nav ul li a:hover {
     text-decoration: underline;
 }
-
-
 
 /* Main Content Styles */
 .wrapper {
