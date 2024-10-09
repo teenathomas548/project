@@ -21,8 +21,6 @@
             border-radius: 5px;
             text-decoration: none;
         }
-        
-       
 
         .wrapper {
             margin-top: 60px;
@@ -44,21 +42,20 @@
             <div class="input-box">
                 <input type="text" name="first_name" placeholder="First Name" required pattern="^[A-Za-z]{2,30}$"
                     title="First name must contain between 2 and 30 letters with no numbers or special characters."
-                    value="{{ form.fname.value|default_if_none:'' }}">
+                    value="{{ form.first_name.value|default_if_none:'' }}">
             </div>
 
             <div class="input-box">
                 <input type="text" name="last_name" placeholder="Last Name" required pattern="^[A-Za-z]{2,30}$"
                     title="Last name must contain between 2 and 30 letters with no numbers or special characters."
-                    value="{{ form.lname.value|default_if_none:'' }}">
+                    value="{{ form.last_name.value|default_if_none:'' }}">
             </div>
 
             <div class="input-box">
-                <input type="date" name="dob" id="dob" placeholder="DOB" required
-                    value="{{ form.dob.value|default_if_none:'' }}" min="1900-01-01"
+                <input type="date" name="date_of_birth" id="dob" placeholder="DOB" required
+                    value="{{ form.date_of_birth.value|default_if_none:'' }}" min="1900-01-01"
                     title="Date of birth must be between 01/01/1900 and the previous day">
             </div>
-
 
             <script>
                 document.addEventListener("DOMContentLoaded", function () {
@@ -78,15 +75,13 @@
             <div class="input-box">
                 <input type="password" name="password" placeholder="Password" required
                     pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
-                    title="Password must be at least 8 characters long and include at least one letter and one number"
-                    value="{{ form.password.value|default_if_none:'' }}">
+                    title="Password must be at least 8 characters long and include at least one letter and one number">
             </div>
 
             <div class="input-box">
                 <input type="text" name="phone_number" placeholder="Phone Number" required
                     pattern="^(?!.*1234567890)(?!.*[A-Za-z])([789]\d{9})$"
-                    title="Phone number must be 10 digits, start with 7, 8, or 9, and cannot be '1234567890'"
-                    value="{{ form.phone_number.value|default_if_none:'' }}">
+                    title="Phone number must be 10 digits, start with 7, 8, or 9, and cannot be '1234567890'">
             </div>
 
             <div class="input-box">
@@ -115,17 +110,10 @@
             <div class="input-box">
                 <select name="role" required>
                     <option value="" disabled selected>Select Role</option>
-                    <option value="donate" {% if form.role.value == "donate" %}selected{% endif %}>Donate Blood</option>
+                    <option value="donate" {% if form.role.value == "donor" %}selected{% endif %}>Donate Blood</option>
                     <option value="recipient" {% if form.role.value == "recipient" %}selected{% endif %}>Request Blood</option>
                 </select>
             </div>
-
-            <div class="input-box">
-                <label for="last_donation_date">Last Donation Date (Optional)</label>
-                <input type="date" name="last_donation_date" id="last_donation_date" 
-                       value="{{ form.last_donation_date.value|default_if_none:'' }}">
-            </div>
-            
 
             <button type="submit">Register</button>
         </form>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Recipient Profile</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: url("/static/image/bloodcolor.jpeg") no-repeat center center fixed;
+            background-size: cover;    margin: 0;
+
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        /* Navbar Styles */
+        nav {
+            background-color: #d9534f;
+            padding: 10px 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-container h2 {
+            margin: 0;
+            color: white;
+        }
+        ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 20px; /* Gap between items */
+        }
+        .navbar-container a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 5px 10px;
+            transition: background-color 0.3s;
+        }
+        .navbar-container a:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+        }
+        /* Container Styles */
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            color: #d9534f;
+            font-size: 24px; /* Increased font size */
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus {
+            border-color: #d9534f; /* Change border color on focus */
+            outline: none;
+        }
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        button {
+            padding: 10px;
+            background-color: #d9534f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px; /* Increased font size */
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+            transition: background-color 0.3s, transform 0.3s; /* Smooth transition */
+        }
+        button:hover {
+            background-color: #c9302c;
+            transform: translateY(-2px); /* Subtle lift effect */
+        }
+        button:active {
+            transform: translateY(0); /* Reset lift effect on click */
+        }
+        .back-link {
+            text-align: center;
+            display: inline-block;
+            margin-top: 15px;
+            color: #5bc0de;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .back-link:hover {
+            color: #3a9dc1; /* Change color on hover */
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="navbar-container">
+            <h2>Lifeline Blood Bank</h2>
+            <ul>
+                <li><a href="{% url 'logout' %}" class="logout-btn">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>Edit Recipient Profile</h2>
+        <form method="POST" novalidate>
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}  <!-- Render the form field -->
+                    {% if field.errors %}
+                        <div class="error-message">{{ field.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit">Save Changes</button>
+        </form>
+        {% if error %}
+            <div class="error-message">{{ error }}</div>
+        {% endif %}
+    </div>
+    <script>
+        // Validate the form fields on submit
+        document.querySelector('form').addEventListener('submit', function(event) {
+            const formFields = this.elements;
+            let valid = true;
+    
+            for (let i = 0; i < formFields.length; i++) {
+                const field = formFields[i];
+    
+                // Check for required fields
+                if (field.required && !field.value) {
+                    valid = false;
+                    field.classList.add('error'); // Optional: add error class for styling
+                    alert(`${field.labels[0].innerText} is required.`);
+                } else {
+                    field.classList.remove('error');
+                }
+    
+                // Additional validation checks
+                // Validate phone number
+                if (field.name === 'phone_number' && field.value) {
+                    const phonePattern = /^[6789]\d{9}$/; // Phone number must start with 6, 7, 8, or 9 and have 10 digits
+                    if (!phonePattern.test(field.value)) {
+                        valid = false;
+                        field.classList.add('error');
+                        alert('Phone number must start with 6, 7, 8, or 9 and must be 10 digits long.');
+                    } else {
+                        field.classList.remove('error');
+                    }
+                }
+    
+                // Validate first name and last name
+                if ((field.name === 'first_name' || field.name === 'last_name') && field.value) {
+                    const namePattern = /^[A-Za-z\s]+$/; // Only letters and spaces allowed
+                    if (!namePattern.test(field.value)) {
+                        valid = false;
+                        field.classList.add('error');
+                        alert(`${field.labels[0].innerText} should not contain numbers or special characters.`);
+                    } else {
+                        field.classList.remove('error');
+                    }
+                }
+    
+                // Validate date of birth
+                if (field.name === 'date_of_birth' && field.value) {
+                    const dob = new Date(field.value);
+                    const today = new Date();
+                    if (dob >= today) {
+                        valid = false;
+                        field.classList.add('error');
+                        alert('Date of birth must be a past date.');
+                    } else {
+                        field.classList.remove('error');
+                    }
+                }
+    
+                // Validate email format
+                if (field.type === 'email' && field.value) {
+                    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailPattern.test(field.value)) {
+                        valid = false;
+                        field.classList.add('error');
+                        alert('Please enter a valid email address.');
+                    } else {
+                        field.classList.remove('error');
+                    }
+                }
+    
+                // Validate gender
+                if (field.name === 'gender' && field.value) {
+                    const validGenders = ['Male', 'Female', 'Other'];
+                    if (!validGenders.includes(field.value)) {
+                        valid = false;
+                        field.classList.add('error');
+                        alert('Gender must be Male, Female, or Other.');
+                    } else {
+                        field.classList.remove('error');
+                    }
+                }
+    
+                // Add more validation as necessary for other fields
+            }
+    
+            if (!valid) {
+                event.preventDefault(); // Prevent form submission if validation fails
+            }
+        });
+    </script>
+    </body>
+</html>

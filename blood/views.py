@@ -33,6 +33,8 @@ from django.shortcuts import render, redirect
 from .models import Registration
 from .models import Admin  # Assuming you have a BloodAdmin model
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.hashers import make_password
+import datetime
 
 
 # About page view
@@ -43,63 +45,52 @@ def about(request):
 
 def register(request):
     if request.method == 'POST':
-        # Retrieving form data
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
+        dob = request.POST.get('date_of_birth')
         email = request.POST.get('email')
         password = request.POST.get('password')
         phone_number = request.POST.get('phone_number')
         gender = request.POST.get('gender')
-        blood_group_str = request.POST.get('blood_group')  # This should be the blood group string (e.g., 'AB+')
-        date_of_birth = request.POST.get('date_of_birth')
-        role = request.POST.get('role')  # Make sure 'role' is correctly set
+        blood_group_value = request.POST.get('blood_group')  # The string like 'B+'
+        role = request.POST.get('role')
 
-        # Validate that no fields are empty (simple validation)
-        if not all([first_name, last_name, email, password, phone_number, gender, blood_group_str, date_of_birth, role]):
-            error_message = "Please fill in all the fields."
-            return render(request, 'register.html', {'error_message': error_message})
+        # Check if email already exists in the Registration table
+        if Registration.objects.filter(email=email).exists():
+            messages.error(request, 'Email already registered. Please use a different email.')
+            return redirect('register')
 
+        # Fetch the correct BloodType instance using the 'blood_group' field
         try:
-            # Get the blood type object based on the blood group string
-            blood_group = get_object_or_404(BloodType, blood_group=blood_group_str)
+            blood_group = BloodType.objects.get(blood_group=blood_group_value)
+        except BloodType.DoesNotExist:
+            messages.error(request, 'Invalid blood group selected.')
+            return redirect('register')
 
-            # Create the registration instance, with the password hashed
-            registration = Registration.objects.create(
-                first_name=first_name,
-                last_name=last_name,
-                date_of_birth=date_of_birth,
-                email=email,
-                password=password,  # Hashing the password for security
-                phone_number=phone_number,
-                gender=gender,
-                blood_group=blood_group,  # Use the BloodType object directly
-                role=role
-            )
+        # Create a Registration object and save it
+        registration = Registration.objects.create(
+            first_name=first_name,
+            last_name=last_name,
+            date_of_birth=dob,
+            email=email,
+            password=password,
+            phone_number=phone_number,
+            gender=gender,
+            blood_group=blood_group,  # Assign the BloodType instance correctly
+            role=role
+        )
 
-            # If the role is 'donate', insert into 'blood_donors' table
-            if role == 'donate':
-                BloodDonor.objects.create(
-                    user=registration,
-                    blood_type=blood_group,
-                    last_donation_date=None  # You can set this to a specific date if applicable
-                )
+        # Store additional data based on the role
+        if role == 'recipient':
+            Recipient.objects.create(user=registration, blood_type=blood_group)
+        elif role == 'donate':
+            BloodDonor.objects.create(user=registration, blood_type=blood_group)
 
-            # If the role is 'recipient', insert into 'recipient' table
-            elif role == 'recipient':
-                Recipient.objects.create(
-                    user=registration,
-                    blood_type=blood_group
-                )
+        return redirect('login')
+    else:
+        return render(request, 'register.html')
 
-            # Redirect to login page or success page after registration
-            return redirect('login')
-
-        except IntegrityError:
-            error_message = "A user with this email already exists."
-            return render(request, 'register.html', {'error_message': error_message})
-
-    # For GET requests, render the registration page
-    return render(request, 'register.html')
+    
 
 def userhome(request):
     """
@@ -118,6 +109,12 @@ def login(request):
             # Use Django ORM to authenticate the user
             try:
                 user = Registration.objects.get(email=email, password=password)
+                
+                # Check if the user is active
+                if not user.is_active:
+                    messages.error(request, 'Your account is inactive. Please contact support.')
+                    return render(request, 'login.html', {'form': form})
+                
                 role = user.role  # Assuming the role is stored in the `role` field
 
                 # Set user in session
@@ -467,17 +464,6 @@ def request_blood(request):
 
 def success_view(request):
     return render(request, 'success.html')
-# def recipient_profile(request):
-#     try:
-#         # Get the Registration object related to the logged-in user using user_id
-#         registration = Registration.objects.get(user_id=request.user.id)
-#     except Registration.DoesNotExist:
-#         registration = None  # Handle the case where the registration is not found
-
-#     return render(request, 'recipient_profile1.html', {
-#         'registration': registration,
-#         'error': 'Profile not found' if registration is None else None
-#     })      
 
 
 from django.shortcuts import render
@@ -508,4 +494,35 @@ def recipient_profile(request):
     return render(request, 'recipient_profile.html', {
         'registration': registration,
         'error': error
+    })
+
+
+from .forms import RecipientEditForm
+
+def recipient_edit_profile(request):
+    email = request.session.get('email')  # Get email from session
+    error = None  # Initialize error variable
+
+    if email:
+        try:
+            # Fetch the recipient's registration based on the email and role
+            registration = get_object_or_404(Registration, email=email, role='recipient')
+        except Registration.DoesNotExist:
+            registration = None
+            error = 'Profile not found for recipient'
+    else:
+        registration = None
+        error = 'Email not found in session'
+
+    if request.method == 'POST':
+        form = RecipientEditForm(request.POST, instance=registration)  # Bind form with existing data
+        if form.is_valid():
+            form.save()  # Save the updated registration data
+            return redirect('recipient_profile')  # Redirect to the profile view after saving
+    else:
+        form = RecipientEditForm(instance=registration)  # Pre-fill form with existing data
+
+    return render(request, 'recipient_edit_profile.html', {
+        'form': form,
+        'error': error  # Always pass the error variable
     })

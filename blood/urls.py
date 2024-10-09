@@ -8,7 +8,7 @@ from .views import logout_view
 from .views import inventory_list, add_inventory, enable_inventory, disable_inventory,edit_inventory
 from .views import request_blood,success_view
 from .views import recipient_profile
-
+from .views import recipient_edit_profile
 
 
 
@@ -46,7 +46,8 @@ urlpatterns = [
     path('request-blood/', request_blood, name='request_blood'),  # URL for the blood request form
     path('success/', success_view, name='success'),  
     path('recipient/profile/', recipient_profile, name='recipient_profile'),
-    
+    path('recipient/edit-profile/', recipient_edit_profile, name='recipient_edit_profile'),
+
 
 
 ]

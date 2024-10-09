@@ -90,3 +90,10 @@ class BloodRequestForm(forms.ModelForm):
         widgets = {
             'blood_group': forms.Select(choices=[('A+', 'A+'), ('A-', 'A-'), ('B+', 'B+'), ('B-', 'B-'), ('O+', 'O+'), ('O-', 'O-'), ('AB+', 'AB+'), ('AB-', 'AB-')]),
         }
+
+
+
+class RecipientEditForm(forms.ModelForm):
+    class Meta:
+        model = Registration  # Use the Registration model for recipient data
+        fields = ['first_name', 'last_name', 'date_of_birth',  'phone_number', 'gender', 'blood_group']  
