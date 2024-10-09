@@ -30,12 +30,7 @@
         {% if registration %}
         <!-- Table to display user's profile data -->
         <table class="profile-table">
-            <thead>
-                <tr>
-                    <th>Field</th>
-                    <th>Information</th>
-                </tr>
-            </thead>
+           
             <tbody>
                 <tr>
                     <td>First Name</td>
@@ -57,10 +52,7 @@
                     <td>Phone Number</td>
                     <td>{{ registration.phone_number }}</td>
                 </tr>
-                <tr>
-                    <td>Blood Group</td>
-                    <td>{{ registration.blood_group_id }}</td> <!-- Adjusted from blood_group to blood_group_id -->
-                </tr>
+                
                 <tr>
                     <td>Gender</td>
                     <td>{{ registration.gender }}</td>
@@ -71,14 +63,18 @@
                 </tr>
             </tbody>
         </table>
-    {% else %}
+
+        <!-- Edit button -->
+        <div class="edit-button-container">
+            <a href="#" class="edit-btn">Edit Profile</a>
+        </div>
+
+        {% else %}
         <p>{{ error }}</p>
-    {% endif %}
-    
+        {% endif %}
+
     </div>
 
-    <!-- Footer -->
-    
 </body>
 
 </html>

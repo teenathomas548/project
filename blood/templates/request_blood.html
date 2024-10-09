@@ -1,46 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Request Blood</title>
+    <title>Blood Request</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background: url("/static/image/image8.jpg") no-repeat center center fixed;
-            background-size: cover;        }
-        header {
-            background-color: darkred;
-            color: white;
-            padding: 20px;
-            text-align: center;
+            background-size: cover;
         }
+
+        h1 {
+            text-align: center;
+            color: #d32f2f;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
         nav {
-            background-color: #f1faee;
+            background-color: darkred;
             padding: 15px;
             text-align: center;
         }
+
         nav a {
             margin: 0 15px;
             text-decoration: none;
             color: white;
+            font-weight: bold;
         }
-        h1 {
+
+        nav button {
+            background-color: gray;
             color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
         }
+
+        nav button:hover {
+            background-color: darkgray;
+        }
+
         .container {
-    width: 50%;
-    margin: 0 auto;
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin-top: 4%;
-    align-items: center;
-    margin-left: 25%;
-}
+            width: 80%;
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
         button {
             background-color: red;
             color: white;
@@ -48,56 +64,149 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.3s;
         }
+
         button:hover {
             background-color: darkred;
         }
+
         .form-field {
             margin-bottom: 15px;
         }
+
         label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
         }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+       
+        input:valid {
+            border-color: green;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
         .success-message {
             color: green;
             margin-bottom: 20px;
         }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                width: 90%;
+            }
+        }
     </style>
 </head>
+
 <body>
 
-    <header>
-        <h1>Lifeline Blood Bank</h1>
-    </header>
+    <nav>
+        <div class="navbar-container">
+            <div class="logo">
+                <h2>Lifeline Blood Bank</h2>
+            </div>
+            <ul>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
 
     <div class="container">
         <h2>Request Blood</h2>
-        {% if success_message %}
-            <div class="success-message">{{ success_message }}</div>
+
+        {% if error_message %}
+        <div class="error-message">{{ error_message }}</div>
         {% endif %}
-        <form method="post">
+
+        <!-- Blood Request Form -->
+        <form method="post" novalidate id="bloodRequestForm">
             {% csrf_token %}
             <div class="form-field">
-                <label for="recipient_id">Recipient ID:</label>
-                {{ form.recipient_id }}
+                <label for="requester_name">Requester Name:</label>
+                <input type="text" name="requester_name" id="requester_name" required minlength="3" maxlength="50" pattern="[A-Za-z\s]+" title="Name must contain only letters and spaces, 3-50 characters.">
+                <div class="error-message" id="requester_name_error">Please enter a valid name (letters and spaces only, 3-50 characters).</div>
             </div>
             <div class="form-field">
-                <label for="blood_type_id">Blood Type:</label>
-                {{ form.blood_type_id }}
+                <label for="blood_group">Blood Group:</label>
+                <select name="blood_group" id="blood_group" required>
+                    <option value="">Select</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                </select>
+                <div class="error-message" id="blood_group_error">Please select a valid blood group.</div>
             </div>
             <div class="form-field">
-                <label for="units_requested">Units Requested:</label>
-                {{ form.units_requested }}
+                <label for="quantity">Quantity (in units):</label>
+                <input type="number" name="quantity" id="quantity" required min="1" max="5" step="1" title="Enter a quantity between 1 and 5">
+                <div class="error-message" id="quantity_error">Please enter a quantity between 1 and 5.</div>
             </div>
             <div class="form-field">
-                <label for="request_date">Request Date:</label>
-                {{ form.request_date }}
+                <label for="hospital_name">Hospital Name:</label>
+                <input type="text" name="hospital_name" id="hospital_name" required minlength="3" maxlength="100" pattern="[A-Za-z0-9\s]+" title="Hospital name must be alphanumeric and between 3 and 100 characters.">
+                <div class="error-message" id="hospital_name_error">Please enter a valid hospital name (alphanumeric, 3-100 characters).</div>
+            </div>
+            <div class="form-field">
+                <label for="contact_number">Contact Number:</label>
+                <input type="tel" name="contact_number" id="contact_number" required 
+                       pattern="[6-9]\d{9}" title="Please enter a valid 10-digit phone number starting with 6, 7, 8, or 9.">
+                <div class="error-message" id="contact_number_error">Please enter a valid contact number (10 digits, starting with 6, 7, 8, or 9).</div>
             </div>
             <button type="submit">Request Blood</button>
         </form>
     </div>
 
+    <script>
+        // Strict client-side validation
+        const form = document.getElementById('bloodRequestForm');
+        form.addEventListener('submit', function (event) {
+            let isValid = true;
+
+            // Check each form field
+            Array.from(form.elements).forEach(function (input) {
+                const errorDiv = input.nextElementSibling; // Get the error message div
+
+                // Check if the input is valid using its built-in validity state
+                if (!input.validity.valid) {
+                    isValid = false;
+                    errorDiv.classList.add('active'); // Show error message
+                } else {
+                    errorDiv.classList.remove('active'); // Hide error message
+                }
+            });
+
+            if (!isValid) {
+                event.preventDefault(); // Prevent form submission if not valid
+            }
+        });
+    </script>
+
 </body>
+
 </html>

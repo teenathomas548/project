@@ -4,6 +4,7 @@ from .models import Inventory
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 from datetime import date
+from .models import Recipient, BloodType  # Adjust imports as per your models
 
 
 
@@ -85,4 +86,7 @@ from .models import BloodRequest
 class BloodRequestForm(forms.ModelForm):
     class Meta:
         model = BloodRequest
-        fields = ['recipient_id', 'blood_type_id', 'units_requested', 'request_date']
+        fields = ['requester_name', 'blood_group', 'quantity', 'hospital_name', 'contact_number']
+        widgets = {
+            'blood_group': forms.Select(choices=[('A+', 'A+'), ('A-', 'A-'), ('B+', 'B+'), ('B-', 'B-'), ('O+', 'O+'), ('O-', 'O-'), ('AB+', 'AB+'), ('AB-', 'AB-')]),
+        }

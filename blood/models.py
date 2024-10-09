@@ -95,26 +95,27 @@ class BloodDonor(models.Model):
 
 class Recipient(models.Model):
     recipient_id = models.AutoField(primary_key=True)
-    blood_type = models.ForeignKey(BloodType, on_delete=models.CASCADE, db_column='blood_type_id')  # Referencing 'blood_type_id'
-    user = models.ForeignKey('Registration', on_delete=models.CASCADE,db_column='user_id')  # Adjust the field name as per your project
+    blood_type = models.ForeignKey(BloodType, on_delete=models.CASCADE)  # Referencing 'blood_type_id'
+    user = models.ForeignKey('Registration', on_delete=models.CASCADE)  # Adjust the field name as per your project
 
     def __str__(self):
         return f"Recipient: {self.user.first_name} {self.user.last_name}, Blood Type: {self.blood_type.blood_group}"
 
 
 class BloodRequest(models.Model):
-    REQUEST_STATUS_CHOICES = [
-        ('Pending', 'Pending'),
-        ('Fulfilled', 'Fulfilled'),
-        ('Cancelled', 'Cancelled'),
-    ]
-    
-    request_id = models.AutoField(primary_key=True)
-    recipient_id = models.ForeignKey('Recipient', on_delete=models.CASCADE)
-    blood_type_id = models.ForeignKey('BloodType', on_delete=models.CASCADE)
-    units_requested = models.IntegerField(null=True, blank=True)
-    request_date = models.DateField(null=True, blank=True)
-    status = models.CharField(max_length=50, choices=REQUEST_STATUS_CHOICES, default='Pending')
+    REQUEST_STATUSES = (
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    )
+
+    requester_name = models.CharField(max_length=100)
+    blood_group = models.ForeignKey(BloodType, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()  # in units (ml or pints)
+    hospital_name = models.CharField(max_length=150)
+    contact_number = models.CharField(max_length=15)
+    request_date = models.DateField(auto_now_add=True)
+    status = models.CharField(max_length=10, choices=REQUEST_STATUSES, default='pending')
 
     def __str__(self):
-        return f'Request {self.request_id} - {self.status}'
+        return f"{self.requester_name} - {self.blood_group}"

@@ -1,83 +1,52 @@
-/* Reset some default styles */
-* {
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f7f6;
-    color: #333;
-    line-height: 1.6;
+.profile-container {
+    max-width: 600px;
+    margin: 50px auto;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
 }
 
 h1 {
     text-align: center;
-    font-size: 2.5em;
-    color: #4CAF50; /* Green color */
+    color: #d32f2f;
+    font-size: 32px;
     margin-bottom: 20px;
 }
 
-ul {
-    list-style: none;
-    padding: 20px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.profile-details {
+    margin-top: 20px;
 }
 
-li {
-    padding: 10px;
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
     border-bottom: 1px solid #ddd;
 }
 
-li:last-child {
-    border-bottom: none;
-}
-
-strong {
-    color: #4CAF50; /* Green color for labels */
-}
-
-p {
-    text-align: center;
-    color: #e74c3c; /* Red color for errors */
+th {
+    background-color: #d32f2f;
+    color: white;
     font-weight: bold;
 }
 
-a {
-    display: inline-block;
-    margin: 20px auto;
-    padding: 10px 20px;
-    background-color: #4CAF50; /* Green button */
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-    text-align: center;
+td {
+    color: #333;
 }
 
-a:hover {
-    background-color: #45a049; /* Darker green on hover */
-}
-
-/* Media Queries for responsiveness */
-@media (max-width: 600px) {
-    body {
-        padding: 10px;
-    }
-
-    h1 {
-        font-size: 2em;
-    }
-
-    ul {
-        padding: 10px;
-    }
-
-    a {
-        padding: 8px 16px;
-    }
+tr:hover {
+    background-color: #f2f2f2;
 }

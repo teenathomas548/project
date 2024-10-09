@@ -32,6 +32,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from .models import Registration
 from .models import Admin  # Assuming you have a BloodAdmin model
+from django.contrib.auth import authenticate, login
 
 
 # About page view
@@ -145,13 +146,17 @@ def admin_login(request):
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
 
-            # Use Django ORM to authenticate the user
+            # Fetch the admin user using Django ORM
             try:
-                admin_user = Admin.objects.get(email=email, password=password)
+                admin_user = Admin.objects.get(email=email)
 
-                # Set user in session
-                request.session['email'] = email
-                return redirect('blood_admin')  # Redirect to a page after successful login
+                # Check if the provided password matches the stored password
+                if admin_user.password == password:  # Consider using hashed passwords for security
+                    # Set user in session
+                    request.session['email'] = admin_user.email
+                    return redirect('blood_admin')  # Redirect to a page after successful login
+                else:
+                    messages.error(request, 'Invalid username or password')
 
             except Admin.DoesNotExist:
                 messages.error(request, 'Invalid username or password')
@@ -159,8 +164,6 @@ def admin_login(request):
         form = LoginForm()
 
     return render(request, 'login.html', {'form': form})
-
-
 def home(request):
     # Fetch only active campaigns
     active_campaigns = Campaign.objects.filter(is_active=True)
@@ -455,16 +458,15 @@ def request_blood(request):
         form = BloodRequestForm(request.POST)
         if form.is_valid():
             form.save()  # Save the blood request to the database
-            return redirect('success')  # Redirect to a success page or wherever you want
+            return redirect('success')  # Redirect to a success page
     else:
-        form = BloodRequestForm()
-    
-    return render(request, 'request_blood.html', {'form': form})
+        form = BloodRequestForm()  # Create a new instance of the form for GET requests
+
+    return render(request, 'request_blood.html', {'form': form})  # Always return this for GET requests
+
 
 def success_view(request):
     return render(request, 'success.html')
-
-
 # def recipient_profile(request):
 #     try:
 #         # Get the Registration object related to the logged-in user using user_id

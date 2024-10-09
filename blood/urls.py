@@ -43,8 +43,8 @@ urlpatterns = [
     path('inventory/edit/<int:inventory_id>/', edit_inventory, name='edit_inventory'),
     path('inventory/enable/<int:pk>/', enable_inventory, name='enable_inventory'),  # URL to enable inventory
     path('inventory/disable/<int:pk>/', disable_inventory, name='disable_inventory'),
-    path('request-blood/', request_blood, name='request_blood'),
-    path('success/', success_view, name='success'),  # URL for the success page
+    path('request-blood/', request_blood, name='request_blood'),  # URL for the blood request form
+    path('success/', success_view, name='success'),  
     path('recipient/profile/', recipient_profile, name='recipient_profile'),
     
 
