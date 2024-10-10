@@ -173,36 +173,77 @@ def home(request):
 def userrhome(request):
     return render(request, 'userrhome.html')
 
+from django.shortcuts import render
+from django.db.models import Sum
+from .models import Registration, Inventory, BloodRequest
+
+from django.shortcuts import render
+from django.db.models import Sum
+from .models import Registration, Inventory, BloodRequest
+
+from django.shortcuts import render
+from django.db.models import Sum
+from .models import Registration, Inventory, BloodRequest
+
 def blood_admin(request):
-    # Total donors count - assuming 'Registration' model corresponds to the 'registrations' table
+    # Total donors count
     total_donors = Registration.objects.filter(role='donate').count()
 
-    # Total available blood units - assuming 'Inventory' model corresponds to 'blood_inventory' table
+    # Total available blood units
     blood_units = Inventory.objects.aggregate(total_units=Sum('units_available'))['total_units'] or 0
 
-    # Pending requests count - assuming you have a 'Request' model (if not, remove this line)
+    # Pending requests count
+    pending_requests = BloodRequest.objects.filter(status='pending').count()
+    
+    # Urgent requests count
+    urgent_requests = BloodRequest.objects.filter(status='urgent').count()
 
-    # Example recent activities
+    # Completed requests count
+    completed_requests = BloodRequest.objects.filter(status='approved').count()
+
+    # Fetch recent activities dynamically
     recent_activities = [
-        {"date": "2024-08-16", "activity": "Donor John Doe scheduled an appointment", "status": "Completed"},
-        {"date": "2024-08-15", "activity": "Blood donation campaign created", "status": "Pending"},
-        {"date": "2024-08-14", "activity": "Recipient Jane Doe requested blood", "status": "Urgent"},
+        {
+            "date": request.request_date,
+            "activity": f"{request.requester_name} requested blood of group {request.blood_group} from {request.hospital_name}",
+            "status": request.status  # this will show 'pending', 'urgent', or 'approved'
+        }
+        for request in BloodRequest.objects.order_by('-request_date')[:5]  # limit to 5 recent requests
     ]
 
     context = {
         "total_donors": total_donors,
         "blood_units": blood_units,
+        "pending_requests": pending_requests,
+        "urgent_requests": urgent_requests,
+        "completed_requests": completed_requests,
         "recent_activities": recent_activities,
     }
 
     return render(request, 'blood_admin.html', context)
 
 
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from django.core.mail import send_mail
+from django.conf import settings
+from .models import Registration  # Make sure to import your Registration model
+
 def disable_user(request, user_id):
     user = get_object_or_404(Registration, pk=user_id)
     user.is_active = False
     user.save()
-    messages.success(request, f'{user.first_name} {user.last_name} has been disabled.')
+
+    # Send email notification to the user
+    send_mail(
+        'Account Disabled',
+        f'Dear {user.first_name},\n\nYour account has been disabled by an administrator. Please contact support for further assistance.',
+        settings.DEFAULT_FROM_EMAIL,
+        [user.email],
+        fail_silently=False,
+    )
+
+    messages.success(request, f'{user.first_name} {user.last_name} has been disabled and notified via email.')
     return redirect('manage_users')
 
 def enable_user(request, user_id):
@@ -454,12 +495,14 @@ def request_blood(request):
     if request.method == 'POST':
         form = BloodRequestForm(request.POST)
         if form.is_valid():
-            form.save()  # Save the blood request to the database
-            return redirect('success')  # Redirect to a success page
+            form.save()  # Save the valid form data to the database
+            return redirect('success')  # Redirect after successful submission
+        else:
+            messages.error(request, 'Please correct the errors below.')
     else:
-        form = BloodRequestForm()  # Create a new instance of the form for GET requests
-
-    return render(request, 'request_blood.html', {'form': form})  # Always return this for GET requests
+        form = BloodRequestForm()
+    
+    return render(request, 'request_blood.html', {'form': form})
 
 
 def success_view(request):
@@ -526,3 +569,70 @@ def recipient_edit_profile(request):
         'form': form,
         'error': error  # Always pass the error variable
     })
+
+
+
+# views.py
+from django.shortcuts import render, redirect, get_object_or_404
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib import messages
+from .models import Registration
+from .forms import ForgotPasswordForm
+from django.utils.crypto import get_random_string
+from django.urls import reverse
+from django.template.loader import render_to_string
+
+def forgot_password(request):
+    if request.method == 'POST':
+        form = ForgotPasswordForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            try:
+                user = Registration.objects.get(email=email)
+                
+                # Generate reset token
+                reset_token = get_random_string(32)
+                user.reset_token = reset_token  # Assuming you have added this field
+                user.save()
+                
+                # Construct the reset link
+                reset_link = request.build_absolute_uri(reverse('reset_password', args=[reset_token]))
+                
+                # Send reset email
+                subject = 'Password Reset Request'
+                message = f"Click the link to reset your password: {reset_link}"
+                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
+                
+                messages.success(request, 'Password reset link has been sent to your email.')
+                return redirect('login')
+            except Registration.DoesNotExist:
+                messages.error(request, 'No user with that email address found.')
+    else:
+        form = ForgotPasswordForm()
+
+    return render(request, 'forgot_password.html', {'form': form})
+
+
+# views.py
+def reset_password(request, token):
+    try:
+        user = Registration.objects.get(reset_token=token)
+    except Registration.DoesNotExist:
+        messages.error(request, 'The password reset token is invalid or has expired.')
+        return redirect('login')
+
+    if request.method == 'POST':
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if new_password == confirm_password:
+            user.password = new_password  # Save the password directly without hashing
+            user.reset_token = None  # Clear the token
+            user.save()
+            messages.success(request, 'Your password has been reset successfully.')
+            return redirect('login')
+        else:
+            messages.error(request, 'Passwords do not match.')
+
+    return render(request, 'reset_password.html', {'user': user})

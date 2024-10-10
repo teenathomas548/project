@@ -47,7 +47,8 @@ urlpatterns = [
     path('success/', success_view, name='success'),  
     path('recipient/profile/', recipient_profile, name='recipient_profile'),
     path('recipient/edit-profile/', recipient_edit_profile, name='recipient_edit_profile'),
-
+    path('forgot-password/', views.forgot_password, name='forgot_password'),
+    path('reset-password/<str:token>/', views.reset_password, name='reset_password'),
 
 
 ]

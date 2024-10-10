@@ -1,18 +1,16 @@
-{%load static%}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    {% load static %}
     <link rel="stylesheet" href="{% static 'login.css' %}">
 </head>
 <body>
     <header>
         <div class="container">
             <h1>Life Line Blood Bank</h1>
-            
         </div>
     </header>
 
@@ -33,7 +31,7 @@
                 <button type="submit">Login</button>
             </form>
             <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
-            <p><a href="#">Forgot Password?</a></p>
+            <p><a href="{% url 'forgot_password' %}">Forgot Password?</a></p>
         </div>
     </main>
 </body>

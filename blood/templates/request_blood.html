@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blood Request</title>
+    <title>Request Blood</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,39 +11,6 @@
             padding: 0;
             background: url("/static/image/image8.jpg") no-repeat center center fixed;
             background-size: cover;
-        }
-
-        h1 {
-            text-align: center;
-            color: #d32f2f;
-            font-size: 32px;
-            margin-bottom: 20px;
-        }
-
-        nav {
-            background-color: darkred;
-            padding: 15px;
-            text-align: center;
-        }
-
-        nav a {
-            margin: 0 15px;
-            text-decoration: none;
-            color: white;
-            font-weight: bold;
-        }
-
-        nav button {
-            background-color: gray;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        nav button:hover {
-            background-color: darkgray;
         }
 
         .container {
@@ -57,22 +23,9 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        button {
-            background-color: red;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        button:hover {
-            background-color: darkred;
-        }
-
-        .form-field {
-            margin-bottom: 15px;
+        h2 {
+            text-align: center;
+            color: #d32f2f;
         }
 
         label {
@@ -84,129 +37,151 @@
         input, select {
             width: 100%;
             padding: 10px;
+            margin-bottom: 15px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            font-size: 16px;
         }
 
-       
-        input:valid {
-            border-color: green;
+        button {
+            background-color: red;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: darkred;
         }
 
         .error-message {
             color: red;
             font-size: 12px;
-            margin-top: 5px;
+            margin-top: -10px;
+            margin-bottom: 15px;
             display: none;
         }
 
-        .error-message.active {
-            display: block;
+        .form-error {
+            color: red;
+            font-size: 14px;
+            margin-bottom: 15px;
+            text-align: center;
+            display: none;
         }
+        .cancel-btn {
+        display: inline-block;
+        padding: 10px 15px;
+        background-color: red;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 5px;
+        cursor: pointer;
+        border: none;
+        font-size: 16px;
+    }
 
-        .success-message {
-            color: green;
-            margin-bottom: 20px;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .container {
-                width: 90%;
-            }
-        }
+    .cancel-btn:hover {
+        background-color: darkgrey;
+    }
     </style>
 </head>
-
 <body>
-
-    <nav>
-        <div class="navbar-container">
-            <div class="logo">
-                <h2>Lifeline Blood Bank</h2>
-            </div>
-            <ul>
-                <li><a href="{% url 'logout' %}">Logout</a></li>
-            </ul>
-        </div>
-    </nav>
-
     <div class="container">
         <h2>Request Blood</h2>
 
-        {% if error_message %}
-        <div class="error-message">{{ error_message }}</div>
+        <!-- General error message -->
+        <div class="form-error" id="formError">Please correct the highlighted errors before submitting the form.</div>
+
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
         {% endif %}
 
-        <!-- Blood Request Form -->
         <form method="post" novalidate id="bloodRequestForm">
             {% csrf_token %}
-            <div class="form-field">
-                <label for="requester_name">Requester Name:</label>
-                <input type="text" name="requester_name" id="requester_name" required minlength="3" maxlength="50" pattern="[A-Za-z\s]+" title="Name must contain only letters and spaces, 3-50 characters.">
-                <div class="error-message" id="requester_name_error">Please enter a valid name (letters and spaces only, 3-50 characters).</div>
-            </div>
-            <div class="form-field">
-                <label for="blood_group">Blood Group:</label>
-                <select name="blood_group" id="blood_group" required>
-                    <option value="">Select</option>
-                    <option value="A+">A+</option>
-                    <option value="A-">A-</option>
-                    <option value="B+">B+</option>
-                    <option value="B-">B-</option>
-                    <option value="O+">O+</option>
-                    <option value="O-">O-</option>
-                    <option value="AB+">AB+</option>
-                    <option value="AB-">AB-</option>
-                </select>
-                <div class="error-message" id="blood_group_error">Please select a valid blood group.</div>
-            </div>
-            <div class="form-field">
-                <label for="quantity">Quantity (in units):</label>
-                <input type="number" name="quantity" id="quantity" required min="1" max="5" step="1" title="Enter a quantity between 1 and 5">
-                <div class="error-message" id="quantity_error">Please enter a quantity between 1 and 5.</div>
-            </div>
-            <div class="form-field">
-                <label for="hospital_name">Hospital Name:</label>
-                <input type="text" name="hospital_name" id="hospital_name" required minlength="3" maxlength="100" pattern="[A-Za-z0-9\s]+" title="Hospital name must be alphanumeric and between 3 and 100 characters.">
-                <div class="error-message" id="hospital_name_error">Please enter a valid hospital name (alphanumeric, 3-100 characters).</div>
-            </div>
-            <div class="form-field">
-                <label for="contact_number">Contact Number:</label>
-                <input type="tel" name="contact_number" id="contact_number" required 
-                       pattern="[6-9]\d{9}" title="Please enter a valid 10-digit phone number starting with 6, 7, 8, or 9.">
-                <div class="error-message" id="contact_number_error">Please enter a valid contact number (10 digits, starting with 6, 7, 8, or 9).</div>
-            </div>
+
+            <!-- Requester Name -->
+            <label for="id_requester_name">Requester Name</label>
+            <input type="text" id="id_requester_name" name="requester_name" required minlength="3" maxlength="50" pattern="^[A-Za-z\s]+$" title="Requester name should only contain letters and spaces" placeholder="Enter your full name">
+            <div class="error-message" id="nameError">Name must only contain letters and spaces.</div>
+
+            <!-- Blood Group -->
+            <label for="id_blood_group">Blood Group</label>
+            {{ form.blood_group }}
+
+            <!-- Quantity -->
+            <label for="id_quantity">Quantity (in units)</label>
+            <input type="number" id="id_quantity" name="quantity" required min="1" max="5" title="Please enter a quantity between 1 and 5 units" placeholder="Enter quantity (1-5 units)">
+            
+            <!-- Hospital Name -->
+            <label for="id_hospital_name">Hospital Name</label>
+            <input type="text" id="id_hospital_name" name="hospital_name" required minlength="2" maxlength="100" pattern="^[A-Za-z\s]+$" title="Hospital name should only contain letters and spaces" placeholder="Enter hospital name">
+
+            <!-- Contact Number -->
+            <label for="id_contact_number">Contact Number</label>
+            <input type="tel" id="id_contact_number" name="contact_number" required pattern="^[6-9]\d{9}$" title="Contact number must start with 6, 7, 8, or 9 and be 10 digits long" placeholder="Enter 10-digit phone number">
+            <div class="error-message" id="contactError">Contact number must start with 6, 7, 8, or 9 and must be exactly 10 digits.</div>
+
             <button type="submit">Request Blood</button>
+            <a href="{% url 'recipient_home' %}" class="cancel-btn">Cancel</a>
+
         </form>
     </div>
 
     <script>
-        // Strict client-side validation
-        const form = document.getElementById('bloodRequestForm');
-        form.addEventListener('submit', function (event) {
-            let isValid = true;
+       const form = document.getElementById('bloodRequestForm');
+const formError = document.getElementById('formError');
+const nameInput = document.getElementById('id_requester_name');
+const contactInput = document.getElementById('id_contact_number');
+const hospitalInput = document.getElementById('id_hospital_name'); // Added hospital input reference
+const nameError = document.getElementById('nameError');
+const contactError = document.getElementById('contactError');
+const hospitalError = document.createElement('div'); // Added hospital error message
 
-            // Check each form field
-            Array.from(form.elements).forEach(function (input) {
-                const errorDiv = input.nextElementSibling; // Get the error message div
+hospitalError.classList.add('error-message');
+hospitalInput.insertAdjacentElement('afterend', hospitalError); // Place the error message below the hospital field
 
-                // Check if the input is valid using its built-in validity state
-                if (!input.validity.valid) {
-                    isValid = false;
-                    errorDiv.classList.add('active'); // Show error message
-                } else {
-                    errorDiv.classList.remove('active'); // Hide error message
-                }
-            });
+form.addEventListener('submit', function (event) {
+    let isValid = true;
 
-            if (!isValid) {
-                event.preventDefault(); // Prevent form submission if not valid
-            }
-        });
+    // Validate the name input to ensure it contains only letters and spaces
+    if (!nameInput.value.match(/^[A-Za-z\s]+$/)) {
+        isValid = false;
+        nameError.style.display = 'block';
+    } else {
+        nameError.style.display = 'none';
+    }
+
+    // Validate the contact number (starts with 6-9 and exactly 10 digits)
+    if (!contactInput.value.match(/^[6-9]\d{9}$/)) {
+        isValid = false;
+        contactError.style.display = 'block';
+    } else {
+        contactError.style.display = 'none';
+    }
+
+    // Validate the hospital name input to ensure it contains only letters and spaces
+    if (!hospitalInput.value.match(/^[A-Za-z\s]+$/)) {
+        isValid = false;
+        hospitalError.textContent = 'Hospital name must only contain letters and spaces.';
+        hospitalError.style.display = 'block';
+    } else {
+        hospitalError.style.display = 'none';
+    }
+
+    if (!isValid) {
+        event.preventDefault(); // Prevent form submission if any field is invalid
+        formError.style.display = 'block'; // Show the general error message
+    } else {
+        formError.style.display = 'none'; // Hide the general error message
+    }
+});
     </script>
-
 </body>
-
 </html>

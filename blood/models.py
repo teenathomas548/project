@@ -58,6 +58,7 @@ class Registration(models.Model):
     role = models.CharField(max_length=20)
     
     is_active = models.BooleanField(default=True)  # Default: user is active
+    reset_token = models.CharField(max_length=255, null=True, blank=True)  # Ensure this line exists
 
     class Meta:
         db_table = 'registrations'          

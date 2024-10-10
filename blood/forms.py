@@ -97,3 +97,6 @@ class RecipientEditForm(forms.ModelForm):
     class Meta:
         model = Registration  # Use the Registration model for recipient data
         fields = ['first_name', 'last_name', 'date_of_birth',  'phone_number', 'gender', 'blood_group']  
+
+class ForgotPasswordForm(forms.Form):
+    email = forms.EmailField(label='Email', max_length=150)
