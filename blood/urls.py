@@ -9,7 +9,7 @@ from .views import inventory_list, add_inventory, enable_inventory, disable_inve
 from .views import request_blood,success_view
 from .views import recipient_profile
 from .views import recipient_edit_profile
-
+from .views import donor_profile,donor_edit_profile
 
 
 
@@ -49,6 +49,10 @@ urlpatterns = [
     path('recipient/edit-profile/', recipient_edit_profile, name='recipient_edit_profile'),
     path('forgot-password/', views.forgot_password, name='forgot_password'),
     path('reset-password/<str:token>/', views.reset_password, name='reset_password'),
+    path('donor/profile/', donor_profile, name='donor_profile'),
+    path('donor/edit-profile/', views.donor_edit_profile, name='donor_edit_profile'),
+    
+
 
 
 ]

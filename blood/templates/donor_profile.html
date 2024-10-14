@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'recipientsprofile.css' %}">
+    <title>Donor Profile</title>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav>
+        <div class="navbar-container">
+            <div class="logo">
+                <h2>Lifeline Blood Bank</h2>
+            </div>
+            <ul>
+                <li><a href="{% url 'donor_dashboard' %}">Home</a></li>
+                <li><a href="{% url 'logout' %}" class="logout-btn">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Profile container -->
+    <div class="profile-container">
+        <h1>Your Profile</h1>
+
+        {% if registration %}
+        <!-- Table to display user's profile data -->
+        <table class="profile-table">
+           
+            <tbody>
+                <tr>
+                    <td>First Name</td>
+                    <td>{{ registration.first_name }}</td>
+                </tr>
+                <tr>
+                    <td>Last Name</td>
+                    <td>{{ registration.last_name }}</td>
+                </tr>
+                <tr>
+                    <td>Email</td>
+                    <td>{{ registration.email }}</td>
+                </tr>
+                <tr>
+                    <td>Date of Birth</td>
+                    <td>{{ registration.date_of_birth }}</td>
+                </tr>
+                <tr>
+                    <td>Phone Number</td>
+                    <td>{{ registration.phone_number }}</td>
+                </tr>
+                
+                <tr>
+                    <td>Gender</td>
+                    <td>{{ registration.gender }}</td>
+                </tr>
+                
+                <tr>
+                    <td>Role</td>
+                    <td>{{ registration.role }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Edit button -->
+        <div class="edit-button-container">
+            <a href="{% url 'donor_edit_profile' %}" class="edit-btn">Edit Profile</a>
+        </div>
+
+        {% else %}
+        <p>{{ error }}</p>
+        {% endif %}
+
+    </div>
+
+</body>
+
+</html>

@@ -1,4 +1,4 @@
-{%load static%}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,7 +6,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recipient Home Page</title>
-    {% load static %}
     <link rel="stylesheet" href="{% static 'recipienthome.css' %}">
 </head>
 
@@ -26,11 +25,15 @@
 
     <!-- Main Content -->
     <div class="container">
-        <h1>Welcome, Recipient!</h1>
+        <h1>Welcome!</h1> <!-- Dynamically display recipient's full name -->
+        
         <div class="info-box">
-            <h3>Your Blood Requests:</h3>
-            <p>No pending requests.</p>
+            <h3>Your Blood Requests:{{ blood_requests_count }}</h3>
+            
+            <!-- Display the total count of blood requests -->
         </div>
+        
+        <!-- Button for requesting blood -->
         <div class="actions">
             <a class="btn" href="{% url 'request_blood' %}">Request Blood</a>
         </div>

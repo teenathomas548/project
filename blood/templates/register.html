@@ -53,25 +53,23 @@
 
             <div class="input-box">
                 <input type="date" name="date_of_birth" id="dob" placeholder="DOB" required
-                    value="{{ form.date_of_birth.value|default_if_none:'' }}" min="1900-01-01"
-                    title="Date of birth must be between 01/01/1900 and the previous day">
+                    value="{{ form.date_of_birth.value|default_if_none:'' }}" min="1900-01-01" 
+                    title="Date of birth must be at least 18 years ago" onfocus="setMinDate()">
             </div>
-
+            
             <script>
-                document.addEventListener("DOMContentLoaded", function () {
-                    var today = new Date();
-                    today.setDate(today.getDate() - 1);
-                    var maxDate = today.toISOString().split('T')[0];
-                    document.getElementById('dob').setAttribute('max', maxDate);
-                });
+                function setMinDate() {
+                    const today = new Date();
+                    const minDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate()).toISOString().split('T')[0];
+                    document.getElementById('dob').max = minDate;
+                }
             </script>
-
+            
             <div class="input-box">
                 <input type="email" name="email" placeholder="Email" required
-                    pattern="([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$)|([a-z0-9._%+-]+@gmail\.com$)"
-                    title="Please enter a valid email address, or a Gmail address.">
+                    pattern="^[a-z0-9._%+-]+@gmail\.(com|in)$"
+                    title="Please enter a valid Gmail address with '.com' or '.in' domain.">
             </div>
-
             <div class="input-box">
                 <input type="password" name="password" placeholder="Password" required
                     pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
@@ -80,16 +78,16 @@
 
             <div class="input-box">
                 <input type="text" name="phone_number" placeholder="Phone Number" required
-                    pattern="^(?!.*1234567890)(?!.*[A-Za-z])([789]\d{9})$"
+                    pattern="^(?!.*1234567890)(?!.*[A-Za-z])([6789]\d{9})$"
                     title="Phone number must be 10 digits, start with 7, 8, or 9, and cannot be '1234567890'">
             </div>
 
             <div class="input-box">
                 <select name="gender" required>
                     <option value="" disabled selected>Select Gender</option>
-                    <option value="male" {% if form.gender.value == "male" %}selected{% endif %}>Male</option>
-                    <option value="female" {% if form.gender.value == "female" %}selected{% endif %}>Female</option>
-                    <option value="other" {% if form.gender.value == "other" %}selected{% endif %}>Other</option>
+                    <option value="male" {% if form.gender.value == "Male" %}selected{% endif %}>Male</option>
+                    <option value="female" {% if form.gender.value == "Female" %}selected{% endif %}>Female</option>
+                    <option value="other" {% if form.gender.value == "Other" %}selected{% endif %}>Other</option>
                 </select>
             </div>
 

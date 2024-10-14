@@ -1,16 +1,12 @@
 from pyexpat.errors import messages
-from urllib.request import Request
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib import messages
-from django.db import connection
-from django.db import IntegrityError
 from .forms import LoginForm
 from django.shortcuts import render, redirect
 from django.contrib.auth import views as auth_views
 from django.shortcuts import render
 from .forms import RegistrationForm
 from django.views.generic import UpdateView
-from django.urls import reverse_lazy
 from .models import Registration
 from django.contrib.auth.mixins import LoginRequiredMixin 
 from django.views import View
@@ -20,9 +16,7 @@ from .models import Campaign
 from .forms import CampaignForm
 from django.utils import timezone
 from .models import Inventory,BloodType
-from .forms import InventoryForm
 from django.core.exceptions import ValidationError
-from django.db import connection, IntegrityError
 from .models import BloodDonor
 from .models import Recipient
 from django.db.models import Count, Sum  # Import Sum here
@@ -34,7 +28,7 @@ from .models import Registration
 from .models import Admin  # Assuming you have a BloodAdmin model
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.hashers import make_password
-import datetime
+from .forms import EditCampaignForm
 
 
 # About page view
@@ -83,12 +77,13 @@ def register(request):
         # Store additional data based on the role
         if role == 'recipient':
             Recipient.objects.create(user=registration, blood_type=blood_group)
-        elif role == 'donate':
-            BloodDonor.objects.create(user=registration, blood_type=blood_group)
+        #elif role == 'donate':
+            # BloodDonor.objects.create(user=registration, blood_type=blood_group)
 
         return redirect('login')
     else:
         return render(request, 'register.html')
+
 
     
 
@@ -237,7 +232,7 @@ def disable_user(request, user_id):
     # Send email notification to the user
     send_mail(
         'Account Disabled',
-        f'Dear {user.first_name},\n\nYour account has been disabled by an administrator. Please contact support for further assistance.',
+        f'Dear {user.first_name},\n\nYour account has been temporarily suspended due to a violation of our terms of service. Please review the terms and contact support for more information.',
         settings.DEFAULT_FROM_EMAIL,
         [user.email],
         fail_silently=False,
@@ -332,13 +327,13 @@ def enable_campaign(request, campaign_id):
 def campaign_edit(request, campaign_id):
     campaign = get_object_or_404(Campaign, campaign_id=campaign_id)  
     if request.method == 'POST':
-        form = CampaignForm(request.POST, instance=campaign)
+        form = EditCampaignForm(request.POST, instance=campaign)
         if form.is_valid():
             form.save()
-            return redirect('campaign_list')
+            return redirect('manage_campaigns')
     else:
-        form = CampaignForm(instance=campaign)
-    return render(request, 'campaign_form.html', {'form': form, 'action': 'Edit'})
+        form = EditCampaignForm(instance=campaign)
+    return render(request, 'campaign_edit.html', {'form': form, 'action': 'Edit'})
 
 # View to delete a campaign
 
@@ -399,17 +394,18 @@ def logout_view(request):
     return redirect('login')
 
 def recipient_home(request):
-    # Assuming you have a `registrations` table and filtering users with the role of 'recipient'
-    recipient = request.user  # The logged-in recipient
+    # Assuming the recipient is the currently logged-in user
+    recipient = request.user
     
-    # Pass recipient data to the template
+    # Filter blood requests by the recipient's name or another appropriate field
+    blood_requests_count = BloodRequest.objects.filter(id=recipient.id ).count()
+    
+    # Pass the count to the template
     context = {
         'recipient': recipient,
-        # Add more context if needed, like recipient requests or notifications
+        'blood_requests_count': blood_requests_count,
     }
     return render(request, 'recipient_home.html', context)
-
-
 
 
 def inventory_list(request):
@@ -636,3 +632,57 @@ def reset_password(request, token):
             messages.error(request, 'Passwords do not match.')
 
     return render(request, 'reset_password.html', {'user': user})
+
+
+
+
+def donor_profile(request):
+    email = request.session.get('email')
+
+    if email:
+        try:
+            registration = Registration.objects.get(email=email, role='donate')
+            error = None
+        except Registration.DoesNotExist:
+            registration = None
+            error = 'Profile not found for donor'
+    else:
+        registration = None
+        error = 'Email not found in session'
+
+    return render(request, 'donor_profile.html', {
+        'registration': registration,
+        'error': error
+    })
+
+
+
+
+from .forms import DonorEditForm
+
+
+def donor_edit_profile(request):
+    email = request.session.get('email')  # Get email from session
+
+    if email:
+        # Fetch the donor's registration based on the email and role
+        registration = get_object_or_404(Registration, email=email, role='donate')  # Use the correct role
+        
+    else:
+        messages.error(request, 'Email not found in session')
+        return redirect('donor_dashboard')  # Redirect if email not found
+
+    if request.method == 'POST':
+        form = DonorEditForm(request.POST, instance=registration)  # Bind form with existing data
+        if form.is_valid():
+            form.save()  # Save the updated registration data
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('donor_dashboard')  # Redirect to the profile view after saving
+    else:
+        form = DonorEditForm(instance=registration)  # Pre-fill form with existing data
+
+    return render(request, 'donor_edit_profile.html', {
+        'form': form,
+    })
+
+

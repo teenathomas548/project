@@ -13,9 +13,9 @@
             <h1>Welcome to Your Dashboard, {{ user.fname }}!</h1>
             <nav>
                 <ul>
-                    <li><a href="#">Edit Profile</a></li>
+                    <li><a href="{% url 'donor_profile' %}"> Profile</a></li>
                     <li><a href="#">My Donations</a></li>
-                    <li><a href="#">Request Blood</a></li>
+                    <li><a href="{% url 'request_blood' %}">Request Blood</a></li>
                     <!-- Updated Logout link -->
                     <li><a href="{% url 'logout' %}">Logout</a></li>
                 </ul>
@@ -26,11 +26,9 @@
             <section class="stats">
                 <div class="stat">
                     <h2>Total Donations</h2>
-                    <p>5</p>
                 </div>
                 <div class="stat">
                     <h2>Next Appointment</h2>
-                    <p>12th Oct, 2024</p>
                 </div>
                 <div class="stat">
                     <h2>Blood Type</h2>
@@ -50,14 +48,14 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>01st Sept, 2024</td>
-                            <td>Community Center</td>
-                            <td>1 Unit</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                         </tr>
                         <tr>
-                            <td>15th Aug, 2024</td>
-                            <td>City Hospital</td>
-                            <td>1 Unit</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                         </tr>
                     </tbody>
                 </table>

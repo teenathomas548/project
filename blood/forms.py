@@ -5,7 +5,9 @@ from django.utils import timezone
 from django.core.exceptions import ValidationError
 from datetime import date
 from .models import Recipient, BloodType  # Adjust imports as per your models
-
+from django.core.exceptions import ValidationError
+from datetime import date
+import re
 
 
 class RegistrationForm(forms.ModelForm):
@@ -31,37 +33,57 @@ class CampaignForm(forms.ModelForm):
     
     def clean_name(self):
         name = self.cleaned_data.get('name')
+        
         if not name:
             raise ValidationError("Campaign name cannot be empty.")
+        
         if len(name) > 255:
             raise ValidationError("Campaign name must not exceed 255 characters.")
+        
+        # Check that the name contains only letters and spaces
+        if not re.match(r'^[A-Za-z\s]+$', name):
+            raise ValidationError("Campaign name should only contain letters and spaces.")
+        
         return name
 
     def clean_start_date(self):
         start_date = self.cleaned_data.get('start_date')
+        
         if start_date < date.today():
             raise ValidationError("Start date cannot be in the past.")
+        
         return start_date
 
     def clean_end_date(self):
         start_date = self.cleaned_data.get('start_date')
         end_date = self.cleaned_data.get('end_date')
+        
         if end_date and start_date and end_date < start_date:
             raise ValidationError("End date must be after the start date.")
+        
         return end_date
 
     def clean_location(self):
         location = self.cleaned_data.get('location')
+        
         if not location:
             raise ValidationError("Location cannot be empty.")
+        
         if len(location) > 255:
             raise ValidationError("Location must not exceed 255 characters.")
+        
         return location
 
     def clean_description(self):
         description = self.cleaned_data.get('description')
+        
         if not description:
             raise ValidationError("Description cannot be empty.")
+        
+        # Check that the description does not contain numbers
+        if re.search(r'[0-9]', description):
+            raise ValidationError("Description should not contain numbers.")
+        
         return description
 
     def clean(self):
@@ -71,7 +93,7 @@ class CampaignForm(forms.ModelForm):
 
         if is_deleted and is_active:
             raise ValidationError("A deleted campaign cannot be marked as active.")
-
+        
         return cleaned_data
 
 
@@ -100,3 +122,39 @@ class RecipientEditForm(forms.ModelForm):
 
 class ForgotPasswordForm(forms.Form):
     email = forms.EmailField(label='Email', max_length=150)
+
+class DonorEditForm(forms.ModelForm):
+    class Meta:
+        model = Registration  # Use the Registration model for recipient data
+        fields = ['first_name', 'last_name', 'date_of_birth',  'phone_number', 'gender','email']
+
+
+
+class EditCampaignForm(forms.ModelForm):
+    class Meta:
+        model = Campaign
+        fields = ['name', 'start_date', 'end_date', 'description']  # Specify fields to edit
+    
+    # Optional: Customize widgets for better presentation
+    start_date = forms.DateField(widget=forms.SelectDateWidget(years=range(2020, 2030)))
+    end_date = forms.DateField(widget=forms.SelectDateWidget(years=range(2020, 2030)))
+    
+    def clean_start_date(self):
+        start_date = self.cleaned_data.get('start_date')
+        
+        # Ensure start date is today or in the future
+        if start_date < date.today():
+            raise forms.ValidationError('Start date must be today or in the future.')
+
+        return start_date
+
+    def clean_end_date(self):
+        start_date = self.cleaned_data.get('start_date')
+        end_date = self.cleaned_data.get('end_date')
+
+        # Ensure end date is later than start date
+        if start_date and end_date and end_date <= start_date:
+            raise forms.ValidationError('End date must be later than the start date.')
+
+        return end_date
+

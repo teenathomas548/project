@@ -1,61 +1,117 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 20px;
-}
-
+/* General styling for the container */
 .container {
     max-width: 600px;
-    margin: auto;
-    background: white;
-    padding: 20px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-header h1 {
+/* Styling for the form elements */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+h1 {
     text-align: center;
     color: #333;
+    font-family: 'Arial', sans-serif;
+    font-size: 26px;
+    margin-bottom: 20px;
 }
 
-.form-group {
-    margin-bottom: 15px;
+/* Input fields and labels styling */
+.form-group, .input-box {
+    display: flex;
+    flex-direction: column;
 }
 
 label {
-    display: block;
-    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 8px;
 }
 
 input[type="text"],
 input[type="date"],
 textarea {
-    width: 100%;
     padding: 10px;
+    font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 4px;
+    outline: none;
+    transition: all 0.3s ease;
+    background-color: #fff;
 }
 
-button {
+input[type="text"]:focus,
+input[type="date"]:focus,
+textarea:focus {
+    border-color: #007BFF;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Textarea for description */
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Submit button styling */
+button[type="submit"] {
+    padding: 12px;
     background-color: #28a745;
     color: white;
-    padding: 10px;
     border: none;
     border-radius: 4px;
+    font-size: 16px;
     cursor: pointer;
-    width: 100%;
-    margin-top: 10px;
+    transition: background-color 0.3s ease;
 }
 
-button:hover {
+button[type="submit"]:hover {
     background-color: #218838;
 }
 
-.delete-button {
-    background-color: #dc3545; /* Red background for delete */
+/* Back to Campaigns link styling */
+a {
+    text-decoration: none;
+    color: #007BFF;
+    display: inline-block;
+    margin-top: 20px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    transition: color 0.3s ease;
 }
 
-.delete-button:hover {
-    background-color: #c82333; /* Darker red on hover */
+a:hover {
+    color: #0056b3;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .container {
+        margin: 20px;
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    textarea {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    button[type="submit"] {
+        font-size: 14px;
+        padding: 10px;
+    }
 }

@@ -1,4 +1,4 @@
-{%load static%}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,12 +10,94 @@
 <body>
     <div class="container">
         <h1>Edit Campaign: {{ campaign.name }}</h1>
-        <form method="POST">
+        <form method="POST" id="campaign-form">
             {% csrf_token %}
+            
+            <!-- Render form fields dynamically -->
             {{ form.as_p }}
+            
             <button type="submit">Update Campaign</button>
         </form>
         <a href="{% url 'manage_campaigns' %}">Back to Campaigns</a>
     </div>
-</body>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get today's date in YYYY-MM-DD format
+            var today = new Date().toISOString().split('T')[0];
+    
+            // Get the form fields for start and end date
+            var startDateInput = document.getElementById("id_start_date");
+            var endDateInput = document.getElementById("id_end_date");
+    
+            // Ensure the inputs exist before proceeding
+            if (startDateInput && endDateInput) {
+                // Set the min attribute for both start date and end date to today
+                startDateInput.setAttribute("min", today);
+                endDateInput.setAttribute("min", today);
+    
+                // Adjust the end date's min value based on the selected start date
+                startDateInput.addEventListener('change', function () {
+                    var selectedStartDate = startDateInput.value;
+                    endDateInput.setAttribute("min", selectedStartDate);
+                });
+    
+                // Add form submission event listener to validate the dates and other fields
+                document.getElementById("campaign-form").addEventListener('submit', function (event) {
+                    var startDate = new Date(startDateInput.value);
+                    var endDate = new Date(endDateInput.value);
+    
+                    // Check if start date is valid and is today or in the future
+                    if (startDate < new Date(today)) {
+                        event.preventDefault();
+                        alert('Start date must be today or in the future.');
+                        return; // Prevent form submission
+                    }
+    
+                    // Check if the end date is later than the start date
+                    if (endDate <= startDate) {
+                        event.preventDefault();
+                        alert('End date must be later than the start date.');
+                        return; // Prevent form submission
+                    }
+    
+                    // Validate other fields (example: name, description)
+                    var nameField = document.getElementById("id_name");
+                    var descriptionField = document.getElementById("id_description");
+    
+                    // Check if campaign name is provided
+                    if (!nameField.value.trim()) {
+                        event.preventDefault();
+                        alert('Campaign name is required.');
+                        return;
+                    }
+    
+                    // Check if the name contains only letters and spaces
+                    const nameRegex = /^[A-Za-z\s]+$/;
+                    if (!nameRegex.test(nameField.value.trim())) {
+                        event.preventDefault();
+                        alert('Campaign name should only contain letters and spaces.');
+                        return;
+                    }
+    
+                    // Check if description is provided and does not contain numbers
+                    if (!descriptionField.value.trim() || descriptionField.value.trim().length < 10) {
+                        event.preventDefault();
+                        alert('Description is required and should be at least 10 characters long.');
+                        return;
+                    }
+    
+                    const descriptionRegex = /[0-9]/; // This checks for any numbers in the description
+                    if (descriptionRegex.test(descriptionField.value.trim())) {
+                        event.preventDefault();
+                        alert('Description should not contain numbers.');
+                        return;
+                    }
+    
+                    // You can add more field validations here as needed
+                });
+            }
+        });
+    </script>
+    </body>
 </html>

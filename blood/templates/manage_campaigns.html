@@ -84,5 +84,63 @@
             </tbody>
         </table>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var today = new Date().toISOString().split('T')[0];
+            var startDateInput = document.getElementById("start_date");
+            var endDateInput = document.getElementById("end_date");
+            var form = document.querySelector('form');
+
+            // Set the minimum start date and end date to today's date
+            startDateInput.setAttribute("min", today);
+            endDateInput.setAttribute("min", today);
+
+            // Form submission validation
+            form.addEventListener('submit', function (event) {
+                var startDate = new Date(startDateInput.value);
+                var endDate = new Date(endDateInput.value);
+                var now = new Date();
+
+                // Ensure the start date is in the future
+                if (startDate <= now) {
+                    event.preventDefault();
+                    alert('Start date must be a future date.');
+                }
+
+                // Ensure the end date is after the start date
+                if (endDate <= startDate) {
+                    event.preventDefault();
+                    alert('End date must be after the start date.');
+                }
+
+                // Validate name and location (only letters and spaces)
+                var nameInput = document.getElementById("name").value.trim();
+                var locationInput = document.getElementById("location").value.trim();
+                var descriptionInput = document.getElementById("description").value.trim();
+
+                var letterSpaceRegex = /^[A-Za-z\s]+$/;
+
+                if (!letterSpaceRegex.test(nameInput)) {
+                    event.preventDefault();
+                    alert('Campaign Name should only contain letters and spaces.');
+                }
+
+                if (!letterSpaceRegex.test(locationInput)) {
+                    event.preventDefault();
+                    alert('Location should only contain letters and spaces.');
+                }
+
+                // Validate description (only letters and spaces)
+                var descriptionRegex = /^[a-zA-Z\s,'".]+$/;
+
+// Check if description is valid
+                if (!descriptionRegex.test(descriptionInput) || /^\d+$/.test(descriptionInput)) {
+                     event.preventDefault();
+                     alert('Description should only contain letters, spaces, commas, and quotes, and should not be numbers-only.');
+                }
+            });
+        });
+    </script>
 </body>
 </html>

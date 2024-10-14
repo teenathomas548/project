@@ -1,22 +1,23 @@
+
 from django.db import models
 from datetime import date
 
 
-from django.db import models
-
 class Admin(models.Model):
     username = models.CharField(max_length=150, unique=True)
-    password = models.CharField(max_length=128)  
+    password = models.CharField(max_length=128)
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(auto_now_add=True)
+
     class Meta:
         db_table = 'blood_admin'
 
     def __str__(self):
         return self.email
+
 
 class Campaign(models.Model):
     campaign_id = models.AutoField(primary_key=True)  # Unique identifier for each campaign
@@ -25,12 +26,8 @@ class Campaign(models.Model):
     end_date = models.DateField()                     # End date of the campaign
     location = models.CharField(max_length=255)       # Location of the campaign
     description = models.TextField()                  # Description of the campaign
-    is_active = models.BooleanField(default=True)  # New field for enabling/disabling
-
-
-    def __str__(self):
-        return self.name 
-    is_deleted = models.BooleanField(default=False)  # Field to mark campaigns as "deleted"
+    is_active = models.BooleanField(default=True)     # Field for enabling/disabling campaign
+    is_deleted = models.BooleanField(default=False)   # Field to mark campaigns as "deleted"
 
     # Method to check expiration and flag campaigns as deleted
     def check_and_flag_expired(self):
@@ -38,13 +35,18 @@ class Campaign(models.Model):
             self.is_deleted = True
             self.save()
 
+    def __str__(self):
+        return self.name
+
+
 class BloodType(models.Model):
     blood_type_id = models.AutoField(primary_key=True)
     blood_group = models.CharField(max_length=3)
 
     def __str__(self):
         return self.blood_group
-    
+
+
 class Registration(models.Model):
     user_id = models.AutoField(primary_key=True)
     first_name = models.CharField(max_length=100)
@@ -56,16 +58,14 @@ class Registration(models.Model):
     gender = models.CharField(max_length=10)
     blood_group = models.ForeignKey(BloodType, on_delete=models.CASCADE)
     role = models.CharField(max_length=20)
-    
     is_active = models.BooleanField(default=True)  # Default: user is active
-    reset_token = models.CharField(max_length=255, null=True, blank=True)  # Ensure this line exists
+    reset_token = models.CharField(max_length=255, null=True, blank=True)  # Token for password reset
 
     class Meta:
-        db_table = 'registrations'          
-def __str__(self):
+        db_table = 'registrations'
+
+    def __str__(self):
         return f"{self.first_name} {self.last_name}"
-
-
 
 
 class Inventory(models.Model):
@@ -75,10 +75,8 @@ class Inventory(models.Model):
     price = models.DecimalField(max_digits=8, decimal_places=2)
     is_active = models.BooleanField(default=True)  # New field to enable/disable the record
 
-
     def __str__(self):
         return f"Inventory {self.inventory_id} - {self.blood_type.blood_group}"
-    
 
 
 class BloodDonor(models.Model):
@@ -93,6 +91,7 @@ class BloodDonor(models.Model):
 
     def __str__(self):
         return f"Donor ID: {self.donor_id} - User: {self.user.first_name} {self.user.last_name}"
+
 
 class Recipient(models.Model):
     recipient_id = models.AutoField(primary_key=True)
@@ -120,3 +119,5 @@ class BloodRequest(models.Model):
 
     def __str__(self):
         return f"{self.requester_name} - {self.blood_group}"
+
+
