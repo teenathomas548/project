@@ -1,0 +1,16 @@
+<!-- hospital_request_blood.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hospital Blood Request</title>
+</head>
+<body>
+    <h1>Request Urgent Blood for an Unregistered User</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Request Blood</button>
+    </form>
+</body>
+</html>

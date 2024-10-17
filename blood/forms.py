@@ -158,3 +158,30 @@ class EditCampaignForm(forms.ModelForm):
 
         return end_date
 
+
+
+from .models import BloodType
+
+class BloodInventorySearchForm(forms.Form):
+    blood_type = forms.ModelChoiceField(queryset=BloodType.objects.all(), empty_label="Select Blood Group")
+
+
+
+# forms.py
+
+
+class HospitalRequestForm(forms.ModelForm):
+    class Meta:
+        model = Registration
+        fields = ['first_name', 'last_name', 'date_of_birth', 'email', 'phone_number', 'gender', 'blood_group']
+        widgets = {
+            'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+    def save(self, commit=True):
+        recipient = super().save(commit=False)
+        # Set the role to 'recipient'
+        recipient.role = 'recipient'
+        if commit:
+            recipient.save()
+        return recipient

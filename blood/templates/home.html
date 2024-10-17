@@ -1,4 +1,3 @@
-<!-- home.html -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -7,94 +6,101 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home | Lifeline Blood Bank</title>
     <link rel="stylesheet" href="{% static 'home.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-
     <!-- Navigation Bar -->
-    <nav class="navbar">
-        <div class="container">
-            <a href="#" class="logo">Lifeline Blood Bank</a>
-            <ul class="nav-links">
-                
-                <li><a href="#hero">Home</a></li>
-                <li><a href="#about">About Us</a></li>
-                <li><a href="#services">Services</a></li>
-                <li><a href="{% url 'login' %}">Login</a></li>
-                <li><a href="{% url 'register' %}">Register</a></li>
-                <li><a href="{% url 'admin_login' %}">Admin</a></li>
-                <li><a href="{% url 'latest_campaigns' %}">Campaign</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a href="#" class="navbar-brand">Lifeline Blood Bank</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#about">About Us</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Register</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'admin_login' %}">Admin</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'latest_campaigns' %}">Campaign</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                </ul>
+
+                <!-- Search Bar -->
+                <form class="d-flex" method="GET" action="{% url 'search_blood' %}">
+                    <input class="form-control me-2" type="text" name="blood_group" placeholder="Search blood group..." aria-label="Search">
+                    <button class="btn btn-outline-light" type="submit">Search</button>
+                </form>
+            </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section id="hero" class="hero-section">
-        <h1>Welcome to Lifeline Blood Bank</h1>
-        <p>Your Health, Our Priority</p>
-    </section>
+    <!-- Image Carousel -->
+    <div id="bloodCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img src="{% static 'image/image18.jpg' %}" class="d-block w-100" alt="Blood Donation">
+            </div>
+            <div class="carousel-item">
+                <img src="{% static 'image/image20.jpg' %}" class="d-block w-100" alt="Donation Drive">
+            </div>
+            <div class="carousel-item">
+                <img src="{% static 'image/image21.webp' %}" class="d-block w-100" alt="Health and Safety">
+            </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#bloodCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#bloodCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
 
     <!-- About Section -->
-    <section id="about" class="about-section">
-        <h2>About Us</h2>
-        <p>Lifeline Blood Bank is a trusted name in the community, providing safe and sufficient blood supplies to those in need. Our mission is to save lives through the power of voluntary blood donations, ensuring that no one has to wait for the blood they need.</p>
-        <p>We work tirelessly to connect donors with recipients, ensuring that every donation counts. Our state-of-the-art facilities and dedicated staff ensure that the blood we collect is of the highest quality and safety standards.</p>
+    <section id="about" class="about-section text-center py-5 bg-light">
+        <div class="container">
+            <h2>About Us</h2>
+            <p>Lifeline Blood Bank is committed to providing safe and sufficient blood supplies. We connect donors and recipients with quality blood that can save lives.</p>
+        </div>
     </section>
-
-    
 
     <!-- Services Section -->
-    <section id="services" class="services-section">
-        <h2>Our Services</h2>
-        <div class="services-list">
-            <div class="service-item">
-                <h3>Blood Donation</h3>
-                <p>Join our life-saving community of donors. Your donation can make a difference and save lives.</p>
-            </div>
-            <div class="service-item">
-                <h3>Blood Storage</h3>
-                <p>Our advanced storage facilities ensure that blood is available when it's needed most.</p>
-            </div>
-            <div class="service-item">
-                <h3>Blood Distribution</h3>
-                <p>We distribute blood to hospitals and clinics across the region, ensuring timely and efficient delivery.</p>
-            </div>
-            <div class="service-item">
-                <h3>Donor Eligibility Assessment</h3>
-                <p>We assess donors to ensure that all blood donations are safe for both donors and recipients.</p>
+    <section id="services" class="services-section py-5">
+        <div class="container">
+            <h2>Our Services</h2>
+            <div class="row">
+                <div class="col-md-3">
+                    <h3>Blood Donation</h3>
+                    <p>Join our life-saving community of donors. Your donation can save lives.</p>
+                </div>
+                <div class="col-md-3">
+                    <h3>Blood Storage</h3>
+                    <p>Advanced storage facilities ensure availability of blood when needed most.</p>
+                </div>
+                <div class="col-md-3">
+                    <h3>Blood Distribution</h3>
+                    <p>We distribute blood to hospitals, ensuring timely and efficient delivery.</p>
+                </div>
+                <div class="col-md-3">
+                    <h3>Donor Assessment</h3>
+                    <p>We ensure that all donations are safe for both donors and recipients.</p>
+                </div>
             </div>
         </div>
-    </section>
-
-    <!-- Testimonials Section -->
-    <section id="testimonials" class="testimonials-section">
-        <h2>What Our Donors Say</h2>
-        <div class="testimonial">
-            <p>"Donating blood at Lifeline was an incredible experience. The staff were professional, and I felt safe throughout the process. I’m glad to be making a difference!"</p>
-            <span>- Jane Doe, Donor</span>
-        </div>
-        <div class="testimonial">
-            <p>"Lifeline Blood Bank helped me when I needed it most. Their quick response and efficient service saved my life."</p>
-            <span>- John Smith, Recipient</span>
-        </div>
-    </section>
-
-    <!-- Call to Action Section -->
-    <section id="cta" class="cta-section">
-        <h2>Ready to Save Lives?</h2>
-        <p>Join us in our mission to provide life-saving blood to those in need. Become a donor today!</p>
-        <a href="{% url 'register' %}" class="cta-button">Donate Now</a>
     </section>
 
     <!-- Contact Section -->
-    <section id="contact" class="contact-section">
-        <h2>Contact Us</h2>
-        <p>Reach out to us for any inquiries or to learn more about how you can contribute.</p>
-        <p>Email: support@lifelinebloodbank.com</p>
+    <section id="contact" class="contact-section bg-dark text-white py-5">
+        <div class="container text-center">
+            <h2>Contact Us</h2>
+            <p>Email: info@lifelinebloodbank.com | Phone: +123456789</p>
+        </div>
     </section>
 
-    <footer>
-        <p>&copy; 2024 Lifeline Blood Bank. All rights reserved.</p>
-    </footer>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

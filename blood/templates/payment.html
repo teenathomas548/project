@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        h1 {
+            color: #28a745;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input[type="text"], input[type="number"], input[type="password"] {
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+        }
+
+        .payment-button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .payment-button:hover {
+            background-color: #0056b3;
+        }
+
+        .payment-button:active {
+            background-color: #003f7f;
+        }
+
+        .card-info {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Payment Page</h1>
+        <form action="#">
+            <div class="card-info">
+                <label for="cardholder_name">Cardholder Name:</label>
+                <input type="text" id="cardholder_name" name="cardholder_name" required>
+            </div>
+
+            <div class="card-info">
+                <label for="card_number">Card Number:</label>
+                <input type="text" id="card_number" name="card_number" required>
+            </div>
+
+            <div class="card-info">
+                <label for="expiry_date">Expiry Date:</label>
+                <input type="text" id="expiry_date" name="expiry_date" placeholder="MM/YY" required>
+            </div>
+
+            <div class="card-info">
+                <label for="cvv">CVV:</label>
+                <input type="password" id="cvv" name="cvv" required>
+            </div>
+
+            <button type="submit" class="payment-button">Submit Payment</button>
+        </form>
+    </div>
+
+</body>
+</html>

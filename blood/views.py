@@ -17,7 +17,6 @@ from .forms import CampaignForm
 from django.utils import timezone
 from .models import Inventory,BloodType
 from django.core.exceptions import ValidationError
-from .models import BloodDonor
 from .models import Recipient
 from django.db.models import Count, Sum  # Import Sum here
 from datetime import date
@@ -29,7 +28,7 @@ from .models import Admin  # Assuming you have a BloodAdmin model
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.hashers import make_password
 from .forms import EditCampaignForm
-
+from.models import BloodDonor
 
 # About page view
 def about(request):
@@ -77,8 +76,8 @@ def register(request):
         # Store additional data based on the role
         if role == 'recipient':
             Recipient.objects.create(user=registration, blood_type=blood_group)
-        #elif role == 'donate':
-            # BloodDonor.objects.create(user=registration, blood_type=blood_group)
+        elif role == 'donate':
+            BloodDonor.objects.create(user=registration, blood_type=blood_group)
 
         return redirect('login')
     else:
@@ -399,6 +398,7 @@ def recipient_home(request):
     
     # Filter blood requests by the recipient's name or another appropriate field
     blood_requests_count = BloodRequest.objects.filter(id=recipient.id ).count()
+    print(blood_requests_count)
     
     # Pass the count to the template
     context = {
@@ -486,24 +486,42 @@ def edit_inventory(request, inventory_id):
     }
     return render(request, 'edit_inventory.html', context)
 
+from django.shortcuts import render
+from django.contrib import messages
+from .models import Inventory
+from .forms import BloodRequestForm
 
 def request_blood(request):
     if request.method == 'POST':
         form = BloodRequestForm(request.POST)
         if form.is_valid():
-            form.save()  # Save the valid form data to the database
-            return redirect('success')  # Redirect after successful submission
+            # Save the form data to the database
+            blood_request = form.save()
+
+            # Get the requested blood group and quantity from the form
+            requested_blood_group = blood_request.blood_group
+            requested_quantity = blood_request.quantity
+
+            # Check availability in the Inventory model
+            inventory = Inventory.objects.filter(blood_type=requested_blood_group).first()
+
+            if inventory and inventory.units_available >= requested_quantity:
+                # If enough blood is available, show the payment page
+                return render(request, 'blood_available.html', {'blood_group': requested_blood_group})
+            else:
+                # If blood is not available or enough quantity is not available, go to the 'blood_not_availability.html' page
+                available_units = inventory.units_available if inventory else 0
+                return render(request, 'blood_not_available.html', {
+                    'blood_group': requested_blood_group,
+                    'available_units': available_units,
+                    'requested_units': requested_quantity
+                })
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
         form = BloodRequestForm()
-    
+
     return render(request, 'request_blood.html', {'form': form})
-
-
-def success_view(request):
-    return render(request, 'success.html')
-
 
 from django.shortcuts import render
 from .models import Registration
@@ -686,3 +704,50 @@ def donor_edit_profile(request):
     })
 
 
+from django.shortcuts import render
+from .models import BloodType, Inventory
+
+def search_blood(request):
+    blood_group = request.GET.get('blood_group')
+    
+    # Fetch the BloodType object that matches the selected blood group
+    blood_type = BloodType.objects.filter(blood_group=blood_group).first()
+    
+    # Check if there is any matching blood type
+    if blood_type:
+        # Query Inventory where the blood type matches and is_active is True
+        available_blood = Inventory.objects.filter(blood_type=blood_type, is_active=True)
+    else:
+        available_blood = None
+
+    return render(request, 'search_results.html', {'available_blood': available_blood, 'blood_group': blood_group})
+
+
+
+# views.py
+
+from django.shortcuts import render, redirect
+from .forms import HospitalRequestForm
+from .models import Registration
+
+def hospital_request_blood(request):
+    if request.method == 'POST':
+        form = HospitalRequestForm(request.POST)
+        if form.is_valid():
+            form.save()  # Automatically saves the user as a recipient
+            # Redirect to a success page or hospital dashboard
+            return redirect('hospital_dashboard')  # Replace with your success URL
+    else:
+        form = HospitalRequestForm()
+
+    return render(request, 'hospital_request_blood.html', {'form': form})
+
+
+def payment_page(request):
+    # Simulate payment process here (if needed)
+    
+    # Redirect to payment success page
+    return redirect('payment_success')
+
+def payment_success(request):
+    return render(request, 'payment_success.html')

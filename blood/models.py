@@ -119,5 +119,29 @@ class BloodRequest(models.Model):
 
     def __str__(self):
         return f"{self.requester_name} - {self.blood_group}"
+    
+    
+class Donation(models.Model):
+    donor = models.ForeignKey(Registration, on_delete=models.CASCADE)  # Link to Registration model
+    blood_group = models.ForeignKey(BloodType, on_delete=models.CASCADE)  # Link to BloodType model
+    donation_date = models.DateField(default=date.today)  # Defaults to current date
+    location = models.CharField(max_length=255)  # Location of the donation
+    notes = models.TextField(null=True, blank=True)  # Optional notes for the donation (e.g., health concerns, special requests)
 
+    class Meta:
+        db_table = 'donations'  # Custom table name
 
+    def __str__(self):
+        # Display donor's full name and blood group
+        return f"{self.donor.first_name} {self.donor.last_name} - {self.blood_group.name} on {self.donation_date}"
+
+class Appointment(models.Model):
+    REQUEST_STATUSES = (
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    )
+    appointment_id=models.AutoField(primary_key=True)
+    donor = models.ForeignKey(BloodDonor,on_delete=models.CASCADE)
+    appointment_date=models.DateField(default=date.today)
+    status = models.CharField(max_length=10, choices=REQUEST_STATUSES, default='pending')

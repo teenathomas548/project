@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ff7961; /* Lighter red for a more inviting feel */
+            text-align: center;
+            padding: 50px;
+            color: white; /* White text for contrast */
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: auto;
+            color: #333333; /* Darker text inside the container */
+        }
+
+        h1 {
+            color: #b71c1c; /* Deep red for the heading */
+            font-size: 2.5em;
+        }
+
+        p {
+            font-size: 1.2em;
+        }
+
+        a {
+            text-decoration: none;
+            background-color: darkred;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            display: inline-block;
+        }
+
+        a:hover {
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Payment Successful!</h1>
+        <p>Thank you for your payment. Your request has been successfully processed.</p>
+        <a href="{% url 'home' %}">Go Back to Home</a>
+    </div>
+</body>
+</html>

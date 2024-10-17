@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Blood</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url("/static/image/image2.jpg") no-repeat center center fixed;
+            background-size: cover;            
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: #d32f2f;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            z-index: 1000;
+        }
+        .navbar a {
+            color: white;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            font-size: 17px;
+        }
+        .navbar a:hover {
+            background-color: #f44336;
+            color: white;
+        }
+        .navbar .search-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .navbar input[type=text] {
+            padding: 6px;
+            margin-right: 10px;
+            font-size: 17px;
+            border: none;
+            border-radius: 4px;
+        }
+        .navbar button {
+            padding: 6px 10px;
+            background-color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .navbar button:hover {
+            background-color: #ddd;
+        }
+        .container {
+            width: 80%;
+            max-width: 1000px;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 80px; /* Added margin for fixed navbar */
+        }
+        h2 {
+            color: #d32f2f;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #d32f2f;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .no-results {
+            background-color: #fce4ec;
+            color: #d81b60;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+            }
+            h2 {
+                font-size: 1.5rem;
+            }
+            table, th, td {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar with Search -->
+<div class="navbar">
+    <title> Lifeline</title>
+    <a href="{% url 'home' %}">Home</a>
+    <div class="search-container">
+        <form method="GET" action="{% url 'search_blood' %}">
+            <input type="text" name="blood_group" placeholder="Search blood group...">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="container">
+    <h2>Available Blood for {{ blood_group }}</h2>
+
+    {% if available_blood %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Blood Group</th>
+                    <th>Units Available</th>
+                    <th>Price (per unit)</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for inventory in available_blood %}
+                <tr>
+                    <td>{{ inventory.blood_type.blood_group }}</td>
+                    <td>{{ inventory.units_available }}</td>
+                    <td>${{ inventory.price }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="no-results">
+            No blood available for the selected group.
+        </div>
+    {% endif %}
+</div>
+
+</body>
+</html>

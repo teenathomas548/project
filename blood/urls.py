@@ -6,10 +6,11 @@ from .views import manage_campaigns,add_campaign, campaign_edit, disable_campaig
 from .views import recipient_dashboard
 from .views import logout_view
 from .views import inventory_list, add_inventory, enable_inventory, disable_inventory,edit_inventory
-from .views import request_blood,success_view
+from .views import request_blood
 from .views import recipient_profile
 from .views import recipient_edit_profile
 from .views import donor_profile,donor_edit_profile
+from .views import hospital_request_blood
 
 
 
@@ -44,14 +45,16 @@ urlpatterns = [
     path('inventory/enable/<int:pk>/', enable_inventory, name='enable_inventory'),  # URL to enable inventory
     path('inventory/disable/<int:pk>/', disable_inventory, name='disable_inventory'),
     path('request-blood/', request_blood, name='request_blood'),  # URL for the blood request form
-    path('success/', success_view, name='success'),  
     path('recipient/profile/', recipient_profile, name='recipient_profile'),
     path('recipient/edit-profile/', recipient_edit_profile, name='recipient_edit_profile'),
     path('forgot-password/', views.forgot_password, name='forgot_password'),
     path('reset-password/<str:token>/', views.reset_password, name='reset_password'),
     path('donor/profile/', donor_profile, name='donor_profile'),
     path('donor/edit-profile/', views.donor_edit_profile, name='donor_edit_profile'),
-    
+    path('search-blood/', views.search_blood, name='search_blood'),
+    path('hospital/request-blood/', hospital_request_blood, name='hospital_request_blood'),
+    path('payment/', views.payment_page, name='payment'),
+    path('payment-success/', views.payment_success, name='payment_success'),
 
 
 

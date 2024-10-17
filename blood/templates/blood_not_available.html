@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Not Available</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(45deg, #ffdddd, #ffe6e6);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        h1 {
+            color: #d9534f;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .back-button {
+            background-color: darkred;
+            color: white;
+            padding: 12px 20px;
+            font-size: 1.1em;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .back-button:hover {
+            background-color: darkred;
+        }
+
+        .back-button:active {
+            background-color: red;
+        }
+
+        .back-button:focus {
+            outline: none;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Blood Not Available</h1>
+        <p>Unfortunately, we currently don't have the blood type you requested in stock. However, we're committed to helping you! Our team will work to arrange a donor as soon as possible. Please stay connected with us for updates.</p>
+        <a href="{% url 'request_blood' %}" class="back-button">Go Back</a>
+    </div>
+</body>
+</html>
