@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blood Available</title>
     <style>
-        /* Set a blood-themed gradient background for the entire page */
         body {
             font-family: Arial, sans-serif;
             background: linear-gradient(45deg, #d33a3a, #f8f9fa);
@@ -29,7 +28,7 @@
         }
 
         h1 {
-            color: #d33a3a; /* Red color for blood theme */
+            color: #d33a3a;
             font-size: 2em;
             margin-bottom: 20px;
         }
@@ -40,7 +39,7 @@
         }
 
         .payment-button {
-            background-color: red; /* Green color for confirmation */
+            background-color: red;
             color: white;
             padding: 12px 20px;
             font-size: 1.1em;
@@ -51,17 +50,7 @@
         }
 
         .payment-button:hover {
-            background-color: red;
-        }
-
-        .payment-button:active {
-            background-color:darkred;
-        }
-
-        footer {
-            margin-top: 20px;
-            font-size: 0.9em;
-            color: #555;
+            background-color: darkred;
         }
     </style>
 </head>
@@ -69,14 +58,13 @@
 
     <div class="container">
         <h1>Blood Available</h1>
-        <p>Great news! The blood type <strong>{{ blood_group }}</strong> is available in our blood bank.</p>
-        <p>Please proceed with the payment to secure your blood request.</p>
+        <p>The blood type <strong>{{ blood_group }}</strong> is available.</p>
+        <p>Please proceed to confirm your payment and secure the request.</p>
 
-        <!-- Payment Button -->
+        <!-- Redirects to payment confirmation page -->
         <form action="{% url 'payment' %}" method="get">
             <button type="submit" class="payment-button">Make Payment</button>
         </form>
-        
     </div>
 
 </body>

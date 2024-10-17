@@ -743,11 +743,13 @@ def hospital_request_blood(request):
     return render(request, 'hospital_request_blood.html', {'form': form})
 
 
+from django.shortcuts import render, redirect
+
+
 def payment_page(request):
-    # Simulate payment process here (if needed)
-    
-    # Redirect to payment success page
-    return redirect('payment_success')
+    return render(request, 'payment.html')
 
 def payment_success(request):
     return render(request, 'payment_success.html')
+
+

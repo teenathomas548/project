@@ -53,9 +53,8 @@ urlpatterns = [
     path('donor/edit-profile/', views.donor_edit_profile, name='donor_edit_profile'),
     path('search-blood/', views.search_blood, name='search_blood'),
     path('hospital/request-blood/', hospital_request_blood, name='hospital_request_blood'),
-    path('payment/', views.payment_page, name='payment'),
+    path('payment/', views.payment_page, name='payment'),  # Ensure this is correct
     path('payment-success/', views.payment_success, name='payment_success'),
-
 
 
 ]
