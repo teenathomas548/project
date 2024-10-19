@@ -379,6 +379,7 @@ def latest_campaigns(request):
     campaigns = Campaign.objects.filter(is_active=True)
 
     return render(request, 'latest_campaigns.html', {'campaigns': campaigns})
+
 def logout_view(request):
     try:
         # Remove session data or cookies related to authentication
@@ -753,3 +754,141 @@ def payment_success(request):
     return render(request, 'payment_success.html')
 
 
+
+from django.shortcuts import render, redirect
+from .forms import HospitalRegistrationForm
+
+def register_hospital(request):
+    if request.method == 'POST':
+        form = HospitalRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()  # Save the form data to the database
+            return redirect('login')  # Redirect to the login page after successful registration
+    else:
+        form = HospitalRegistrationForm()
+    
+    return render(request, 'hospital_register.html', {'form': form})
+
+
+
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.hashers import check_password
+from django.contrib import messages
+from .models import Hospital
+from .forms import HospitalLoginForm
+
+def hospital_login(request):
+    if request.method == 'POST':
+        form = HospitalLoginForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+
+            try:
+                hospital = Hospital.objects.get(email=email)  # Get the hospital with the provided email
+            except Hospital.DoesNotExist:
+                messages.error(request, "Invalid email or password")
+                return redirect('hospital_login')
+
+            # Since you are not using hashed passwords, just compare the raw password
+            if password == hospital.password:  # Compare plain-text password
+                # Store the hospital ID or any session information
+                request.session['hospital_id'] = hospital.hospital_id
+                return redirect('hospital_dashboard')  # Redirect to the hospital dashboard on successful login
+            else:
+                messages.error(request, "Invalid email or password")
+                return redirect('hospital_login')
+    else:
+        form = HospitalLoginForm()
+
+    return render(request, 'hospital_login.html', {'form': form})
+
+
+
+def hospital_dashboard(request):
+    hospital_id = request.session.get('hospital_id')
+    if not hospital_id:
+        return redirect('hospital_register')  # Redirect to login if not logged in
+    
+    hospital = Hospital.objects.get(hospital_id=hospital_id)
+    return render(request, 'hospital_dashboard.html', {'hospital': hospital})
+
+
+# views.py
+
+from django.shortcuts import render, redirect
+from .forms import DoctorForm
+
+def doctor_register(request):
+    if request.method == 'POST':
+        form = DoctorForm(request.POST)
+        if form.is_valid():
+            form.save()  # Save the doctor to the database
+            return redirect('doctor_login')  # Redirect to the login page after registration
+    else:
+        form = DoctorForm()
+
+    return render(request, 'register_doctor.html', {'form': form})
+
+
+from django.shortcuts import render, redirect
+from .forms import DoctorLoginForm
+from .models import Doctor
+
+
+def doctor_login(request):
+    if request.method == 'POST':
+        form = DoctorLoginForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data.get('email')
+            password = form.cleaned_data.get('password')
+
+            # Perform authentication by checking email and password
+            try:
+                # Check if a doctor with the provided email and password exists
+                doctor = Doctor.objects.get(email=email, password=password)
+                
+                # If found, store the doctor_id in the session
+                request.session['doctor_id'] = doctor.doctor_id  # Set session for doctor login
+
+                # Redirect to the doctor dashboard
+                return redirect('doctor_dashboard')
+            except Doctor.DoesNotExist:
+                # If no doctor is found, add an error to the form
+                form.add_error(None, 'Invalid email or password')
+    else:
+        form = DoctorLoginForm()
+
+    return render(request, 'doctor_login.html', {'form': form})
+
+from django.shortcuts import render, redirect
+from .models import Doctor
+
+def doctor_dashboard(request):
+    # Ensure the doctor is logged in by checking the session
+    doctor_id = request.session.get('doctor_id')
+    
+    if not doctor_id:
+        # If not logged in, redirect to the login page
+        return redirect('doctor_login')
+
+    try:
+        # Get the logged-in doctor's profile
+        doctor = Doctor.objects.get(doctor_id=doctor_id)
+    except Doctor.DoesNotExist:
+        # Handle the case where the doctor does not exist in the database
+        return redirect('doctor_login')
+
+    # Example data for the dashboard (can be expanded with real requests, etc.)
+    context = {
+        'doctor': doctor,
+        'profile': {
+            'doctor_name': doctor.doctor_name,
+            'specialization': doctor.specialization,
+            'email': doctor.email,
+        },
+        # Add more data here, such as blood requests, appointments, etc.
+    }
+
+    return render(request, 'doctor_dashboard.html', context)

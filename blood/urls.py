@@ -11,6 +11,8 @@ from .views import recipient_profile
 from .views import recipient_edit_profile
 from .views import donor_profile,donor_edit_profile
 from .views import hospital_request_blood
+from .views import doctor_register
+
 
 
 
@@ -55,6 +57,14 @@ urlpatterns = [
     path('hospital/request-blood/', hospital_request_blood, name='hospital_request_blood'),
     path('payment/', views.payment_page, name='payment'),  # Ensure this is correct
     path('payment-success/', views.payment_success, name='payment_success'),
+    path('register-hospital/', views.register_hospital, name='register_hospital'),
+    path('hospital_login/', views.hospital_login, name='hospital_login'),
+    path('dashboard/', views.hospital_dashboard, name='hospital_dashboard'),
+    path('register/doctor/', doctor_register, name='doctor_register'),  # URL for doctor registration
+    path('doctor/login/', views.doctor_login, name='doctor_login'),
+    path('doctor/login/', views.doctor_login, name='doctor_login'),
+    path('doctor/dashboard/', views.doctor_dashboard, name='doctor_dashboard'),  # URL for doctor dashboard
+
 
 
 ]

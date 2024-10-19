@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom Styles for the Dashboard */
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .dashboard-container {
+            margin-top: 50px;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: darkred;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .dashboard-header p {
+            font-size: 1.2rem;
+            color: #6c757d;
+        }
+
+        .dashboard-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .card-text {
+            font-size: 1rem;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+        }
+
+        .icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: red;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .col-md-6 {
+            flex: 1 1 calc(50% - 30px);
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 768px) {
+            .col-md-6 {
+                flex: 1 1 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container dashboard-container">
+        <div class="dashboard-header">
+            <h1>Welcome to Hospital Dashboard</h1>
+            <p>Manage your hospital's blood requests and doctor registrations with ease.</p>
+        </div>
+
+        <div class="row">
+            <!-- Request Blood -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-tint icon"></i>
+                        <h3 class="card-title">Request Blood</h3>
+                        <p class="card-text">Request blood from the blood bank for emergency or regular use.</p>
+                        <a href="{% url 'request_blood' %}" class="btn btn-primary">Request Blood</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Register Doctor -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-user-md icon"></i>
+                        <h3 class="card-title">Register Doctor</h3>
+                        <p class="card-text">Add a new doctor to your hospital's staff database.</p>
+                        <a href="{% url 'doctor_register' %}" class="btn btn-success">Register Doctor</a>
+                    </div>
+                </div>
+            </div>
+
+            
+
+            <!-- View Requests -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-list icon"></i>
+                        <h3 class="card-title">View Blood Requests</h3>
+                        <p class="card-text">View all blood requests from patients in your hospital.</p>
+                        <a href="#" class="btn btn-info">View Requests</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

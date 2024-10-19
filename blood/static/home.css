@@ -14,7 +14,7 @@ section {
 
 /* Navigation Bar */
 .navbar {
-    background-color:darkred;
+    background-color: red !important; /* Set the navbar color to red */
     color: white;
     padding: 10px 20px;
     position: sticky;
@@ -41,6 +41,7 @@ section {
     display: flex;
     margin: 0;
     padding: 0;
+    color: white !important;
 }
 
 .navbar .nav-links li {

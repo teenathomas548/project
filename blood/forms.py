@@ -185,3 +185,116 @@ class HospitalRequestForm(forms.ModelForm):
         if commit:
             recipient.save()
         return recipient
+
+
+from django import forms
+from django.contrib.auth.hashers import make_password
+from .models import Hospital
+
+class HospitalRegistrationForm(forms.ModelForm):
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter Password'
+        }),
+        label='Password'
+    )
+
+    class Meta:
+        model = Hospital
+        fields = ['hospital_name', 'phone_number', 'email', 'password']  # Include password field
+
+        widgets = {
+            'hospital_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Hospital Name'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Phone Number'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter Email'}),
+        }
+
+        labels = {
+            'hospital_name': 'Hospital Name',
+            'phone_number': 'Phone Number',
+            'email': 'Email',
+        }
+
+    def clean_hospital_name(self):
+        hospital_name = self.cleaned_data.get('hospital_name')
+        if not re.match("^[A-Za-z\s]*$", hospital_name):
+            raise ValidationError('Hospital name should contain only letters and spaces.')
+        return hospital_name
+    
+    def clean_phone_number(self):
+        phone_number = self.cleaned_data.get('phone_number')
+        if not re.match("^[6789]\d{9}$", phone_number):
+            raise ValidationError('Phone number should start with 6, 7, 8, or 9 and be 10 digits long.')
+        return phone_number
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if not email.endswith('@gmail.com'):
+            raise ValidationError('Email should be a valid Gmail address.')
+        return email
+
+
+
+class HospitalLoginForm(forms.Form):
+    email = forms.EmailField()
+    password = forms.CharField(widget=forms.PasswordInput)
+
+
+# forms.py
+
+from django import forms
+from .models import Doctor
+
+import re
+from django import forms
+from .models import Doctor
+from django.contrib.auth.hashers import make_password
+
+class DoctorForm(forms.ModelForm):
+    class Meta:
+        model = Doctor
+        fields = ['hospital_id', 'doctor_name', 'specialization', 'email', 'password']  # Added email and password fields
+        widgets = {
+            'hospital_id': forms.Select(),  # Dropdown for selecting a hospital
+            'password': forms.PasswordInput(),  # Password input field
+        }
+
+    # Validation for doctor's name
+    def clean_doctor_name(self):
+        doctor_name = self.cleaned_data.get('doctor_name')
+        if not re.match("^[a-zA-Z\s]+$", doctor_name):
+            raise forms.ValidationError("Doctor's Name must contain only letters and spaces.")
+        return doctor_name
+
+    # Validation for specialization
+    def clean_specialization(self):
+        specialization = self.cleaned_data.get('specialization')
+        if not re.match("^[a-zA-Z\s,]+$", specialization):
+            raise forms.ValidationError("Specialization must contain only letters, commas, and spaces.")
+        return specialization
+
+    # Validation for email (EmailField automatically validates format)
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if Doctor.objects.filter(email=email).exists():
+            raise forms.ValidationError("Email is already registered.")
+        return email
+
+    # Validation for password
+    def clean_password(self):
+        password = self.cleaned_data.get('password')
+        if len(password) < 8:
+            raise forms.ValidationError("Password must be at least 8 characters long.")
+        return password  # Hashing the password before saving
+    
+
+class DoctorLoginForm(forms.Form):
+    email = forms.EmailField(widget=forms.EmailInput(attrs={
+        'class': 'form-control', 
+        'placeholder': 'Enter your email'
+    }))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Enter your password'
+    }))

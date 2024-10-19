@@ -6,6 +6,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lifeline Blood Bank Admin Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Arial', sans-serif;
+        }
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .card-body {
+            transition: all 0.3s ease;
+        }
+        .card-body:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .card-title {
+            font-weight: bold;
+        }
+        .card {
+            border-radius: 10px;
+        }
+        .list-group-item a {
+            text-decoration: none;
+            color: #007bff;
+            transition: color 0.3s ease;
+        }
+        .list-group-item a:hover {
+            color: #0056b3;
+        }
+        .badge-custom {
+            font-size: 14px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -44,14 +80,15 @@
                     <div class="card-header">Menu</div>
                     <div class="card-body">
                         <ul class="list-group">
-                            <li class="list-group-item"><a href="{% url 'manage_users' %}">User Management</a></li>
-                            <li class="list-group-item"><a href="{% url 'inventory_list' %}">Blood Inventory</a></li>
-                            <li class="list-group-item"><a href="{% url 'manage_campaigns' %}">Donation Campaigns</a></li>
-                            <li class="list-group-item"><a href="#">Reports</a></li>
+                            <li class="list-group-item"><i class="fas fa-users"></i> <a href="{% url 'manage_users' %}">User Management</a></li>
+                            <li class="list-group-item"><i class="fas fa-tint"></i> <a href="{% url 'inventory_list' %}">Blood Inventory</a></li>
+                            <li class="list-group-item"><i class="fas fa-cogs"></i> <a href="{% url 'manage_campaigns' %}">Donation Campaigns</a></li>
+                            <li class="list-group-item"><i class="fas fa-chart-line"></i> <a href="#">Reports</a></li>
                         </ul>
                     </div>
                 </div>
             </div>
+
             <div class="col-md-9">
                 <div class="card">
                     <div class="card-header">Dashboard</div>
@@ -60,28 +97,32 @@
                             <div class="col-md-4">
                                 <div class="card text-white bg-primary mb-3">
                                     <div class="card-body">
+                                        <i class="fas fa-users fa-3x"></i>
                                         <h5 class="card-title">Total Donors</h5>
-                                        <p class="card-text">{{ total_donors }}</p> <!-- Display total donors -->
+                                        <p class="card-text">{{ total_donors }}</p>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="card text-white bg-success mb-3">
                                     <div class="card-body">
+                                        <i class="fas fa-blood-type fa-3x"></i>
                                         <h5 class="card-title">Blood Units Available</h5>
-                                        <p class="card-text">{{ blood_units }}</p> <!-- Display total blood units -->
+                                        <p class="card-text">{{ blood_units }}</p>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="card text-white bg-danger mb-3">
                                     <div class="card-body">
+                                        <i class="fas fa-exclamation-triangle fa-3x"></i>
                                         <h5 class="card-title">Pending Requests</h5>
-                                        <p class="card-text">{{ pending_requests }}</p> <!-- Display pending requests -->
+                                        <p class="card-text">{{ pending_requests }}</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
                         <div class="row mt-4">
                             <div class="col-md-12">
                                 <h4>Recent Activities</h4>
@@ -94,17 +135,17 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for activity in recent_activities %} <!-- Loop through recent activities -->
+                                        {% for activity in recent_activities %}
                                             <tr>
                                                 <td>{{ activity.date }}</td>
                                                 <td>{{ activity.activity }}</td>
                                                 <td>
                                                     {% if activity.status == "Completed" %}
-                                                        <span class="badge bg-success">{{ activity.status }}</span>
+                                                        <span class="badge bg-success badge-custom">{{ activity.status }}</span>
                                                     {% elif activity.status == "Pending" %}
-                                                        <span class="badge bg-warning">{{ activity.status }}</span>
+                                                        <span class="badge bg-warning badge-custom">{{ activity.status }}</span>
                                                     {% elif activity.status == "Urgent" %}
-                                                        <span class="badge bg-danger">{{ activity.status }}</span>
+                                                        <span class="badge bg-danger badge-custom">{{ activity.status }}</span>
                                                     {% endif %}
                                                 </td>
                                             </tr>

@@ -108,14 +108,13 @@ class BloodRequest(models.Model):
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
     )
-
     requester_name = models.CharField(max_length=100)
     blood_group = models.ForeignKey(BloodType, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()  # in units (ml or pints)
     hospital_name = models.CharField(max_length=150)
     contact_number = models.CharField(max_length=15)
     request_date = models.DateField(auto_now_add=True)
-    status = models.CharField(max_length=10, choices=REQUEST_STATUSES, default='pending')
+    status = models.CharField(max_length=10, choices=REQUEST_STATUSES)
 
     def __str__(self):
         return f"{self.requester_name} - {self.blood_group}"
@@ -145,3 +144,26 @@ class Appointment(models.Model):
     donor = models.ForeignKey(BloodDonor,on_delete=models.CASCADE)
     appointment_date=models.DateField(default=date.today)
     status = models.CharField(max_length=10, choices=REQUEST_STATUSES, default='pending')
+
+
+class Hospital(models.Model):
+    hospital_id = models.AutoField(primary_key=True)
+    hospital_name = models.CharField(max_length=255)
+    phone_number = models.CharField(max_length=15)
+    email = models.EmailField()
+    password = models.CharField(max_length=128)  # Add this field for password storage
+
+    def __str__(self):
+        return self.hospital_name
+
+
+class Doctor(models.Model):
+    doctor_id = models.AutoField(primary_key=True)  # Unique identifier for each doctor
+    hospital_id = models.ForeignKey('Hospital', on_delete=models.CASCADE)  # Foreign key linked to hospital_id in Hospital model
+    doctor_name = models.CharField(max_length=255)  # Name of the doctor
+    specialization = models.CharField(max_length=255)  # Specialization of the doctor
+    email = models.EmailField(unique=True)  # Email field for the doctor
+    password = models.CharField(max_length=255)  # Password field for the doctor
+
+    def __str__(self):
+        return self.doctor_name

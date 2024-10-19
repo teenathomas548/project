@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Login</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        /* General Styles */
+        body {
+            background: url("/static/image/blood.jpg") no-repeat center center fixed;
+            background-size: cover;    
+            font-family: 'Arial', sans-serif;
+            color: #333;
+        }
+
+        .container {
+            margin-top: 50px;
+            padding: 40px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+        }
+
+        h2 {
+            color: #444;
+            font-size: 28px;
+            margin-bottom: 25px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* Form Inputs Styling */
+        .form-group label {
+            font-size: 16px;
+            color: #555;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            font-size: 16px;
+            padding: 12px;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+            outline: none;
+        }
+
+        /* Submit Button Styling */
+        .btn-primary {
+            background-color: red;
+            border-color: #007bff;
+            font-size: 18px;
+            padding: 12px;
+            border-radius: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: darkred;
+            border-color: #004085;
+        }
+
+        /* Footer Section */
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Additional Styles for Mobile Responsiveness */
+        @media (max-width: 767px) {
+            .container {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            .form-group input {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .btn-primary {
+                font-size: 16px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Doctor Login</h2>
+
+        <form method="POST" id="loginForm">
+            {% csrf_token %}
+
+            <!-- Email Field -->
+            <div class="form-group">
+                <label for="email">Email</label>
+                {{ form.email }}
+            </div>
+
+            <!-- Password Field -->
+            <div class="form-group">
+                <label for="password">Password</label>
+                {{ form.password }}
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+        </form>
+
+        <div class="footer">
+            <p>Don't have an account? <a href="{% url 'doctor_register' %}">Register</a></p>
+            <p><a href="{% url 'forgot_password' %}">Forgot your password?</a></p>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // JavaScript form validation
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            var email = document.getElementById('id_email').value;
+            var password = document.getElementById('id_password').value;
+
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;  // Email validation regex
+
+            if (!emailRegex.test(email)) {
+                alert("Please enter a valid email address.");
+                event.preventDefault();
+                return;
+            }
+
+            if (password.trim() === "") {
+                alert("Please enter your password.");
+                event.preventDefault();
+                return;
+            }
+        });
+    </script>
+
+</body>
+</html>

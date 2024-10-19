@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <!-- Internal CSS for styling -->
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+            max-width: 900px;
+        }
+        .profile-section, .blood-request-section, .request-history {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        h1, h2, h3 {
+            color: #343a40;
+        }
+        .profile-section p, .request-history li {
+            font-size: 16px;
+        }
+        .request-history ul {
+            padding-left: 20px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .icon {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="text-center mb-4">Doctor Dashboard</h1>
+
+    <!-- Doctor Profile -->
+    <div class="profile-section">
+        <h2><i class="fas fa-user-md icon"></i> Profile</h2>
+        <p><strong>Name:</strong> Dr. {{ doctor.doctor_name }}</p>
+        <p><strong>Email:</strong> {{ doctor.email }}</p>
+        <p><strong>Specialization:</strong> {{ doctor.specialization }}</p>
+        <p><strong>Hospital:</strong> {{ doctor.hospital.hospital_name }}</p>
+    </div>
+
+    <!-- Blood Request Form -->
+    <div class="blood-request-section">
+        <h2><i class="fas fa-tint icon"></i> Request Blood</h2>
+        <form method="POST">
+            {% csrf_token %}
+            {{ blood_request_form.as_p }}
+            <button type="submit" class="btn btn-primary"><i class="fas fa-check-circle"></i> Submit Blood Request</button>
+        </form>
+    </div>
+
+    <!-- Blood Requests History -->
+    <div class="request-history">
+        <h3><i class="fas fa-history icon"></i> Previous Blood Requests</h3>
+        <ul>
+            {% for request in doctor.bloodrequest_set.all %}
+                <li><i class="fas fa-cogs icon"></i>{{ request.blood_group }}: {{ request.quantity }} units - {{ request.request_date }}</li>
+            {% empty %}
+                <li><i class="fas fa-exclamation-circle icon"></i>No blood requests made yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt icon"></i> Logout</a>
+    </div>
+</div>
+
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>
