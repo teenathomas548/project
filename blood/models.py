@@ -167,3 +167,55 @@ class Doctor(models.Model):
 
     def __str__(self):
         return self.doctor_name
+    
+
+
+class BloodApply(models.Model):
+    BLOOD_TYPES = [
+        ('A+', 'A+'),
+        ('A-', 'A-'),
+        ('B+', 'B+'),
+        ('B-', 'B-'),
+        ('O+', 'O+'),
+        ('O-', 'O-'),
+        ('AB+', 'AB+'),
+        ('AB-', 'AB-'),
+    ]
+
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('fulfilled', 'Fulfilled'),
+        ('rejected', 'Rejected'),
+    ]
+
+    blood_type = models.ForeignKey(BloodType, on_delete=models.CASCADE)
+    quantity = models.IntegerField(help_text="Quantity in units (e.g., 1 unit = 500ml)")
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='blood_applications')
+    request_date = models.DateTimeField(auto_now_add=True)
+    urgency = models.CharField(max_length=50, null=True, blank=True, choices=[('normal', 'Normal'), ('emergency', 'Emergency')])
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    patient_name = models.CharField(max_length=255, null=True, blank=True)  # Optional, can be left blank for general requests
+    patient_age = models.IntegerField(null=True, blank=True)  # Optional, age of the patient (if applicable)
+    reason = models.TextField(blank=True, null=True)  # New reason field
+
+    def __str__(self):
+        return f"{self.hospital.hospital_name} - {self.blood_type.blood_group} - {self.status}"
+
+    def fulfill_request(self):
+        """Fulfill the blood application by updating inventory and changing the status."""
+        try:
+            # Check if the requested blood type is available in the inventory
+            inventory = Inventory.objects.get(blood_type=self.blood_type, is_active=True)
+            if inventory.update_inventory(self.quantity):
+                self.status = 'fulfilled'
+                self.save()
+                return True
+            else:
+                self.status = 'rejected'
+                self.save()
+                return False
+        except Inventory.DoesNotExist:
+            self.status = 'rejected'
+            self.save()
+            return False

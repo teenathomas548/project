@@ -865,6 +865,14 @@ def doctor_login(request):
 from django.shortcuts import render, redirect
 from .models import Doctor
 
+from django.shortcuts import render, redirect
+from .models import Doctor
+from .forms import BloodApplyForm  # Assuming you have a form for blood requests
+
+from django.shortcuts import render, redirect
+from .forms import BloodApplyForm
+from .models import Doctor
+
 def doctor_dashboard(request):
     # Ensure the doctor is logged in by checking the session
     doctor_id = request.session.get('doctor_id')
@@ -880,7 +888,18 @@ def doctor_dashboard(request):
         # Handle the case where the doctor does not exist in the database
         return redirect('doctor_login')
 
-    # Example data for the dashboard (can be expanded with real requests, etc.)
+    # If the form is submitted, process the form data
+    if request.method == 'POST':
+        blood_apply_form = BloodApplyForm(request.POST)
+        if blood_apply_form.is_valid():
+            # Save the form data (assuming your model is properly set up)
+            blood_apply_form.save()
+            # Redirect to a success page or show a success message
+            return redirect('blood_application_success')
+    else:
+        blood_apply_form = BloodApplyForm()
+
+    # Add the context data for rendering the dashboard and the form
     context = {
         'doctor': doctor,
         'profile': {
@@ -888,7 +907,10 @@ def doctor_dashboard(request):
             'specialization': doctor.specialization,
             'email': doctor.email,
         },
-        # Add more data here, such as blood requests, appointments, etc.
+        'blood_apply_form': blood_apply_form,  # Pass the form to the template
     }
 
     return render(request, 'doctor_dashboard.html', context)
+
+def blood_application_success(request):
+    return render(request, 'blood_application_success.html')

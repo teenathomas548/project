@@ -298,3 +298,18 @@ class DoctorLoginForm(forms.Form):
         'class': 'form-control',
         'placeholder': 'Enter your password'
     }))
+
+
+
+from .models import BloodApply
+
+class BloodApplyForm(forms.ModelForm):
+    class Meta:
+        model = BloodApply
+        fields = ['blood_type', 'quantity', 'hospital', 'urgency', 'patient_name', 'patient_age', 'reason']
+        widgets = {
+            'patient_age': forms.NumberInput(attrs={'min': 1}),
+            'quantity': forms.NumberInput(attrs={'min': 1}),
+            'urgency': forms.Select(choices=[('normal', 'Normal'), ('emergency', 'Emergency')]),
+            'reason': forms.Textarea(attrs={'placeholder': 'Please provide a reason for the blood application.', 'rows': 4}),
+        }

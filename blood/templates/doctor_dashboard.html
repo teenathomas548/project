@@ -15,8 +15,9 @@
     <!-- Internal CSS for styling -->
     <style>
         body {
-            background-color: #f8f9fa;
-        }
+            background: url("/static/image/image 10.jpeg") no-repeat center center fixed;
+            background-size: cover;
+            }
         .container {
             margin-top: 50px;
             max-width: 900px;
@@ -55,6 +56,16 @@
         .icon {
             margin-right: 10px;
         }
+        /* Ensure all form controls have the same width and alignment */
+        .form-group .form-control {
+            width: 100%; /* Full width */
+            border-radius: 0.25rem; /* Same as Bootstrap */
+            margin-bottom: 1rem; /* Spacing between fields */
+        }
+        /* Adjust margins for specific elements if needed */
+        .blood-request-section .form-group {
+            margin-bottom: 20px; /* Uniform spacing */
+        }
     </style>
 </head>
 <body>
@@ -71,16 +82,58 @@
         <p><strong>Hospital:</strong> {{ doctor.hospital.hospital_name }}</p>
     </div>
 
-    <!-- Blood Request Form -->
+    <!-- Blood Apply Section -->
     <div class="blood-request-section">
-        <h2><i class="fas fa-tint icon"></i> Request Blood</h2>
+        <h2><i class="fas fa-tint icon"></i> Apply for Blood</h2>
         <form method="POST">
             {% csrf_token %}
-            {{ blood_request_form.as_p }}
-            <button type="submit" class="btn btn-primary"><i class="fas fa-check-circle"></i> Submit Blood Request</button>
+            
+            <div class="form-group">
+                <label for="id_blood_type">Blood Type</label>
+                <!-- Render editable select dropdown for blood type -->
+                {{ blood_apply_form.blood_type }}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_quantity">Quantity</label>
+                <!-- Render editable number input for quantity -->
+                {{ blood_apply_form.quantity }}
+            </div>
+    
+            <div class="form-group">
+                <label for="id_hospital">Hospital</label>
+                <!-- Render editable select dropdown for hospital -->
+                {{ blood_apply_form.hospital }}
+            </div>
+    
+            <div class="form-group">
+                <label for="id_urgency">Urgency</label>
+                <!-- Render editable select dropdown for urgency -->
+                {{ blood_apply_form.urgency }}
+            </div>
+    
+            <div class="form-group">
+                <label for="id_patient_name">Patient Name</label>
+                <!-- Render editable text input for patient name -->
+                {{ blood_apply_form.patient_name}}
+            </div>
+    
+            <div class="form-group">
+                <label for="id_patient_age">Patient Age</label>
+                <!-- Render editable number input for patient age -->
+                {{ blood_apply_form.patient_age }}
+            </div>
+
+            <div class="form-group">
+                <label for="id_reason">Reason </label>
+                <!-- Render editable textarea for reason -->
+                {{ blood_apply_form.reason }} <!-- Ensure it has form-control class for alignment -->
+            </div>
+    
+            <button type="submit" class="btn btn-primary"><i class="fas fa-check-circle"></i> Submit Blood Application</button>
         </form>
     </div>
-
+    
     <!-- Blood Requests History -->
     <div class="request-history">
         <h3><i class="fas fa-history icon"></i> Previous Blood Requests</h3>
@@ -94,7 +147,7 @@
     </div>
 
     <div class="text-center mt-4">
-        <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt icon"></i> Logout</a>
+        <a href="{% url 'doctor_login' %}"><i class="fas fa-sign-out-alt icon"></i> Logout</a>
     </div>
 </div>
 

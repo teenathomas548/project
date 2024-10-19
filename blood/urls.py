@@ -62,9 +62,8 @@ urlpatterns = [
     path('dashboard/', views.hospital_dashboard, name='hospital_dashboard'),
     path('register/doctor/', doctor_register, name='doctor_register'),  # URL for doctor registration
     path('doctor/login/', views.doctor_login, name='doctor_login'),
-    path('doctor/login/', views.doctor_login, name='doctor_login'),
     path('doctor/dashboard/', views.doctor_dashboard, name='doctor_dashboard'),  # URL for doctor dashboard
-
+    path('blood-application/success/', views.blood_application_success, name='blood_application_success'),
 
 
 ]
