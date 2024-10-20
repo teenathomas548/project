@@ -1,0 +1,8 @@
+<h1>Upload Blood Test Report</h1>
+<p>{{ message }}</p>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ upload_form.as_p }}
+    <button type="submit">Submit Report</button>
+</form>

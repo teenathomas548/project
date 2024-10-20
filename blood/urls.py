@@ -64,6 +64,5 @@ urlpatterns = [
     path('doctor/login/', views.doctor_login, name='doctor_login'),
     path('doctor/dashboard/', views.doctor_dashboard, name='doctor_dashboard'),  # URL for doctor dashboard
     path('blood-application/success/', views.blood_application_success, name='blood_application_success'),
-
-
+   
 ]

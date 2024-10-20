@@ -313,3 +313,5 @@ class BloodApplyForm(forms.ModelForm):
             'urgency': forms.Select(choices=[('normal', 'Normal'), ('emergency', 'Emergency')]),
             'reason': forms.Textarea(attrs={'placeholder': 'Please provide a reason for the blood application.', 'rows': 4}),
         }
+
+

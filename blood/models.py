@@ -184,7 +184,7 @@ class BloodApply(models.Model):
 
     STATUS_CHOICES = [
         ('pending', 'Pending'),
-        ('approved', 'Approved'),
+        ('approved', 'Approved'),   
         ('fulfilled', 'Fulfilled'),
         ('rejected', 'Rejected'),
     ]
@@ -192,6 +192,7 @@ class BloodApply(models.Model):
     blood_type = models.ForeignKey(BloodType, on_delete=models.CASCADE)
     quantity = models.IntegerField(help_text="Quantity in units (e.g., 1 unit = 500ml)")
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='blood_applications')
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='blood_requests')  # New doctor field
     request_date = models.DateTimeField(auto_now_add=True)
     urgency = models.CharField(max_length=50, null=True, blank=True, choices=[('normal', 'Normal'), ('emergency', 'Emergency')])
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
@@ -219,3 +220,5 @@ class BloodApply(models.Model):
             self.status = 'rejected'
             self.save()
             return False
+        
+

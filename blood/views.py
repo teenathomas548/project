@@ -177,7 +177,7 @@ from .models import Registration, Inventory, BloodRequest
 
 from django.shortcuts import render
 from django.db.models import Sum
-from .models import Registration, Inventory, BloodRequest
+from .models import Registration, Inventory, BloodApply
 
 def blood_admin(request):
     # Total donors count
@@ -187,22 +187,23 @@ def blood_admin(request):
     blood_units = Inventory.objects.aggregate(total_units=Sum('units_available'))['total_units'] or 0
 
     # Pending requests count
-    pending_requests = BloodRequest.objects.filter(status='pending').count()
+    pending_requests = BloodApply.objects.filter(status='pending').count()
     
     # Urgent requests count
-    urgent_requests = BloodRequest.objects.filter(status='urgent').count()
+    urgent_requests = BloodApply.objects.filter(status='urgent').count()
 
     # Completed requests count
-    completed_requests = BloodRequest.objects.filter(status='approved').count()
+    completed_requests = BloodApply.objects.filter(status='approved').count()
 
     # Fetch recent activities dynamically
     recent_activities = [
         {
             "date": request.request_date,
-            "activity": f"{request.requester_name} requested blood of group {request.blood_group} from {request.hospital_name}",
+            "activity": f"Dr. {request.doctor.doctor_name} {request.doctor.last_name} has requested {request.blood_type.blood_group} blood for patient {request.patient_name} from {request.hospital.hospital_name}.",
+
             "status": request.status  # this will show 'pending', 'urgent', or 'approved'
         }
-        for request in BloodRequest.objects.order_by('-request_date')[:5]  # limit to 5 recent requests
+        for request in BloodApply.objects.order_by('-request_date')[:5]  # limit to 5 recent requests
     ]
 
     context = {
@@ -862,12 +863,6 @@ def doctor_login(request):
 
     return render(request, 'doctor_login.html', {'form': form})
 
-from django.shortcuts import render, redirect
-from .models import Doctor
-
-from django.shortcuts import render, redirect
-from .models import Doctor
-from .forms import BloodApplyForm  # Assuming you have a form for blood requests
 
 from django.shortcuts import render, redirect
 from .forms import BloodApplyForm
@@ -882,8 +877,8 @@ def doctor_dashboard(request):
         return redirect('doctor_login')
 
     try:
-        # Get the logged-in doctor's profile
-        doctor = Doctor.objects.get(doctor_id=doctor_id)
+        # Get the logged-in doctor's profile using 'doctor_id'
+        doctor = Doctor.objects.get(doctor_id=doctor_id)  # Correct field name
     except Doctor.DoesNotExist:
         # Handle the case where the doctor does not exist in the database
         return redirect('doctor_login')
@@ -892,8 +887,12 @@ def doctor_dashboard(request):
     if request.method == 'POST':
         blood_apply_form = BloodApplyForm(request.POST)
         if blood_apply_form.is_valid():
-            # Save the form data (assuming your model is properly set up)
-            blood_apply_form.save()
+            # Save the form, but don't commit yet
+            blood_apply = blood_apply_form.save(commit=False)
+            # Attach the logged-in doctor to the blood application
+            blood_apply.doctor = doctor
+            # Now save the blood application with the attached doctor
+            blood_apply.save()
             # Redirect to a success page or show a success message
             return redirect('blood_application_success')
     else:
@@ -903,7 +902,7 @@ def doctor_dashboard(request):
     context = {
         'doctor': doctor,
         'profile': {
-            'doctor_name': doctor.doctor_name,
+            'doctor_name': f"Dr. {doctor.doctor_name}",
             'specialization': doctor.specialization,
             'email': doctor.email,
         },
