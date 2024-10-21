@@ -134,16 +134,6 @@ class Donation(models.Model):
         # Display donor's full name and blood group
         return f"{self.donor.first_name} {self.donor.last_name} - {self.blood_group.name} on {self.donation_date}"
 
-class Appointment(models.Model):
-    REQUEST_STATUSES = (
-        ('pending', 'Pending'),
-        ('approved', 'Approved'),
-        ('rejected', 'Rejected'),
-    )
-    appointment_id=models.AutoField(primary_key=True)
-    donor = models.ForeignKey(BloodDonor,on_delete=models.CASCADE)
-    appointment_date=models.DateField(default=date.today)
-    status = models.CharField(max_length=10, choices=REQUEST_STATUSES, default='pending')
 
 
 class Hospital(models.Model):
@@ -222,3 +212,44 @@ class BloodApply(models.Model):
             return False
         
 
+
+from django.db import models
+from datetime import date
+from .models import BloodDonor  # Assuming BloodDonor is another model representing donors
+
+class Appointment(models.Model):
+    REQUEST_STATUSES = (
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    )
+
+    appointment_id = models.AutoField(primary_key=True)
+    donor = models.ForeignKey(BloodDonor, on_delete=models.CASCADE)
+    appointment_date = models.DateField(default=date.today)
+    status = models.CharField(max_length=10, choices=REQUEST_STATUSES, default='pending')
+
+    def __str__(self):
+        return f"Appointment {self.appointment_id} - {self.donor.first_name} {self.donor.last_name} on {self.appointment_date}"
+
+    class Meta:
+        ordering = ['-appointment_date']  # You can order by date so the latest appointments come first.
+
+
+
+class DonorProfile(models.Model):
+    donor_id = models.AutoField(primary_key=True)
+    donor_name = models.CharField(max_length=255)
+    date_of_birth = models.DateField()
+    last_donation_date = models.DateField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    contact_number = models.CharField(max_length=15)
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=255)
+    blood_type = models.ForeignKey(BloodType, on_delete=models.SET_NULL, null=True, blank=True)
+
+    class Meta:
+        db_table = 'donor_profiles'
+
+    def __str__(self):
+        return self.donor_name

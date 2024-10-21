@@ -12,6 +12,8 @@ from .views import recipient_edit_profile
 from .views import donor_profile,donor_edit_profile
 from .views import hospital_request_blood
 from .views import doctor_register
+from .views import donor_login  # If using function-based view
+
 
 
 
@@ -64,5 +66,11 @@ urlpatterns = [
     path('doctor/login/', views.doctor_login, name='doctor_login'),
     path('doctor/dashboard/', views.doctor_dashboard, name='doctor_dashboard'),  # URL for doctor dashboard
     path('blood-application/success/', views.blood_application_success, name='blood_application_success'),
-   
+    path('register-donor/', views.register_donor, name='register_donor'),
+    path('login/', views.donor_login, name='donor_login'),  # Donor login URL
+
+
+
+
+
 ]

@@ -199,7 +199,7 @@ def blood_admin(request):
     recent_activities = [
         {
             "date": request.request_date,
-            "activity": f"Dr. {request.doctor.doctor_name} {request.doctor.last_name} has requested {request.blood_type.blood_group} blood for patient {request.patient_name} from {request.hospital.hospital_name}.",
+            "activity": f"Dr. {request.doctor.doctor_name}  has requested {request.blood_type.blood_group} blood for patient {request.patient_name} from {request.hospital.hospital_name}.",
 
             "status": request.status  # this will show 'pending', 'urgent', or 'approved'
         }
@@ -913,3 +913,53 @@ def doctor_dashboard(request):
 
 def blood_application_success(request):
     return render(request, 'blood_application_success.html')
+
+
+
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import DonorRegistrationForm
+
+def register_donor(request):
+    if request.method == 'POST':
+        form = DonorRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Registration successful! Please log in.")
+            return redirect('donor_login')  # Redirect to donor login page after successful registration
+    else:
+        form = DonorRegistrationForm()
+
+    return render(request, 'register_donor.html', {'form': form})
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import DonorLoginForm
+from .models import DonorProfile  # Assuming DonorProfile is your custom model
+
+def donor_login(request):
+    if request.method == "POST":
+        form = DonorLoginForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+            
+            try:
+                # Retrieve the donor by email
+                donor = DonorProfile.objects.get(email=email)
+                
+                # Check if the password matches
+                if donor.check_password(password):
+                    # Manually set the session to indicate the donor is logged in
+                    request.session['donor_id'] = donor.donor_id  # Use 'donor.donor_id' since that's the field you have
+                    return redirect('donor_dashboard')  # Redirect to donor dashboard
+                else:
+                    messages.error(request, 'Invalid password.')
+            except DonorProfile.DoesNotExist:
+                messages.error(request, 'Donor does not exist.')
+
+    else:
+        form = DonorLoginForm()
+
+    return render(request, 'donor_login.html', {'form': form})

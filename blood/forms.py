@@ -314,4 +314,87 @@ class BloodApplyForm(forms.ModelForm):
             'reason': forms.Textarea(attrs={'placeholder': 'Please provide a reason for the blood application.', 'rows': 4}),
         }
 
+from django import forms
+from .models import Appointment, BloodDonor
 
+class AppointmentForm(forms.ModelForm):
+    class Meta:
+        model = Appointment
+        fields = ['appointment_date']
+        widgets = {
+            'appointment_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        donor = kwargs.get('donor', None)
+        super().__init__(*args, **kwargs)
+        if donor and donor.can_appoint():
+            self.fields['appointment_date'].queryset = Appointment.objects.filter(donor=donor)
+        else:
+            self.fields['appointment_date'].disabled = True
+
+
+
+
+from django import forms
+from django.core.exceptions import ValidationError
+from datetime import date
+from .models import DonorProfile
+import re
+
+class DonorRegistrationForm(forms.ModelForm):
+    class Meta:
+        model = DonorProfile
+        fields = ['donor_name', 'date_of_birth', 'last_donation_date', 'contact_number', 'email', 'password']
+        widgets = {
+            'password': forms.PasswordInput(),
+            'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
+            'last_donation_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+        blood_type = forms.ModelChoiceField(queryset=BloodType.objects.all(), empty_label="Select Blood Group", widget=forms.Select(attrs={'class': 'form-control'}))
+
+
+    # Validation for donor_name: Only letters and spaces allowed
+    def clean_donor_name(self):
+        donor_name = self.cleaned_data['donor_name']
+        if not re.match(r"^[A-Za-z\s]+$", donor_name):  # Changed to raw string
+            raise ValidationError("Name should contain only letters and spaces.")
+        return donor_name
+
+    # Validation for date_of_birth: Must be 18 years or older
+    def clean_date_of_birth(self):
+        date_of_birth = self.cleaned_data['date_of_birth']
+        today = date.today()
+        age = today.year - date_of_birth.year - ((today.month, today.day) < (date_of_birth.month, date_of_birth.day))
+
+        if age < 18:
+            raise ValidationError("You must be at least 18 years old to register.")
+        return date_of_birth
+
+    # Validation for contact_number: Must start with 6, 7, 8, or 9 and be exactly 10 digits
+    def clean_contact_number(self):
+        contact_number = self.cleaned_data['contact_number']
+        if not re.match(r"^[6-9]\d{9}$", contact_number):  # Changed to raw string
+            raise ValidationError("Contact number must start with 6, 7, 8, or 9 and contain exactly 10 digits.")
+        return contact_number
+
+    # Validation for email: Django automatically validates the email field, but you can extend it
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):  # Changed to raw string
+            raise ValidationError("Please enter a valid email address.")
+        return email
+
+    # Validation for last_donation_date: Must be a past date
+    def clean_last_donation_date(self):
+        last_donation_date = self.cleaned_data['last_donation_date']
+        if last_donation_date > date.today():
+            raise ValidationError("Last donation date must be in the past.")
+        return last_donation_date
+
+
+
+class DonorLoginForm(forms.Form):
+    email = forms.EmailField()
+    password = forms.CharField(widget=forms.PasswordInput())
