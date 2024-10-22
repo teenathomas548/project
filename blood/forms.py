@@ -396,5 +396,18 @@ class DonorRegistrationForm(forms.ModelForm):
 
 
 class DonorLoginForm(forms.Form):
-    email = forms.EmailField()
-    password = forms.CharField(widget=forms.PasswordInput())
+    email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter your email'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Enter your password'}))
+
+
+
+from .models import Appointment
+
+class AppointmentForm(forms.ModelForm):
+    class Meta:
+        model = Appointment
+        fields = ['appointment_date', 'appointment_time']
+        widgets = {
+            'appointment_date': forms.DateInput(attrs={'type': 'date'}),
+            'appointment_time': forms.TimeInput(attrs={'type': 'time'}),
+        }

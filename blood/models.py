@@ -212,31 +212,6 @@ class BloodApply(models.Model):
             return False
         
 
-
-from django.db import models
-from datetime import date
-from .models import BloodDonor  # Assuming BloodDonor is another model representing donors
-
-class Appointment(models.Model):
-    REQUEST_STATUSES = (
-        ('pending', 'Pending'),
-        ('approved', 'Approved'),
-        ('rejected', 'Rejected'),
-    )
-
-    appointment_id = models.AutoField(primary_key=True)
-    donor = models.ForeignKey(BloodDonor, on_delete=models.CASCADE)
-    appointment_date = models.DateField(default=date.today)
-    status = models.CharField(max_length=10, choices=REQUEST_STATUSES, default='pending')
-
-    def __str__(self):
-        return f"Appointment {self.appointment_id} - {self.donor.first_name} {self.donor.last_name} on {self.appointment_date}"
-
-    class Meta:
-        ordering = ['-appointment_date']  # You can order by date so the latest appointments come first.
-
-
-
 class DonorProfile(models.Model):
     donor_id = models.AutoField(primary_key=True)
     donor_name = models.CharField(max_length=255)
@@ -253,3 +228,28 @@ class DonorProfile(models.Model):
 
     def __str__(self):
         return self.donor_name
+
+
+
+from django.db import models
+from django.utils import timezone
+from .models import DonorProfile
+
+class Appointment(models.Model):
+    donor = models.ForeignKey(DonorProfile, on_delete=models.CASCADE)
+    appointment_date = models.DateField()
+    appointment_time = models.TimeField()
+    status = models.CharField(max_length=20, default='Scheduled')  # Example: 'Scheduled', 'Completed', 'Cancelled'
+
+    class Meta:
+        db_table = 'appointments'
+
+
+
+class MedicalReport(models.Model):
+    donor = models.ForeignKey(DonorProfile, on_delete=models.CASCADE)
+    medical_report = models.FileField(upload_to='medical_reports/')
+    submission_date = models.DateField(default=timezone.now)
+
+    class Meta:
+        db_table = 'medical_reports'

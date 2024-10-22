@@ -264,20 +264,43 @@ def manage_users(request):
 
 
 
-def donor_dashboard(request):
-    # Assume donor and their data are fetched from the database
-    donor = request.user  # or however you fetch the donor
-    donation_history = []  # Fetch from database
-    upcoming_appointments = []  # Fetch from database
-    eligibility_status = "Eligible for donation"  # Logic to determine eligibility
+from django.shortcuts import render
+from .models import DonorProfile, Appointment  # Assuming these models exist
+from datetime import timedelta
+from django.utils import timezone
 
+def donor_dashboard(request):
+    # Fetch the donor profile using donor_id stored in session
+    donor = DonorProfile.objects.get(donor_id=request.session['donor_id'])
+    
+    # Fetch upcoming appointments
+    upcoming_appointments = Appointment.objects.filter(donor=donor, appointment_date__gte=timezone.now()).order_by('appointment_date')
+    
+    # Determine donor eligibility (e.g., must wait 56 days between donations)
+    # Since we're not using the Donation model, we won't check donation history
+    # You can add a custom condition here if needed, such as eligibility based on last donation date stored in DonorProfile
+    if donor.last_donation_date:
+        days_since_last_donation = (timezone.now().date() - donor.last_donation_date).days
+        if days_since_last_donation >= 56:  # Example condition for eligibility
+            eligibility_status = "Eligible for donation"
+        else:
+            eligibility_status = f"Not eligible for donation until {donor.last_donation_date + timedelta(days=56)}"
+    else:
+        eligibility_status = "Eligible for first-time donation"
+    
+    # Determine if donor is a first-time donor
+    first_time_donor = not donor.last_donation_date  # If there's no last donation date, it's a first-time donor
+
+    # Prepare context
     context = {
         'donor': donor,
-        'donation_history': donation_history,
         'upcoming_appointments': upcoming_appointments,
         'eligibility_status': eligibility_status,
+        'first_time_donor': first_time_donor,
     }
-    return render(request, 'donor_dashboard.html', context)
+
+def donor_dashboard(request):
+    return render(request, 'donor_dashboard.html')
 
 
 def campaign_list(request):
@@ -932,34 +955,59 @@ def register_donor(request):
         form = DonorRegistrationForm()
 
     return render(request, 'register_donor.html', {'form': form})
-
+# views.py
 from django.shortcuts import render, redirect
-from django.contrib import messages
+from django.contrib.auth import authenticate
 from .forms import DonorLoginForm
-from .models import DonorProfile  # Assuming DonorProfile is your custom model
+from .models import DonorProfile
 
 def donor_login(request):
-    if request.method == "POST":
+    error_message = None
+    if request.method == 'POST':
         form = DonorLoginForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
-            
             try:
-                # Retrieve the donor by email
-                donor = DonorProfile.objects.get(email=email)
-                
-                # Check if the password matches
-                if donor.check_password(password):
-                    # Manually set the session to indicate the donor is logged in
-                    request.session['donor_id'] = donor.donor_id  # Use 'donor.donor_id' since that's the field you have
-                    return redirect('donor_dashboard')  # Redirect to donor dashboard
+                donor = DonorProfile.objects.get(email=email, password=password)
+                if donor.is_active:
+                    # Store donor ID in session (you can customize this)
+                    request.session['donor_id'] = donor.donor_id
+                    return redirect('donor_dashboard')  # Redirect to donor dashboard after login
                 else:
-                    messages.error(request, 'Invalid password.')
+                    error_message = "Your account is not active. Please contact support."
             except DonorProfile.DoesNotExist:
-                messages.error(request, 'Donor does not exist.')
-
+                error_message = "Invalid email or password. Please try again."
     else:
         form = DonorLoginForm()
 
-    return render(request, 'donor_login.html', {'form': form})
+    return render(request, 'donor_login.html', {'form': form, 'error_message': error_message})
+
+
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import Appointment, DonorProfile
+from .forms import AppointmentForm
+
+def book_appointment(request):
+    # Check if the donor is logged in
+    if 'donor_id' not in request.session:
+        return redirect('donor_login')  # Redirect to login if not logged in
+
+    donor_id = request.session['donor_id']
+    donor = DonorProfile.objects.get(donor_id=donor_id)
+
+    if request.method == 'POST':
+        form = AppointmentForm(request.POST)
+        if form.is_valid():
+            appointment = form.save(commit=False)
+            appointment.donor = donor  # Associate appointment with the logged-in donor
+            appointment.status = 'Scheduled'  # Set the status to 'Scheduled'
+            appointment.save()
+            messages.success(request, 'Your appointment has been booked successfully!')
+            return redirect('donor_dashboard')  # Redirect to dashboard after booking
+    else:
+        form = AppointmentForm()
+
+    return render(request, 'book_appointment.html', {'form': form, 'donor': donor})
