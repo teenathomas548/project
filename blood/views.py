@@ -175,9 +175,10 @@ from django.shortcuts import render
 from django.db.models import Sum
 from .models import Registration, Inventory, BloodRequest
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Sum
 from .models import Registration, Inventory, BloodApply
+from django.contrib import messages
 
 def blood_admin(request):
     # Total donors count
@@ -199,11 +200,14 @@ def blood_admin(request):
     recent_activities = [
         {
             "date": request.request_date,
-            "activity": f"Dr. {request.doctor.doctor_name}  has requested {request.blood_type.blood_group} blood for patient {request.patient_name} from {request.hospital.hospital_name}.",
-
-            "status": request.status  # this will show 'pending', 'urgent', or 'approved'
+            "doctor": request.doctor.doctor_name,
+            "patient": request.patient_name,
+            "hospital": request.hospital.hospital_name,
+            "blood_group": request.blood_type.blood_group,
+            "status": request.status,
+            "id": request.id
         }
-        for request in BloodApply.objects.order_by('-request_date')[:5]  # limit to 5 recent requests
+        for request in BloodApply.objects.order_by('-request_date')[:5]  # Limit to 5 recent requests
     ]
 
     context = {
@@ -216,6 +220,24 @@ def blood_admin(request):
     }
 
     return render(request, 'blood_admin.html', context)
+
+def approve_request(request, request_id):
+    blood_request = get_object_or_404(BloodApply, id=request_id)
+    
+    # Update the request status to approved
+    blood_request.status = 'approved'
+    blood_request.save()
+
+    # Decrease the available blood units based on the correct field name
+    inventory_entry = get_object_or_404(Inventory, blood_type=blood_request.blood_type)  # Use blood_type instead of blood_group
+    if inventory_entry.units_available > 0:
+        inventory_entry.units_available -= 1  # Decrease the blood unit count
+        inventory_entry.save()
+        messages.success(request, 'The request has been successfully approved, and blood availability has been updated.')
+    else:
+        messages.warning(request, 'Blood unit not available. Request cannot be approved.')
+
+    return redirect('blood_admin')
 
 
 from django.shortcuts import get_object_or_404, redirect
@@ -679,54 +701,57 @@ def reset_password(request, token):
 
 
 
-def donor_profile(request):
-    email = request.session.get('email')
+from django.shortcuts import render, get_object_or_404
+from .models import DonorProfile  # Ensure this import matches your app structure
 
-    if email:
+def donor_profile(request):
+    donor_id = request.session.get('donor_id')  # Retrieve donor_id from the session
+
+    if donor_id:
         try:
-            registration = Registration.objects.get(email=email, role='donate')
+            # Fetch the donor profile based on the donor_id
+            donor_profile = DonorProfile.objects.get(donor_id=donor_id)  # Change 'id' to 'donor_id'
             error = None
-        except Registration.DoesNotExist:
-            registration = None
+        except DonorProfile.DoesNotExist:
+            donor_profile = None
             error = 'Profile not found for donor'
     else:
-        registration = None
-        error = 'Email not found in session'
+        donor_profile = None
+        error = 'Donor ID not found in session'
 
     return render(request, 'donor_profile.html', {
-        'registration': registration,
+        'donor_profile': donor_profile,
         'error': error
     })
 
 
-
-
-from .forms import DonorEditForm
-
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import DonorProfile
+from .forms import DonorEditForm  # Ensure this form exists and is configured properly
 
 def donor_edit_profile(request):
-    email = request.session.get('email')  # Get email from session
+    donor_id = request.session.get('donor_id')  # Retrieve donor_id from the session
 
-    if email:
-        # Fetch the donor's registration based on the email and role
-        registration = get_object_or_404(Registration, email=email, role='donate')  # Use the correct role
-        
+    if donor_id:
+        donor_profile = get_object_or_404(DonorProfile, donor_id=donor_id)  # Fetch donor profile
     else:
-        messages.error(request, 'Email not found in session')
-        return redirect('donor_dashboard')  # Redirect if email not found
+        messages.error(request, 'Donor ID not found in session')
+        return redirect('donor_dashboard')  # Redirect if donor ID is not found
 
     if request.method == 'POST':
-        form = DonorEditForm(request.POST, instance=registration)  # Bind form with existing data
+        form = DonorEditForm(request.POST, instance=donor_profile)  # Bind form with existing data
         if form.is_valid():
-            form.save()  # Save the updated registration data
+            form.save()  # Save the updated profile
             messages.success(request, 'Profile updated successfully!')
-            return redirect('donor_dashboard')  # Redirect to the profile view after saving
+            return redirect('donor_profile')  # Redirect to the profile view after saving
     else:
-        form = DonorEditForm(instance=registration)  # Pre-fill form with existing data
+        form = DonorEditForm(instance=donor_profile)  # Pre-fill form with existing data
 
     return render(request, 'donor_edit_profile.html', {
         'form': form,
     })
+
 
 
 from django.shortcuts import render
@@ -1006,8 +1031,83 @@ def book_appointment(request):
             appointment.status = 'Scheduled'  # Set the status to 'Scheduled'
             appointment.save()
             messages.success(request, 'Your appointment has been booked successfully!')
-            return redirect('donor_dashboard')  # Redirect to dashboard after booking
+            return redirect('submission_success')  # Redirect to dashboard after booking
     else:
         form = AppointmentForm()
 
     return render(request, 'book_appointment.html', {'form': form, 'donor': donor})
+
+
+
+from django.shortcuts import redirect, render
+from .forms import FirstTimeDonationForm
+
+# View for asking the first-time question
+def first_time_donation(request):
+    if request.method == 'POST':
+        form = FirstTimeDonationForm(request.POST)
+        if form.is_valid():
+            first_time = form.cleaned_data['first_time_donor']
+            if first_time == 'yes':
+                return redirect('submit_medical_records')  # Redirect to medical record form
+            else:
+                return redirect('book_appointment')  # Redirect to appointment booking
+    else:
+        form = FirstTimeDonationForm()
+
+    return render(request, 'first_time_donation.html', {'form': form})
+
+# View for submitting medical records
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import MedicalReportForm
+from .models import DonorProfile, MedicalReport
+
+def submit_medical_records(request):
+    # Check if the donor is logged in
+    if 'donor_id' not in request.session:
+        return redirect('donor_login')  # Redirect to login if not logged in
+
+    # Get the logged-in donor using the donor_id from the session
+    donor_id = request.session['donor_id']
+    try:
+        donor = DonorProfile.objects.get(donor_id=donor_id)
+    except DonorProfile.DoesNotExist:
+        messages.error(request, "Donor profile not found.")
+        return redirect('donor_dashboard')  # Redirect to donor dashboard or another appropriate page
+
+    if request.method == 'POST':
+        form = MedicalReportForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Save the form but don't commit to the database yet
+            medical_report = form.save(commit=False)
+            medical_report.donor = donor  # Associate the medical report with the logged-in donor
+            medical_report.save()
+            messages.success(request, 'Your medical report has been submitted successfully!')
+            return redirect('book_appointment')  # Redirect to donor dashboard or a success page
+    else:
+        form = MedicalReportForm()
+
+    return render(request, 'submit_medical_records.html', {'form': form, 'donor': donor})
+
+
+
+def submission_success(request):
+    return render(request, 'submission_success.html')  
+
+
+
+# blood/views.py
+from django.shortcuts import render, redirect
+from .forms import BloodApplyWithhospitalForm
+
+def apply_blood(request):
+    if request.method == 'POST':
+        form = BloodApplyWithhospitalForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('blood_application_success')  # Redirect to a success page after submission
+    else:
+        form = BloodApplyWithhospitalForm()
+    
+    return render(request, 'apply_blood.html', {'blood_apply_form': form})

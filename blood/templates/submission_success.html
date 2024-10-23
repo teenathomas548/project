@@ -1,0 +1,31 @@
+<!-- submission_success.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submission Success</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #e9ecef;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container text-center">
+        <h1 class="mt-5">Success!</h1>
+        <p>Your Appointment details have been submitted successfully.</p>
+        <a href="{% url 'submit_medical_records' %}" class="btn btn-primary">Submit Another Record</a>
+        <a href="{% url 'home' %}" class="btn btn-secondary">Go to Home</a> <!-- Update 'home' to your home page URL name -->
+    </div>
+
+</body>
+</html>

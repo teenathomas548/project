@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply for Blood</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+        }
+
+        .blood-request-section {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .blood-request-section h2 {
+            font-size: 2rem;
+            color: darkred;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background-color: darkred;
+            border-color: darkred;
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+        }
+
+        .btn-primary:hover {
+            background-color: #b22222;
+            border-color: #b22222;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="blood-request-section">
+        <h2><i class="fas fa-tint icon"></i> Apply for Blood</h2>
+        <form method="POST" action="{% url 'apply_blood' %}">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_blood_type">Blood Type</label>
+                {{ blood_apply_form.blood_type }}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_quantity">Quantity</label>
+                {{ blood_apply_form.quantity }}
+            </div>
+    
+            <div class="form-group">
+                <label for="id_hospital">Hospital</label>
+                {{ blood_apply_form.hospital }}
+            </div>
+    
+            <div class="form-group">
+                <label for="id_urgency">Urgency</label>
+                {{ blood_apply_form.urgency }}
+            </div>
+    
+            <div class="form-group">
+                <label for="id_patient_name">Patient Name</label>
+                {{ blood_apply_form.patient_name }}
+            </div>
+    
+            <div class="form-group">
+                <label for="id_patient_age">Patient Age</label>
+                {{ blood_apply_form.patient_age }}
+            </div>
+
+            <div class="form-group">
+                <label for="id_reason">Reason</label>
+                {{ blood_apply_form.reason }}
+            </div>
+
+            <div class="form-group">
+                <label for="id_doctor">Doctor</label>
+                {{ blood_apply_form.doctor }} <!-- Render the doctor selection field -->
+            </div>
+    
+            <button type="submit" class="btn btn-primary"><i class="fas fa-check-circle"></i> Submit Blood Application</button>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

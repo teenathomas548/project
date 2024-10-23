@@ -14,9 +14,9 @@ from .views import hospital_request_blood
 from .views import doctor_register
 from .views import donor_login  # If using function-based view
 from .views import book_appointment
-
-
-
+from .views import  submission_success  # Update the im
+from .views import apply_blood  # Make sure this import is present
+from .views import  approve_request
 
 
 urlpatterns = [
@@ -70,7 +70,11 @@ urlpatterns = [
     path('donor/login/', views.donor_login, name='donor_login'),  # Donor login URL
 
     path('donor/book-appointment/', views.book_appointment, name='book_appointment'),
-
+    path('donor/', views.first_time_donation, name='first_time_donation'),
+    path('submit-medical-records/', views.submit_medical_records, name='submit_medical_records'),
+    path('submission-success/', submission_success, name='submission_success'),  # Add this line
+    path('apply_blood/', apply_blood, name='apply_blood'),  # URL for applying for blood
+    path('approve_request/<int:request_id>/', approve_request, name='approve_request'),  # New URL pattern for approval
 
 
 

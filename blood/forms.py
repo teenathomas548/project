@@ -123,11 +123,12 @@ class RecipientEditForm(forms.ModelForm):
 class ForgotPasswordForm(forms.Form):
     email = forms.EmailField(label='Email', max_length=150)
 
+from .models import DonorProfile  # Ensure you import the correct model
+
 class DonorEditForm(forms.ModelForm):
     class Meta:
-        model = Registration  # Use the Registration model for recipient data
-        fields = ['first_name', 'last_name', 'date_of_birth',  'phone_number', 'gender','email']
-
+        model = DonorProfile  # Use the DonorProfile model for donor data
+        fields = ['donor_name', 'email', 'date_of_birth', 'contact_number', 'blood_type']
 
 
 class EditCampaignForm(forms.ModelForm):
@@ -342,19 +343,18 @@ from datetime import date
 from .models import DonorProfile
 import re
 
+from django import forms
+from .models import DonorProfile, BloodType
+
 class DonorRegistrationForm(forms.ModelForm):
     class Meta:
         model = DonorProfile
-        fields = ['donor_name', 'date_of_birth', 'last_donation_date', 'contact_number', 'email', 'password']
+        fields = ['donor_name', 'date_of_birth', 'last_donation_date', 'contact_number', 'email', 'password', 'blood_type']
         widgets = {
             'password': forms.PasswordInput(),
             'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
             'last_donation_date': forms.DateInput(attrs={'type': 'date'}),
         }
-
-        blood_type = forms.ModelChoiceField(queryset=BloodType.objects.all(), empty_label="Select Blood Group", widget=forms.Select(attrs={'class': 'form-control'}))
-
-
     # Validation for donor_name: Only letters and spaces allowed
     def clean_donor_name(self):
         donor_name = self.cleaned_data['donor_name']
@@ -386,11 +386,12 @@ class DonorRegistrationForm(forms.ModelForm):
             raise ValidationError("Please enter a valid email address.")
         return email
 
-    # Validation for last_donation_date: Must be a past date
     def clean_last_donation_date(self):
-        last_donation_date = self.cleaned_data['last_donation_date']
-        if last_donation_date > date.today():
-            raise ValidationError("Last donation date must be in the past.")
+        last_donation_date = self.cleaned_data.get('last_donation_date')
+        if last_donation_date:  # Check if last_donation_date is not None
+            today = date.today()
+            if last_donation_date > today:
+                raise forms.ValidationError("Last donation date must be in the past.")
         return last_donation_date
 
 
@@ -411,3 +412,45 @@ class AppointmentForm(forms.ModelForm):
             'appointment_date': forms.DateInput(attrs={'type': 'date'}),
             'appointment_time': forms.TimeInput(attrs={'type': 'time'}),
         }
+
+class FirstTimeDonationForm(forms.Form):
+    first_time_donor = forms.ChoiceField(
+        choices=[('yes', 'Yes'), ('no', 'No')],
+        widget=forms.RadioSelect,  # You can change this to a dropdown if you prefer
+        label="Are you donating blood for the first time?"
+    )
+
+
+from .models import MedicalReport
+
+class MedicalReportForm(forms.ModelForm):
+    class Meta:
+        model = MedicalReport
+        fields = ['medical_report']  # Only allow the medical report to be uploaded
+        widgets = {
+            'medical_report': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }
+
+
+
+
+from django import forms
+from .models import BloodApply, Doctor  # Assuming you have a Doctor model
+
+class BloodApplyWithhospitalForm(forms.ModelForm):
+    class Meta:
+        model = BloodApply
+        fields = ['blood_type', 'quantity', 'hospital', 'urgency', 'patient_name', 'patient_age', 'reason', 'doctor']
+        widgets = {
+            'patient_age': forms.NumberInput(attrs={'min': 1}),
+            'quantity': forms.NumberInput(attrs={'min': 1}),
+            'urgency': forms.Select(choices=[('normal', 'Normal'), ('emergency', 'Emergency')]),
+            'reason': forms.Textarea(attrs={'placeholder': 'Please provide a reason for the blood application.', 'rows': 4}),
+        }
+
+    # Add a doctor field with choices populated from the Doctor model
+    doctor = forms.ModelChoiceField(
+        queryset=Doctor.objects.all(), 
+        empty_label="Select a Doctor",
+        widget=forms.Select(attrs={'class': 'form-control'})  # You can customize widget further if needed
+    )

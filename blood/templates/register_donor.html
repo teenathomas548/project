@@ -84,29 +84,26 @@
                 </div>
 
                 <!-- Last Donation Date -->
+                <!-- Last Donation Date -->
                 <div class="mb-3">
-                    <label for="lastDonationDate" class="form-label">Last Donation Date</label>
-                    <input type="date" name="last_donation_date" id="lastDonationDate" class="form-control" placeholder="Last Donation Date" required
-                        value="{{ form.last_donation_date.value|default_if_none:'' }}" 
-                        title="Last donation date must be in the past" onfocus="setMaxDateForDonation()">
+                    <label for="lastDonationDate" class="form-label">Last Donation Date (Optional)</label>
+                    <input type="date" name="last_donation_date" id="lastDonationDate" class="form-control" placeholder="Last Donation Date"
+                        value="{{ form.last_donation_date.value|default_if_none:'' }}">
                     <small id="donationDateError" class="error"></small>
                 </div>
 
+
                 <!-- Blood Type -->
                 <div class="mb-3">
-                    <label for="bloodType" class="form-label">Blood Type</label>
-                    <select name="blood_group" class="form-select" required>
+                    <label for="blood_type" class="form-label">Blood Type</label>
+                    <select name="blood_type" class="form-select" required>
                         <option value="" disabled selected>Select Blood Group</option>
-                        <option value="A+" {% if form.blood_group.value == "A+" %}selected{% endif %}>A+</option>
-                        <option value="A-" {% if form.blood_group.value == "A-" %}selected{% endif %}>A-</option>
-                        <option value="B+" {% if form.blood_group.value == "B+" %}selected{% endif %}>B+</option>
-                        <option value="B-" {% if form.blood_group.value == "B-" %}selected{% endif %}>B-</option>
-                        <option value="O+" {% if form.blood_group.value == "O+" %}selected{% endif %}>O+</option>
-                        <option value="O-" {% if form.blood_group.value == "O-" %}selected{% endif %}>O-</option>
-                        <option value="AB+" {% if form.blood_group.value == "AB+" %}selected{% endif %}>AB+</option>
-                        <option value="AB-" {% if form.blood_group.value == "AB-" %}selected{% endif %}>AB-</option>
+                        {% for blood in form.blood_type.field.queryset %}
+                            <option value="{{ blood.blood_type_id }}" {% if blood.blood_type_id == form.blood_type.value %}selected{% endif %}>
+                                {{ blood.blood_group }}
+                            </option>
+                        {% endfor %}
                     </select>
-                    <small id="bloodTypeError" class="error"></small>
                 </div>
 
                 <!-- Register Button -->

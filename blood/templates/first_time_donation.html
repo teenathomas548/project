@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First Time Donor</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        body {
+            background: url("/static/image/image16.jpg") no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Arial', sans-serif;
+        }
+        .form-container {
+            margin-top: 50px;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .btn-custom {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-custom:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 form-container">
+            <h2>Are you a First Time Donor?</h2>
+            
+            <!-- Form -->
+            <form method="POST" onsubmit="return validateForm()">
+                {% csrf_token %}
+                
+                <div class="form-group mb-3">
+                    {{ form.as_p }}
+                </div>
+                
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-custom btn-lg">Submit</button>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS (Optional but helpful) -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js"></script>
+
+<script>
+    function validateForm() {
+        let radios = document.querySelectorAll('input[type="radio"]');
+        let isChecked = false;
+
+        // Check if any radio button is selected
+        for (let radio of radios) {
+            if (radio.checked) {
+                isChecked = true;
+                break;
+            }
+        }
+
+        // If no radio button is selected, show alert and prevent form submission
+        if (!isChecked) {
+            alert("Please select whether you are a first-time donor or not.");
+            return false;
+        }
+
+        return true; // Allow form submission if valid
+    }
+</script>
+
+</body>
+</html>

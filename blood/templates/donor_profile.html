@@ -27,40 +27,37 @@
     <div class="profile-container">
         <h1>Your Profile</h1>
 
-        {% if registration %}
-        <!-- Table to display user's profile data -->
+        {% if donor_profile %}
+        <!-- Table to display donor's profile data -->
         <table class="profile-table">
-           
             <tbody>
                 <tr>
-                    <td>First Name</td>
-                    <td>{{ registration.first_name }}</td>
-                </tr>
-                <tr>
-                    <td>Last Name</td>
-                    <td>{{ registration.last_name }}</td>
+                    <td>Donor Name</td>
+                    <td>{{ donor_profile.donor_name }}</td>
                 </tr>
                 <tr>
                     <td>Email</td>
-                    <td>{{ registration.email }}</td>
+                    <td>{{ donor_profile.email }}</td>
                 </tr>
                 <tr>
                     <td>Date of Birth</td>
-                    <td>{{ registration.date_of_birth }}</td>
+                    <td>{{ donor_profile.date_of_birth }}</td>
                 </tr>
                 <tr>
-                    <td>Phone Number</td>
-                    <td>{{ registration.phone_number }}</td>
+                    <td>Last Donation Date</td>
+                    <td>{{ donor_profile.last_donation_date|date:"Y-m-d" }}</td>
                 </tr>
-                
                 <tr>
-                    <td>Gender</td>
-                    <td>{{ registration.gender }}</td>
+                    <td>Contact Number</td>
+                    <td>{{ donor_profile.contact_number }}</td>
                 </tr>
-                
                 <tr>
-                    <td>Role</td>
-                    <td>{{ registration.role }}</td>
+                    <td>Blood Type</td>
+                    <td>{{ donor_profile.blood_type }}</td>
+                </tr>
+                <tr>
+                    <td>Status</td>
+                    <td>{{ donor_profile.is_active|yesno:"Active,Inactive" }}</td>
                 </tr>
             </tbody>
         </table>
@@ -73,9 +70,7 @@
         {% else %}
         <p>{{ error }}</p>
         {% endif %}
-
     </div>
-
 </body>
 
 </html>
