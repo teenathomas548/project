@@ -105,12 +105,12 @@
         <h2><i class="fas fa-tint icon"></i> Apply for Blood</h2>
         <form method="POST">
             {% csrf_token %}
-            
+    
             <div class="form-group">
                 <label for="id_blood_type">Blood Type</label>
                 {{ blood_apply_form.blood_type }}
             </div>
-            
+    
             <div class="form-group">
                 <label for="id_quantity">Quantity</label>
                 {{ blood_apply_form.quantity }}
@@ -135,11 +135,57 @@
                 <label for="id_patient_age">Patient Age</label>
                 {{ blood_apply_form.patient_age }}
             </div>
-
+    
             <div class="form-group">
-                <label for="id_reason">Reason </label>
+                <label for="id_reason">Reason</label>
                 {{ blood_apply_form.reason }}
             </div>
+    
+            <button type="submit" class="btn btn-primary"><i class="fas fa-check-circle"></i> Submit Blood Application</button>
+        </form>
+    
+        <style>
+            .blood-request-section {
+                background-color: #fff; /* Background color for section */
+                padding: 20px; /* Padding for inner spacing */
+                border-radius: 8px; /* Rounded corners */
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            }
+    
+            .blood-request-section h2 {
+                text-align: left; /* Left-align the header */
+                margin-bottom: 20px; /* Spacing below the header */
+            }
+    
+            .blood-request-section .form-group {
+                margin-bottom: 20px; /* Spacing between each form group */
+            }
+    
+            .blood-request-section label {
+                display: block; /* Make labels block elements */
+                font-weight: bold; /* Bold labels */
+                margin-bottom: 5px; /* Space below labels */
+            }
+    
+            .blood-request-section .form-control {
+                width: 100%; /* Full width of parent */
+                padding: 10px; /* Inner padding for comfort */
+                border: 1px solid #ced4da; /* Border color */
+                border-radius: 4px; /* Rounded corners */
+                transition: border-color 0.2s; /* Smooth transition for focus */
+            }
+    
+            .blood-request-section .form-control:focus {
+                border-color: #80bdff; /* Change border color on focus */
+                box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); /* Shadow on focus */
+            }
+    
+            .blood-request-section button {
+                margin-top: 20px; /* Space above the button */
+                display: inline-block; /* Keep the button inline */
+            }
+        </style>
+    </div>
     
             <button type="submit" class="btn btn-primary"><i class="fas fa-check-circle"></i> Submit Blood Application</button>
         </form>

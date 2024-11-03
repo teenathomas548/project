@@ -164,6 +164,8 @@ def custom_login_view(request):
 
     return render(request, 'login.html', {'form': form})
 
+
+
 # Render the login template
 def admin_login(request):
     if request.method == 'POST':
