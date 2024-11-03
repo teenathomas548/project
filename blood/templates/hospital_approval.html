@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Approval</title>
+</head>
+<body>
+    <h2>Approve Hospitals</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Hospital Name</th>
+                <th>Phone Number</th>
+                <th>Email</th>
+                <th>Document</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for hospital in hospitals %}
+            <tr>
+                <td>{{ hospital.hospital_name }}</td>
+                <td>{{ hospital.phone_number }}</td>
+                <td>{{ hospital.email }}</td>
+                <td>
+                    {% if hospital.document %}
+                        <a href="{{ hospital.document.url }}" target="_blank">View Document</a>
+                    {% else %}
+                        No document uploaded
+                    {% endif %}
+                </td>
+                <td>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="hospital_id" value="{{ hospital.id }}">
+                        <button type="submit">Approve</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

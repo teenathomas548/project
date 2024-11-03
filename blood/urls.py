@@ -17,13 +17,18 @@ from .views import book_appointment
 from .views import  submission_success  # Update the im
 from .views import apply_blood  # Make sure this import is present
 from .views import  approve_request
+from .views import manage_donors, disable_donor, enable_donor
+from .views import manage_doctors, disable_doctor, enable_doctor
+from .views import blood_admin, all_pending_requests
 
+from .views import custom_login_view
 
 urlpatterns = [
      path('',views.home, name = 'home'),
      path('register/',views.register,name ='register'),
-     path('login/',views.login,name='login'),
-     path('blood_admin/', views.blood_admin, name='blood_admin'),
+    path('login/', custom_login_view, name='login'),
+    path('blood_admin/', views.blood_admin, name='blood_admin'),
+    path('all-pending-requests/', all_pending_requests, name='all_pending_requests'),
      path('admin_login/',views.admin_login,name='admin_login'),
      path('userhome/', views.userhome, name='userhome'),
      path('about/', views.about, name='about'),
@@ -75,6 +80,14 @@ urlpatterns = [
     path('submission-success/', submission_success, name='submission_success'),  # Add this line
     path('apply_blood/', apply_blood, name='apply_blood'),  # URL for applying for blood
     path('approve_request/<int:request_id>/', approve_request, name='approve_request'),  # New URL pattern for approval
+    path('manage-donors/', manage_donors, name='manage_donors'),
+    path('disable-donor/<int:donor_id>/', disable_donor, name='disable_donor'),
+    path('enable-donor/<int:donor_id>/', enable_donor, name='enable_donor'),
+    path('manage-doctors/', manage_doctors, name='manage_doctors'),
+    path('disable-doctor/<int:doctor_id>/', disable_doctor, name='disable_doctor'),
+    path('enable-doctor/<int:doctor_id>/', enable_doctor, name='enable_doctor'),
+    path('pending-hospitals/', views.pending_hospitals, name='pending_hospitals'),
+    path('approve-hospital/<int:hospital_id>/', views.approve_hospital, name='approve_hospital'),    
 
 
 

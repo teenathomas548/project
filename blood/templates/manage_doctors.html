@@ -1,0 +1,83 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Doctors</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'manageuser.css' %}"> <!-- Update with your CSS file name -->
+    <style>
+        /* Inline CSS for positioning the home button, update in manageuser.css if preferred */
+        .home-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: darkred;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .home-button:hover {
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Manage Doctors</h1>
+        <a href="{% url 'blood_admin' %}" class="home-button">Home</a> <!-- Link to home page -->
+    </div>
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <table>
+        <thead>
+            <tr>
+                <th>Doctor Name</th>
+                <th>Email</th>
+                <th>Specialization</th> <!-- Assuming doctors have a specialization field -->
+                <th>Status</th> <!-- New column to show the doctor status -->
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for doctor in doctors %}
+            <tr>
+                <td>{{ doctor.doctor_name }}</td>
+                <td>{{ doctor.email }}</td>
+                <td>{{ doctor.specialization }}</td>  <!-- Display the specialization -->
+                <td>
+                    {% if doctor.is_active %}
+                        <span class="status-active">Active</span>
+                    {% else %}
+                        <span class="status-inactive">Disabled</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if doctor.is_active %}
+                        <a href="{% url 'disable_doctor' doctor.doctor_id %}" class="btn-disable">Disable</a>
+                    {% else %}
+                        <a href="{% url 'enable_doctor' doctor.doctor_id %}" class="btn-enable">Enable</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5">No doctors found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>

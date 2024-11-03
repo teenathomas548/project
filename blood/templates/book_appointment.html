@@ -4,82 +4,97 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Blood Donation Appointment</title>
-    <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             background: url("/static/image/image2.jpg") no-repeat center center fixed;
             background-size: cover;
-            color: #333; /* Dark text color for contrast */
+            color: #333;
         }
         .container {
             margin-top: 100px;
             max-width: 600px;
-            background-color: #ffffff; /* White background for the form */
+            background-color: #ffffff;
             padding: 40px;
             border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Soft shadow for depth */
-            position: relative; /* To position the container */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
         h2 {
             text-align: center;
             margin-bottom: 30px;
-            color: #a10000; /* Dark red color for blood bank theme */
+            color: #a10000;
         }
         .btn-custom {
-            background-color: #dc3545; /* Bootstrap's danger color */
+            background-color: #dc3545;
             border: none;
             transition: background-color 0.3s ease;
         }
         .btn-custom:hover {
-            background-color: #c82333; /* Darker shade on hover */
+            background-color: #c82333;
         }
         .form-group label {
-            font-weight: bold; /* Bold labels for clarity */
-        }
-        /* Ensuring proper alignment of inputs */
-        input[type="date"], input[type="time"] {
-            width: 100%; /* Full width for input fields */
-            height: 38px; /* Standardize height */
-            padding: 0.375rem 0.75rem; /* Padding for a better touch target */
-            border: 1px solid #ced4da; /* Border style */
-            border-radius: 0.25rem; /* Rounded corners */
-            transition: border-color 0.15s ease-in-out; /* Transition for border color */
-        }
-        input[type="date"]:focus, input[type="time"]:focus {
-            border-color: #dc3545; /* Change border color on focus */
-            outline: none; /* Remove outline */
+            font-weight: bold;
         }
         .back-button {
-            position: absolute;
-            top: 15px; /* Adjusts the top distance */
-            right: 15px; /* Adjusts the right distance */
-            z-index: 10; /* Ensures the button is above other elements */
+            position: absolute; /* Position it at the top right */
+            right: 20px; /* Adjusts the distance from the right */
+            top: 20px; /* Adjusts the distance from the top */
+        }
+        .form-control {
+            width: 100%; /* Full width */
+            max-width: 100%; /* Avoids overflow */
+        }
+        .alert {
+            margin-top: 20px;
         }
     </style>
+    <script>
+        // Function to disable past dates
+        function disablePastDates() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Set time to midnight for accurate comparison
+            const dd = String(today.getDate()).padStart(2, '0');
+            const mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+            const yyyy = today.getFullYear();
+            const formattedDate = `${yyyy}-${mm}-${dd}`; // Format as YYYY-MM-DD
+            
+            const appointmentDateField = document.getElementById("id_appointment_date");
+            appointmentDateField.setAttribute("min", formattedDate); // Set min attribute
+        }
+
+        // Run the function when the document is loaded
+        document.addEventListener("DOMContentLoaded", disablePastDates);
+    </script>
 </head>
 <body>
-    <a href="{% url 'donor_dashboard' %}" class="btn btn-secondary back-button">Back</a> <!-- Back button -->
+    <a href="{% url 'donor_dashboard' %}" class="btn btn-secondary back-button">Back</a>
     <div class="container">
         <h2>Book a Blood Donation Appointment</h2>
+
+        {% if messages %}
+            <div class="alert alert-danger" role="alert">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
         <form method="POST">
             {% csrf_token %}
+            {{ form.non_field_errors }}
             <div class="form-group">
-                <label for="appointment_date">Appointment Date</label>
-                {{ form.appointment_date }} <!-- Added Bootstrap class for styling -->
+                <label for="{{ form.appointment_date.id_for_label }}">Appointment Date</label>
+                {{ form.appointment_date }} <!-- Render the field with Bootstrap styling -->
+                {{ form.appointment_date.errors }} <!-- Display validation errors -->
             </div>
             <div class="form-group">
-                <label for="appointment_time">Appointment Time</label>
-                {{ form.appointment_time }} <!-- Added Bootstrap class for styling -->
+                <label for="{{ form.appointment_time.id_for_label }}">Appointment Time</label>
+                {{ form.appointment_time }} <!-- Render the field with Bootstrap styling -->
+                {{ form.appointment_time.errors }} <!-- Display validation errors -->
             </div>
             <button type="submit" class="btn btn-custom btn-block">Book Appointment</button>
-            <a href="{% url 'donor_dashboard' %}" class="btn btn-light btn-block mt-2">Cancel</a> <!-- Cancel button -->
+            <a href="{% url 'donor_dashboard' %}" class="btn btn-light btn-block mt-2">Cancel</a>
         </form>
     </div>
-
-    <!-- Bootstrap JS and dependencies (optional) -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

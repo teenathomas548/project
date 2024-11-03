@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Donors</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'manageuser.css' %}"> <!-- Update with your CSS file name -->
+</head>
+<body>
+
+    <div class="header">
+        <h1>Manage Donors</h1>
+    </div>
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <table>
+        <thead>
+            <tr>
+                <th>Donor Name</th>
+                <th>Date of Birth</th>
+                <th>Contact Number</th>
+                <th>Email</th>
+                <th>Blood Type</th>
+                <th>Status</th> <!-- New column to show the donor status -->
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for donor in donors %}
+            <tr>
+                <td>{{ donor.donor_name }}</td>
+                <td>{{ donor.date_of_birth }}</td>
+                <td>{{ donor.contact_number }}</td>
+                <td>{{ donor.email }}</td>
+                <td>{{ donor.blood_type }}</td>  <!-- Display the blood type -->
+                <td>
+                    {% if donor.is_active %}
+                        <span class="status-active">Active</span>
+                    {% else %}
+                        <span class="status-inactive">Disabled</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if donor.is_active %}
+                        <a href="{% url 'disable_donor' donor.donor_id %}" class="btn-disable">Disable</a>
+                    {% else %}
+                        <a href="{% url 'enable_donor' donor.donor_id %}" class="btn-enable">Enable</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="7">No donors found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>

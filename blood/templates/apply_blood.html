@@ -9,58 +9,91 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f8f9fa;
+            background: url("/static/image/userhome.png") no-repeat center center fixed;
+            background-size: cover;
             font-family: 'Arial', sans-serif;
             margin: 20px;
         }
 
         .blood-request-section {
-            background-color: #fff;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 800px;
-            margin: 0 auto;
+            background-color: #fff;  /* Background for the section */
+            padding: 40px;  /* Padding around the content */
+            border-radius: 10px;  /* Rounded corners */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* Subtle shadow for depth */
+            max-width: 800px;  /* Max width of the section */
+            margin: 20px auto;  /* Centering the section */
         }
 
         .blood-request-section h2 {
-            font-size: 2rem;
-            color: darkred;
-            text-align: center;
-            margin-bottom: 30px;
+            font-size: 2rem;  /* Font size for the title */
+            color: darkred;  /* Color for the title */
+            text-align: center;  /* Center align title */
+            margin-bottom: 30px;  /* Space below the title */
         }
 
         .form-group label {
-            font-weight: bold;
+            font-weight: bold;  /* Bold labels */
+            margin-bottom: 5px;  /* Space below labels */
         }
 
         .form-group input,
         .form-group select,
         .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            border: 1px solid #ced4da;
-            font-size: 1rem;
+            width: 100%;  /* Full width for input fields */
+            padding: 10px;  /* Padding inside the fields */
+            margin-top: 5px;  /* Space above the fields */
+            margin-bottom: 20px;  /* Space below the fields */
+            border-radius: 5px;  /* Rounded corners for input fields */
+            border: 1px solid #ced4da;  /* Border style */
+            font-size: 1rem;  /* Font size for input fields */
         }
 
         .btn-primary {
-            background-color: darkred;
-            border-color: darkred;
-            width: 100%;
-            padding: 15px;
-            font-size: 1.2rem;
+            background-color: darkred;  /* Background color for primary button */
+            border-color: darkred;  /* Border color for primary button */
+            width: 100%;  /* Full width for button */
+            padding: 15px;  /* Padding inside the button */
+            font-size: 1.2rem;  /* Font size for button text */
         }
 
         .btn-primary:hover {
-            background-color: #b22222;
-            border-color: #b22222;
+            background-color: #b22222;  /* Darker shade on hover */
+            border-color: #b22222;  /* Darker border on hover */
+        }
+
+        .btn-secondary {
+            margin-top: 20px;  /* Space above the secondary button */
+            width: 100%;  /* Full width for secondary button */
+            padding: 15px;  /* Padding inside the button */
+            font-size: 1.2rem;  /* Font size for button text */
+        }
+
+        .btn-secondary:hover {
+            background-color: #6c757d;  /* Darker shade on hover for secondary button */
+            border-color: #6c757d;  /* Darker border on hover for secondary button */
+        }
+
+        .navbar .ml-auto {
+            margin-right: 20px;  /* Space on the right for logout button */
+        }
+
+        .icon {
+            margin-right: 10px;  /* Space between icon and text */
         }
     </style>
 </head>
 <body>
+
+    <!-- Navbar with Back Button on the right -->
+    <nav class="navbar navbar-light bg-light">
+        <div class="container-fluid">
+            <div class="ml-auto">
+                <a href="{% url 'logout' %}" class="btn btn-secondary">
+                     Logout
+                </a>
+            </div>
+        </div>
+    </nav>
 
     <div class="blood-request-section">
         <h2><i class="fas fa-tint icon"></i> Apply for Blood</h2>
@@ -104,10 +137,15 @@
 
             <div class="form-group">
                 <label for="id_doctor">Doctor</label>
-                {{ blood_apply_form.doctor }} <!-- Render the doctor selection field -->
+                {{ blood_apply_form.doctor }}
             </div>
-    
+
+            
             <button type="submit" class="btn btn-primary"><i class="fas fa-check-circle"></i> Submit Blood Application</button>
+            <a href="{% url 'donor_dashboard' %}" class="btn btn-secondary">
+                <i class="fas fa-times-circle"></i> Cancel
+            </a>
+        
         </form>
     </div>
 

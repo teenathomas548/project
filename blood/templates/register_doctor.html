@@ -61,7 +61,7 @@
         }
 
         .btn-primary {
-            background-color:red;
+            background-color: red;
             border-color: red;
             font-size: 18px;
             padding: 12px;
@@ -89,6 +89,27 @@
             text-decoration: underline;
         }
 
+        .back-btn {
+            margin-top: 10px;
+            margin-right: 10px;
+            padding: 10px 20px;
+            background-color: white;
+            color: black;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .back-btn:hover {
+            background-color: red;
+        }
+
+        .top-right {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
         @media (max-width: 767px) {
             .container {
                 padding: 20px;
@@ -112,6 +133,9 @@
     </style>
 </head>
 <body>
+    <div class="top-right">
+        <a href="{% url 'home' %}" class="back-btn">Home</a>
+    </div>
 
     <div class="container">
         <h2>Register a Doctor</h2>

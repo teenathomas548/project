@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Pending Requests</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'manageuser.css' %}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Approve button styles */
+        .approve-button {
+            background-color: #28a745; /* Green */
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none; /* Remove underline */
+            transition: background-color 0.3s;
+            cursor: pointer;
+        }
+
+        .approve-button:hover {
+            background-color: #218838; /* Darker green on hover */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>All Pending Requests</h1>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Doctor</th>
+                <th>Patient</th>
+                <th>Hospital</th>
+                <th>Blood Group</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in pending_requests %}
+            <tr>
+                <td>{{ request.request_date }}</td>
+                <td>{{ request.doctor.doctor_name }}</td>
+                <td>{{ request.patient_name }}</td>
+                <td>{{ request.hospital.hospital_name }}</td>
+                <td>{{ request.blood_type.blood_group }}</td>
+                <td>{{ request.status }}</td>
+                <td>
+                    <!-- Approve button with styling -->
+                    <a href="{% url 'approve_request' request.id %}" class="approve-button">Approve</a>
+                </td>
+            </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="7">No pending requests found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>

@@ -142,6 +142,10 @@ class Hospital(models.Model):
     phone_number = models.CharField(max_length=15)
     email = models.EmailField()
     password = models.CharField(max_length=128)  # Add this field for password storage
+    is_active = models.BooleanField(default=True)
+    document = models.FileField(upload_to='document/', blank=True, null=True)  # Field for uploading hospital documents
+    is_approved = models.BooleanField(default=False)  # Track approval status
+
 
     def __str__(self):
         return self.hospital_name
@@ -154,6 +158,7 @@ class Doctor(models.Model):
     specialization = models.CharField(max_length=255)  # Specialization of the doctor
     email = models.EmailField(unique=True)  # Email field for the doctor
     password = models.CharField(max_length=255)  # Password field for the doctor
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.doctor_name
@@ -211,6 +216,8 @@ class BloodApply(models.Model):
             self.save()
             return False
         
+from datetime import timedelta
+
 
 class DonorProfile(models.Model):
     donor_id = models.AutoField(primary_key=True)
@@ -228,6 +235,13 @@ class DonorProfile(models.Model):
 
     def __str__(self):
         return self.donor_name
+    def can_schedule_appointment(self):
+        # Check if the last donation date is available
+        if self.last_donation_date:
+            # Calculate the next eligible appointment date
+            next_appointment_date = self.last_donation_date + timedelta(days=90)  # 3 months = 90 days
+            return timezone.now().date() >= next_appointment_date
+        return True  
 
 
 

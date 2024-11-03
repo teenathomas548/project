@@ -187,55 +187,51 @@ class HospitalRequestForm(forms.ModelForm):
             recipient.save()
         return recipient
 
-
 from django import forms
-from django.contrib.auth.hashers import make_password
 from .models import Hospital
+import re
 
 class HospitalRegistrationForm(forms.ModelForm):
     password = forms.CharField(
-        widget=forms.PasswordInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Enter Password'
-        }),
-        label='Password'
+        widget=forms.PasswordInput,
+        max_length=128,
+        min_length=6,
+        error_messages={
+            'required': 'Please enter a password.',
+            'min_length': 'Password should be at least 6 characters long.'
+        }
     )
 
     class Meta:
         model = Hospital
-        fields = ['hospital_name', 'phone_number', 'email', 'password']  # Include password field
-
-        widgets = {
-            'hospital_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Hospital Name'}),
-            'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Phone Number'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter Email'}),
-        }
-
-        labels = {
-            'hospital_name': 'Hospital Name',
-            'phone_number': 'Phone Number',
-            'email': 'Email',
-        }
+        fields = ['hospital_name', 'phone_number', 'email', 'password', 'document']
 
     def clean_hospital_name(self):
         hospital_name = self.cleaned_data.get('hospital_name')
-        if not re.match("^[A-Za-z\s]*$", hospital_name):
-            raise ValidationError('Hospital name should contain only letters and spaces.')
+        if not re.match(r'^[A-Za-z\s]+$', hospital_name):
+            raise forms.ValidationError("Hospital Name should contain only letters and spaces.")
         return hospital_name
-    
+
     def clean_phone_number(self):
         phone_number = self.cleaned_data.get('phone_number')
-        if not re.match("^[6789]\d{9}$", phone_number):
-            raise ValidationError('Phone number should start with 6, 7, 8, or 9 and be 10 digits long.')
+        if not re.match(r'^[6-9]\d{9}$', phone_number):
+            raise forms.ValidationError("Phone Number should start with 6, 7, 8, or 9 and be exactly 10 digits long.")
         return phone_number
-    
+
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if not email.endswith('@gmail.com'):
-            raise ValidationError('Email should be a valid Gmail address.')
+        if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+            raise forms.ValidationError("Please enter a valid email address.")
         return email
 
-
+    def clean_document(self):
+        document = self.cleaned_data.get('document')
+        if document:
+            if not document.name.endswith('.pdf'):
+                raise forms.ValidationError("Only PDF documents are allowed.")
+            if document.size > 2 * 1024 * 1024:  # Optional: Limit file size to 2MB
+                raise forms.ValidationError("File size should not exceed 2MB.")
+        return document
 
 class HospitalLoginForm(forms.Form):
     email = forms.EmailField()
@@ -316,26 +312,23 @@ class BloodApplyForm(forms.ModelForm):
         }
 
 from django import forms
-from .models import Appointment, BloodDonor
+from datetime import date  # Import date for comparison
+from .models import Appointment  # Adjust this based on your actual model
 
 class AppointmentForm(forms.ModelForm):
     class Meta:
-        model = Appointment
-        fields = ['appointment_date']
-        widgets = {
-            'appointment_date': forms.DateInput(attrs={'type': 'date'}),
-        }
+        model = Appointment  # Replace with your actual model
+        fields = ['appointment_date', 'appointment_time']
 
-    def __init__(self, *args, **kwargs):
-        donor = kwargs.get('donor', None)
-        super().__init__(*args, **kwargs)
-        if donor and donor.can_appoint():
-            self.fields['appointment_date'].queryset = Appointment.objects.filter(donor=donor)
-        else:
-            self.fields['appointment_date'].disabled = True
+    def clean_appointment_date(self):
+        appointment_date = self.cleaned_data.get('appointment_date')
+        if appointment_date and appointment_date <= date.today():
+            raise forms.ValidationError("The appointment date must be in the future.")
+        return appointment_date
 
-
-
+    def clean_appointment_time(self):
+        appointment_time = self.cleaned_data.get('appointment_time')
+        return appointment_time
 
 from django import forms
 from django.core.exceptions import ValidationError

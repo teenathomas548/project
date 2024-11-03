@@ -20,6 +20,7 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="#about">About Us</a></li>
                     <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
                     <li class="nav-item dropdown">
@@ -27,33 +28,18 @@
                             Login
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="{% url 'hospital_login' %}">Hospital </a></li>
-                            <li><a class="dropdown-item" href="{% url 'admin_login' %}">Admin </a></li>
-                            <li><a class="dropdown-item" href="{% url 'doctor_login' %}">Doctor</a></li>
-                            <li><a class="dropdown-item" href="{% url 'donor_login' %}">Donor</a></li>
+                            <li><a class="dropdown-item" href="{% url 'login' %}">Registered Users </a></li>
+                            <li><a class="dropdown-item" href="{% url 'register_hospital' %}"> New Hospital</a></li>
+                            <li><a class="dropdown-item" href="{% url 'register_donor' %}"> New Donor</a></li>
+                            <li><a class="dropdown-item" href="{% url 'doctor_register' %}">New Doctor</a></li>
+
                             <!-- Add other login options if necessary -->
                         </ul>
                     </li>                   
-                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Register
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="{% url 'register_hospital' %}"> Hospital</a>
-                            <a class="dropdown-item" href="{% url 'register_donor' %}"> Donor</a>
-                            <a class="dropdown-item" href="{% url 'doctor_register' %}"> Doctor</a>
-
-                        </div>
-                    </li>
+                     
                     <li class="nav-item"><a class="nav-link" href="{% url 'latest_campaigns' %}">Campaign</a></li>
                     <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
                 </ul>
-
-                <!-- Search Bar -->
-                <form class="d-flex" method="GET" action="{% url 'search_blood' %}">
-                    <input class="form-control me-2" type="text" name="blood_group" placeholder="Search blood group..." aria-label="Search">
-                    <button class="btn btn-outline-light" type="submit">Search</button>
-                </form>
             </div>
         </div>
     </nav>

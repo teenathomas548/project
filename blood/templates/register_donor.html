@@ -26,21 +26,41 @@
         }
         .btn-primary {
             width: 100%;
-            background-color: red; /* Set the background color to red */
-            border-color: red; /* Set the border color to red */
+            background-color: red;
+            border-color: red;
         }
-
         .btn-primary:hover {
-            background-color: darkred; /* Change the color on hover */
-            border-color: darkred; /* Change the border color on hover */
+            background-color: darkred;
+            border-color: darkred;
         }
-        
         .error {
             color: red;
+        }
+        .back-btn {
+            margin-top: 10px;
+            margin-right: 10px;
+            padding: 10px 20px;
+            background-color: white;
+            color: black;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .back-btn:hover {
+            background-color: red;
+        }
+        .top-right {
+            position: absolute;
+            top: 20px;
+            right: 20px;
         }
     </style>
 </head>
 <body>
+    <div class="top-right">
+        <a href="{% url 'home' %}" class="back-btn">Home</a>
+    </div>
+
     <div class="container">
         <div class="form-container mx-auto">
             <h2 class="form-title">Donor Registration</h2>
@@ -50,22 +70,28 @@
                 <!-- Donor Name -->
                 <div class="mb-3">
                     <label for="donorName" class="form-label">Donor Name</label>
-                    <input type="text" class="form-control" id="donorName" name="donor_name" required>
-                    <small id="nameError" class="error"></small>
+                    <input type="text" class="form-control" id="donorName" name="donor_name" required value="{{ form.donor_name.value }}">
+                    {% if form.donor_name.errors %}
+                        <small class="error">{{ form.donor_name.errors|first }}</small>
+                    {% endif %}
                 </div>
 
                 <!-- Email -->
                 <div class="mb-3">
                     <label for="email" class="form-label">Email address</label>
-                    <input type="email" class="form-control" id="email" name="email" required>
-                    <small id="emailError" class="error"></small>
+                    <input type="email" class="form-control" id="email" name="email" required value="{{ form.email.value }}">
+                    {% if form.email.errors %}
+                        <small class="error">{{ form.email.errors|first }}</small>
+                    {% endif %}
                 </div>
 
                 <!-- Phone Number -->
                 <div class="mb-3">
                     <label for="phoneNumber" class="form-label">Contact Number</label>
-                    <input type="text" class="form-control" id="phoneNumber" name="contact_number" required>
-                    <small id="phoneError" class="error"></small>
+                    <input type="text" class="form-control" id="phoneNumber" name="contact_number" required value="{{ form.contact_number.value }}">
+                    {% if form.contact_number.errors %}
+                        <small class="error">{{ form.contact_number.errors|first }}</small>
+                    {% endif %}
                 </div>
 
                 <!-- Password -->
@@ -78,20 +104,22 @@
                 <div class="mb-3">
                     <label for="dob" class="form-label">Date of Birth</label>
                     <input type="date" name="date_of_birth" id="dob" class="form-control" placeholder="DOB" required
-                        value="{{ form.date_of_birth.value|default_if_none:'' }}" min="1900-01-01" 
+                        value="{{ form.date_of_birth.value|default_if_none:'' }}" min="1900-01-01"
                         title="Date of birth must be at least 18 years ago" onfocus="setMinDate()">
-                    <small id="dobError" class="error"></small>
+                    {% if form.date_of_birth.errors %}
+                        <small class="error">{{ form.date_of_birth.errors|first }}</small>
+                    {% endif %}
                 </div>
 
-                <!-- Last Donation Date -->
                 <!-- Last Donation Date -->
                 <div class="mb-3">
                     <label for="lastDonationDate" class="form-label">Last Donation Date (Optional)</label>
                     <input type="date" name="last_donation_date" id="lastDonationDate" class="form-control" placeholder="Last Donation Date"
                         value="{{ form.last_donation_date.value|default_if_none:'' }}">
-                    <small id="donationDateError" class="error"></small>
+                    {% if form.last_donation_date.errors %}
+                        <small class="error">{{ form.last_donation_date.errors|first }}</small>
+                    {% endif %}
                 </div>
-
 
                 <!-- Blood Type -->
                 <div class="mb-3">
@@ -104,6 +132,9 @@
                             </option>
                         {% endfor %}
                     </select>
+                    {% if form.blood_type.errors %}
+                        <small class="error">{{ form.blood_type.errors|first }}</small>
+                    {% endif %}
                 </div>
 
                 <!-- Register Button -->
@@ -118,89 +149,33 @@
     <!-- JavaScript for Form Validation -->
     <script>
         function validateForm() {
-            // Clear previous errors
-            document.getElementById('nameError').innerText = "";
-            document.getElementById('emailError').innerText = "";
-            document.getElementById('phoneError').innerText = "";
-            document.getElementById('dobError').innerText = "";
-            document.getElementById('donationDateError').innerText = "";
-            document.getElementById('bloodTypeError').innerText = "";
+            const dobInput = document.getElementById("dob");
+            const dobValue = new Date(dobInput.value);
+            const today = new Date();
+            const age = today.getFullYear() - dobValue.getFullYear();
+            const monthDifference = today.getMonth() - dobValue.getMonth();
 
-            var name = document.getElementById('donorName').value;
-            var email = document.getElementById('email').value;
-            var phoneNumber = document.getElementById('phoneNumber').value;
-            var dob = document.getElementById('dob').value;
-            var lastDonationDate = document.getElementById('lastDonationDate').value;
-            var bloodType = document.getElementById('bloodType').value;
-            var password = document.getElementById('password').value;
-
-            var namePattern = /^[A-Za-z\s]+$/;
-            var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-            var phonePattern = /^[6-9]\d{9}$/;
-
-            var isValid = true;
-
-            // Validate Name (Only letters and spaces)
-            if (!namePattern.test(name)) {
-                document.getElementById('nameError').innerText = "Name should contain only letters and spaces.";
-                isValid = false;
+            // Check if the age is less than 18
+            if (age < 18 || (age === 18 && monthDifference < 0)) {
+                document.getElementById("dobError").textContent = "You must be at least 18 years old.";
+                return false;
             }
 
-            // Validate Email
-            if (!emailPattern.test(email)) {
-                document.getElementById('emailError').innerText = "Enter a valid email address.";
-                isValid = false;
-            }
-
-            // Validate Phone Number (Starts with 6-9 and has 10 digits)
-            if (!phonePattern.test(phoneNumber)) {
-                document.getElementById('phoneError').innerText = "Phone number should start with 6, 7, 8, or 9 and must be 10 digits.";
-                isValid = false;
-            }
-
-            // Validate Date of Birth (Age should be 18 or above)
-            var dobDate = new Date(dob);
-            var today = new Date();
-            var age = today.getFullYear() - dobDate.getFullYear();
-            var monthDifference = today.getMonth() - dobDate.getMonth();
-
-            if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < dobDate.getDate())) {
-                age--;
-            }
-
-            if (age < 18) {
-                document.getElementById('dobError').innerText = "You must be at least 18 years old to register.";
-                isValid = false;
-            }
-
-            // Validate Last Donation Date (Must be in the past)
-            var donationDate = new Date(lastDonationDate);
-            if (donationDate > today) {
-                document.getElementById('donationDateError').innerText = "Last donation date must be in the past.";
-                isValid = false;
-            }
-
-            // Validate Blood Type (Must be selected)
-            if (bloodType === "") {
-                document.getElementById('bloodTypeError').innerText = "Please select a blood group.";
-                isValid = false;
-            }
-
-            return isValid;
+            // Clear error message if validation passes
+            document.getElementById("dobError").textContent = "";
+            return true;
         }
 
-        // Set the minimum date for Date of Birth to 18 years ago
+        // Set minimum date to today - 18 years for the DOB input
         function setMinDate() {
-            var today = new Date();
-            var minDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
-            document.getElementById("dob").setAttribute("max", minDate.toISOString().split('T')[0]);
+            const today = new Date();
+            const minDate = new Date(today.setFullYear(today.getFullYear() - 18));
+            const formattedMinDate = `${minDate.getFullYear()}-${String(minDate.getMonth() + 1).padStart(2, '0')}-${String(minDate.getDate()).padStart(2, '0')}`;
+            document.getElementById("dob").setAttribute("max", formattedMinDate);
         }
 
-        // Set the maximum date for Last Donation Date to today
-        function setMaxDateForDonation() {
-            var today = new Date();
-            document.getElementById("lastDonationDate").setAttribute("max", today.toISOString().split('T')[0]);
-        }
+        // Run the function when the document is loaded
+        document.addEventListener("DOMContentLoaded", setMinDate);
     </script>
 </body>
 </html>

@@ -99,9 +99,35 @@
                 flex: 1 1 100%;
             }
         }
+
+        /* Navbar custom styling */
+        .navbar {
+            background-color: #343a40;
+        }
+
+        .navbar .navbar-brand {
+            color: #ffffff;
+        }
+
+        .navbar .nav-link {
+            color: #ffffff;
+        }
+
+        .navbar .nav-link:hover {
+            color: #ffcc00;
+        }
     </style>
 </head>
 <body>
+    <!-- Navigation Bar with Back and Logout -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="#">Hospital Dashboard</a>
+        <div class="ml-auto">
+            <a href="javascript:history.back()" class="btn btn-outline-light mr-2">Back</a>
+            <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+        </div>
+    </nav>
+
     <div class="container dashboard-container">
         <div class="dashboard-header">
             <h1>Welcome to Hospital Dashboard</h1>

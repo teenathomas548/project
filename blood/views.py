@@ -92,44 +92,79 @@ def userhome(request):
     """
     return render(request, 'userhome.html')
 
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import DonorProfile, Doctor, Hospital, Admin
+from .forms import LoginForm
 
-def login(request):
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import DonorProfile, Doctor, Hospital, Admin  # Ensure these models are imported
+from .forms import LoginForm  # Assuming you have a LoginForm defined
+
+def custom_login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
-            
-            # Use Django ORM to authenticate the user
-            try:
-                user = Registration.objects.get(email=email, password=password)
-                
-                # Check if the user is active
-                if not user.is_active:
+
+            # Check for Donor
+            donor = DonorProfile.objects.filter(email=email).first()
+            if donor:
+                if donor.is_active:  # Ensure donor is active
+                    if password == donor.password:  # Direct password comparison
+                        request.session['donor_id'] = donor.donor_id
+                        return redirect('donor_dashboard')
+                else:
                     messages.error(request, 'Your account is inactive. Please contact support.')
                     return render(request, 'login.html', {'form': form})
-                
-                role = user.role  # Assuming the role is stored in the `role` field
 
-                # Set user in session
-                request.session['email'] = email
-                request.session['role'] = role
-
-                # Redirect based on role
-                if role == 'donate':
-                    return redirect('donor_dashboard')  # Redirect to donor dashboard
-                elif role == 'recipient':
-                    return redirect('recipient_home')  # Redirect to recipient dashboard
+            # Check for Doctor
+            doctor = Doctor.objects.filter(email=email).first()
+            if doctor:
+                if doctor.is_active:  # Ensure doctor is active
+                    if password == doctor.password:  # Direct password comparison
+                        request.session['doctor_id'] = doctor.doctor_id
+                        return redirect('doctor_dashboard')
                 else:
-                    messages.error(request, 'Invalid user role')
+                    messages.error(request, 'Your account is inactive. Please contact support.')
+                    return render(request, 'login.html', {'form': form})
 
-            except Registration.DoesNotExist:
-                messages.error(request, 'Invalid email or password')
+            # Check for Hospital
+            hospital = Hospital.objects.filter(email=email).first()
+            if hospital:
+                if hospital.is_approved:
+                    if password == hospital.password:  # Direct password comparison
+                        request.session['hospital_id'] = hospital.hospital_id
+                        return redirect('hospital_dashboard')
+                    else:
+                        messages.error(request, 'Invalid password.')
+                        return render(request, 'login.html', {'form': form})
+                else:
+                    messages.error(request, "Your account is awaiting admin approval.")
+                    return render(request, 'login.html', {'form': form})
+
+            # Check for Admin
+            admin_user = Admin.objects.filter(email=email).first()
+            if admin_user:
+                if admin_user.is_active:  # Ensure admin is active
+                    if password == admin_user.password:  # Direct password comparison
+                        request.session['admin_id'] = admin_user.id
+                        return redirect('blood_admin')
+                else:
+                    messages.error(request, 'Your account is inactive. Please contact support.')
+                    return render(request, 'login.html', {'form': form})
+
+            # If no valid user is found
+            messages.error(request, 'Invalid email or password.')
+            return render(request, 'login.html', {'form': form})
     else:
-        form = LoginForm()
+        form = LoginForm()  # Create an empty form for GET requests
 
     return render(request, 'login.html', {'form': form})
 
+# Render the login template
 def admin_login(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -182,7 +217,7 @@ from django.contrib import messages
 
 def blood_admin(request):
     # Total donors count
-    total_donors = Registration.objects.filter(role='donate').count()
+    total_donors = DonorProfile.objects.count()  # Get total count of all donors
 
     # Total available blood units
     blood_units = Inventory.objects.aggregate(total_units=Sum('units_available'))['total_units'] or 0
@@ -196,7 +231,7 @@ def blood_admin(request):
     # Completed requests count
     completed_requests = BloodApply.objects.filter(status='approved').count()
 
-    # Fetch recent activities dynamically
+    # Fetch recent activities dynamically, prioritizing pending requests
     recent_activities = [
         {
             "date": request.request_date,
@@ -207,8 +242,19 @@ def blood_admin(request):
             "status": request.status,
             "id": request.id
         }
-        for request in BloodApply.objects.order_by('-request_date')[:5]  # Limit to 5 recent requests
-    ]
+        for request in BloodApply.objects.order_by('-request_date').filter(status='pending')[:5]  # Limit to 5 recent pending requests
+    ] + [
+        {
+            "date": request.request_date,
+            "doctor": request.doctor.doctor_name,
+            "patient": request.patient_name,
+            "hospital": request.hospital.hospital_name,
+            "blood_group": request.blood_type.blood_group,
+            "status": request.status,
+            "id": request.id
+        }
+        for request in BloodApply.objects.order_by('-request_date').exclude(status='pending')[:5]  # Get the next 5 most recent non-pending requests
+    ][:5]  # Ensure total activities do not exceed 5
 
     context = {
         "total_donors": total_donors,
@@ -238,6 +284,17 @@ def approve_request(request, request_id):
         messages.warning(request, 'Blood unit not available. Request cannot be approved.')
 
     return redirect('blood_admin')
+
+
+def all_pending_requests(request):
+    # Fetch all pending requests
+    pending_requests = BloodApply.objects.filter(status='pending').order_by('-request_date')
+
+    context = {
+        "pending_requests": pending_requests,
+    }
+
+    return render(request, 'all_pending_requests.html', context)  # Template for displaying all pending requests
 
 
 from django.shortcuts import get_object_or_404, redirect
@@ -285,44 +342,58 @@ def manage_users(request):
 
 
 
-
-from django.shortcuts import render
-from .models import DonorProfile, Appointment  # Assuming these models exist
+from django.shortcuts import render, get_object_or_404
+from .models import DonorProfile, Appointment
 from datetime import timedelta
 from django.utils import timezone
+import logging
+
+logger = logging.getLogger(__name__)
 
 def donor_dashboard(request):
-    # Fetch the donor profile using donor_id stored in session
-    donor = DonorProfile.objects.get(donor_id=request.session['donor_id'])
+    if 'donor_id' not in request.session:
+        return render(request, 'error.html', {'message': 'Donor not logged in.'})
+
+    donor = get_object_or_404(DonorProfile, donor_id=request.session['donor_id'])
     
-    # Fetch upcoming appointments
-    upcoming_appointments = Appointment.objects.filter(donor=donor, appointment_date__gte=timezone.now()).order_by('appointment_date')
-    
-    # Determine donor eligibility (e.g., must wait 56 days between donations)
-    # Since we're not using the Donation model, we won't check donation history
-    # You can add a custom condition here if needed, such as eligibility based on last donation date stored in DonorProfile
+    logger.debug(f"Donor ID: {donor.donor_id}")
+
+    upcoming_appointments = Appointment.objects.filter(
+        donor=donor,
+        appointment_date__gte=timezone.now().date()
+    ).order_by('appointment_date')
+
+    upcoming_count = upcoming_appointments.count()
+    logger.debug(f"Upcoming Appointments Count: {upcoming_count}")
+
+    past_appointments = Appointment.objects.filter(
+        donor=donor,
+        appointment_date__lt=timezone.now().date()
+    ).order_by('-appointment_date')
+
     if donor.last_donation_date:
         days_since_last_donation = (timezone.now().date() - donor.last_donation_date).days
-        if days_since_last_donation >= 56:  # Example condition for eligibility
+        if days_since_last_donation >= 56:
             eligibility_status = "Eligible for donation"
         else:
             eligibility_status = f"Not eligible for donation until {donor.last_donation_date + timedelta(days=56)}"
     else:
         eligibility_status = "Eligible for first-time donation"
     
-    # Determine if donor is a first-time donor
-    first_time_donor = not donor.last_donation_date  # If there's no last donation date, it's a first-time donor
+    first_time_donor = not donor.last_donation_date
 
-    # Prepare context
     context = {
         'donor': donor,
         'upcoming_appointments': upcoming_appointments,
+        'past_appointments': past_appointments,
         'eligibility_status': eligibility_status,
         'first_time_donor': first_time_donor,
+        'blood_type': donor.blood_type.blood_group if donor.blood_type else "Not specified",
+        'upcoming_count': upcoming_count,
+        'past_count': past_appointments.count(),
     }
 
-def donor_dashboard(request):
-    return render(request, 'donor_dashboard.html')
+    return render(request, 'donor_dashboard.html', context)
 
 
 def campaign_list(request):
@@ -806,18 +877,20 @@ def payment_success(request):
 
 from django.shortcuts import render, redirect
 from .forms import HospitalRegistrationForm
+from .models import Hospital
 
 def register_hospital(request):
     if request.method == 'POST':
-        form = HospitalRegistrationForm(request.POST)
+        form = HospitalRegistrationForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()  # Save the form data to the database
-            return redirect('login')  # Redirect to the login page after successful registration
+            hospital = form.save(commit=False)
+            hospital.is_active = True
+            hospital.is_approved = False
+            hospital.save()
+            return redirect('login')  # Redirect to a success page
     else:
         form = HospitalRegistrationForm()
-    
     return render(request, 'hospital_register.html', {'form': form})
-
 
 
 
@@ -838,7 +911,7 @@ def hospital_login(request):
                 hospital = Hospital.objects.get(email=email)  # Get the hospital with the provided email
             except Hospital.DoesNotExist:
                 messages.error(request, "Invalid email or password")
-                return redirect('hospital_login')
+                return redirect('login')
 
             # Since you are not using hashed passwords, just compare the raw password
             if password == hospital.password:  # Compare plain-text password
@@ -847,11 +920,11 @@ def hospital_login(request):
                 return redirect('hospital_dashboard')  # Redirect to the hospital dashboard on successful login
             else:
                 messages.error(request, "Invalid email or password")
-                return redirect('hospital_login')
+                return redirect('login')
     else:
         form = HospitalLoginForm()
 
-    return render(request, 'hospital_login.html', {'form': form})
+    return render(request, 'login.html', {'form': form})
 
 
 
@@ -874,7 +947,7 @@ def doctor_register(request):
         form = DoctorForm(request.POST)
         if form.is_valid():
             form.save()  # Save the doctor to the database
-            return redirect('doctor_login')  # Redirect to the login page after registration
+            return redirect('login')  # Redirect to the login page after registration
     else:
         form = DoctorForm()
 
@@ -909,7 +982,7 @@ def doctor_login(request):
     else:
         form = DoctorLoginForm()
 
-    return render(request, 'doctor_login.html', {'form': form})
+    return render(request, 'login.html', {'form': form})
 
 
 from django.shortcuts import render, redirect
@@ -922,14 +995,14 @@ def doctor_dashboard(request):
     
     if not doctor_id:
         # If not logged in, redirect to the login page
-        return redirect('doctor_login')
+        return redirect('login')
 
     try:
         # Get the logged-in doctor's profile using 'doctor_id'
         doctor = Doctor.objects.get(doctor_id=doctor_id)  # Correct field name
     except Doctor.DoesNotExist:
         # Handle the case where the doctor does not exist in the database
-        return redirect('doctor_login')
+        return redirect('login')
 
     # If the form is submitted, process the form data
     if request.method == 'POST':
@@ -975,7 +1048,7 @@ def register_donor(request):
         if form.is_valid():
             form.save()
             messages.success(request, "Registration successful! Please log in.")
-            return redirect('donor_login')  # Redirect to donor login page after successful registration
+            return redirect('login')  # Redirect to donor login page after successful registration
     else:
         form = DonorRegistrationForm()
 
@@ -1006,7 +1079,7 @@ def donor_login(request):
     else:
         form = DonorLoginForm()
 
-    return render(request, 'donor_login.html', {'form': form, 'error_message': error_message})
+    return render(request, 'login.html', {'form': form, 'error_message': error_message})
 
 
 
@@ -1014,11 +1087,14 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import Appointment, DonorProfile
 from .forms import AppointmentForm
+from datetime import timedelta
+from django.utils import timezone
 
 def book_appointment(request):
     # Check if the donor is logged in
     if 'donor_id' not in request.session:
-        return redirect('donor_login')  # Redirect to login if not logged in
+        messages.error(request, 'You need to be logged in to book an appointment.')  # Add a message for not logged in
+        return redirect('login')  # Redirect to login if not logged in
 
     donor_id = request.session['donor_id']
     donor = DonorProfile.objects.get(donor_id=donor_id)
@@ -1026,12 +1102,18 @@ def book_appointment(request):
     if request.method == 'POST':
         form = AppointmentForm(request.POST)
         if form.is_valid():
+            # Check if donor can schedule an appointment
+            if not donor.can_schedule_appointment():
+                messages.error(request, 'You must wait at least 3 months after your last donation before scheduling another appointment.')
+                return render(request, 'book_appointment.html', {'form': form, 'donor': donor})  # Stay on the same page
+
+            # Create appointment if valid
             appointment = form.save(commit=False)
             appointment.donor = donor  # Associate appointment with the logged-in donor
             appointment.status = 'Scheduled'  # Set the status to 'Scheduled'
             appointment.save()
             messages.success(request, 'Your appointment has been booked successfully!')
-            return redirect('submission_success')  # Redirect to dashboard after booking
+            return redirect('submission_success')  # Redirect to success page
     else:
         form = AppointmentForm()
 
@@ -1066,7 +1148,7 @@ from .models import DonorProfile, MedicalReport
 def submit_medical_records(request):
     # Check if the donor is logged in
     if 'donor_id' not in request.session:
-        return redirect('donor_login')  # Redirect to login if not logged in
+        return redirect('login')  # Redirect to login if not logged in
 
     # Get the logged-in donor using the donor_id from the session
     donor_id = request.session['donor_id']
@@ -1111,3 +1193,66 @@ def apply_blood(request):
         form = BloodApplyWithhospitalForm()
     
     return render(request, 'apply_blood.html', {'blood_apply_form': form})
+
+
+# views.py
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import DonorProfile
+
+def manage_donors(request):
+    donors = DonorProfile.objects.all()  # Get all donors
+    return render(request, 'manage_donors.html', {'donors': donors})
+
+def disable_donor(request, donor_id):
+    donor = get_object_or_404(DonorProfile, donor_id=donor_id)
+    donor.is_active = False
+    donor.save()
+    messages.success(request, f"{donor.donor_name} has been disabled.")
+    return redirect('manage_donors')  # Redirect back to the manage donors page
+
+def enable_donor(request, donor_id):
+    donor = get_object_or_404(DonorProfile, donor_id=donor_id)
+    donor.is_active = True
+    donor.save()
+    messages.success(request, f"{donor.donor_name} has been enabled.")
+    return redirect('manage_donors')  # Redirect back to the manage donors page
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import Doctor
+
+def manage_doctors(request):
+    doctors = Doctor.objects.all()  # Get all doctors
+    return render(request, 'manage_doctors.html', {'doctors': doctors})
+
+def disable_doctor(request, doctor_id):
+    doctor = get_object_or_404(Doctor, doctor_id=doctor_id)
+    doctor.is_active = False
+    doctor.save()
+    messages.success(request, f"{doctor.doctor_name} has been disabled.")
+    return redirect('manage_doctors')  # Redirect back to the manage doctors page
+
+def enable_doctor(request, doctor_id):
+    doctor = get_object_or_404(Doctor, doctor_id=doctor_id)
+    doctor.is_active = True
+    doctor.save()
+    messages.success(request, f"{doctor.doctor_name} has been enabled.")
+    return redirect('manage_doctors')  # Redirect back to the manage doctors page
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Hospital
+
+def pending_hospitals(request):
+    # Fetch hospitals that are not approved yet
+    hospitals = Hospital.objects.filter(is_approved=False)
+    return render(request, 'admin_pending_hospitals.html', {'hospitals': hospitals})
+
+def approve_hospital(request, hospital_id):
+    # Approve the hospital with the given ID
+    hospital = get_object_or_404(Hospital, hospital_id=hospital_id)
+    hospital.is_approved = True
+    hospital.save()
+    return redirect('pending_hospitals')

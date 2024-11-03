@@ -27,6 +27,25 @@
         .card-title {
             font-weight: bold;
         }
+
+        .pending-request-card {
+    background-color: #fff3cd; /* Light yellow background for pending requests */
+    border-left: 5px solid #ffc107; /* Yellow left border to highlight */
+    border-radius: 10px;
+    padding: 15px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.pending-request-card:hover {
+    transform: translateY(-2px); /* Slight lift effect on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow on hover */
+}
+
+.pending-request-title {
+    font-weight: bold;
+    color: #856404; /* Darker yellow for the title */
+}
+
         .card {
             border-radius: 10px;
         }
@@ -86,8 +105,11 @@
                     <div class="card-body">
                         <ul class="list-group">
                             <li class="list-group-item"><i class="fas fa-users"></i> <a href="{% url 'manage_users' %}">User Management</a></li>
+                            <li class="list-group-item"><i class="fas fa-users"></i> <a href="{% url 'manage_donors' %}">Donor Management</a></li>
+                            <li class="list-group-item"><i class="fas fa-users"></i> <a href="{% url 'manage_doctors' %}">Doctor Management</a></li>
                             <li class="list-group-item"><i class="fas fa-tint"></i> <a href="{% url 'inventory_list' %}">Blood Inventory</a></li>
                             <li class="list-group-item"><i class="fas fa-cogs"></i> <a href="{% url 'manage_campaigns' %}">Donation Campaigns</a></li>
+                            <li class="list-group-item"><i class="fas fa-cogs"></i> <a href="{% url 'pending_hospitals' %}">Hospital Approval</a></li>
                             <li class="list-group-item"><i class="fas fa-chart-line"></i> <a href="#">Reports</a></li>
                         </ul>
                     </div>
@@ -122,8 +144,12 @@
                                     <div class="card-body">
                                         <i class="fas fa-exclamation-triangle fa-3x"></i>
                                         <h5 class="card-title">Pending Requests</h5>
-                                        <p class="card-text">{{ pending_requests }}</p>
+                                        <p class="card-text">Total: {{ pending_requests }}</p>
+                                        <a href="{% url 'all_pending_requests' %}" class="btn btn-light btn-sm">View </a>
                                     </div>
+                                </div>
+                            </div>
+                            
                                 </div>
                             </div>
                         </div>

@@ -141,3 +141,6 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default session engine
 
 
 LOGIN_URL = '/login/'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
