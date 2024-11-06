@@ -33,8 +33,16 @@
                 {% endif %}
                 
                 {{ form.as_p }}
-                <button type="submit">Login</button>
+                <button type="submit" id="login">Login</button>
             </form>
+            <div class="social-login">
+                <a href="{% url 'social:begin' 'google-oauth2' %}">
+                    <button class="google-button">
+                        <img src="{% static 'image/google.png' %}" alt="Google Logo" style="width: 24px; height: 24px;">
+                        Login with Google
+                    </button>
+                </a>
+            </div>
             <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
             <p><a href="{% url 'forgot_password' %}">Forgot Password?</a></p>
         </div>

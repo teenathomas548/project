@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from.import views
 from django.contrib.auth import views as auth_views
 from .views import donor_dashboard
@@ -20,6 +20,7 @@ from .views import  approve_request
 from .views import manage_donors, disable_donor, enable_donor
 from .views import manage_doctors, disable_doctor, enable_doctor
 from .views import blood_admin, all_pending_requests
+from .views import register_admin
 
 from .views import custom_login_view
 
@@ -88,6 +89,8 @@ urlpatterns = [
     path('enable-doctor/<int:doctor_id>/', enable_doctor, name='enable_doctor'),
     path('pending-hospitals/', views.pending_hospitals, name='pending_hospitals'),
     path('approve-hospital/<int:hospital_id>/', views.approve_hospital, name='approve_hospital'),    
+    path('oauth/', include('social_django.urls', namespace='social')),
+    path('register/admin/', register_admin, name='admin_register'),  # Custom URL for Admin Registration
 
 
 

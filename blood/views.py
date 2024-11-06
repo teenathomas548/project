@@ -1258,3 +1258,22 @@ def approve_hospital(request, hospital_id):
     hospital.is_approved = True
     hospital.save()
     return redirect('pending_hospitals')
+
+from django.shortcuts import render, redirect
+from .forms import AdminRegistrationForm
+from .models import Admin
+
+from django.shortcuts import render, redirect
+from .forms import AdminRegistrationForm
+from .models import Admin
+
+def register_admin(request):
+    if request.method == 'POST':
+        form = AdminRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')  # Redirect to a login page or another appropriate page
+    else:
+        form = AdminRegistrationForm()
+    
+    return render(request, 'aregister.html', {'form': form})

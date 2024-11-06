@@ -19,10 +19,16 @@ class RegistrationForm(forms.ModelForm):
             'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
         }
 
-class LoginForm(forms.Form):
-    email = forms.CharField(max_length=100)
-    password = forms.CharField(widget=forms.PasswordInput)
+from django import forms
 
+class LoginForm(forms.Form):
+    email = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'id': 'email'})
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'id': 'password'})
+    )
 
 from .models import Campaign
 
@@ -447,3 +453,13 @@ class BloodApplyWithhospitalForm(forms.ModelForm):
         empty_label="Select a Doctor",
         widget=forms.Select(attrs={'class': 'form-control'})  # You can customize widget further if needed
     )
+    
+from django import forms
+from .models import Admin
+
+class AdminRegistrationForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput)
+
+    class Meta:
+        model = Admin
+        fields = ['username', 'password', 'email', 'first_name', 'last_name']
