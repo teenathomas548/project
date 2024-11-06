@@ -87,27 +87,27 @@ WSGI_APPLICATION = 'bloodbank.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
- 'default': {
- 'ENGINE': 'django.db.backends.mysql',
- 'NAME': 'bloodbank',
- 'USER': 'root',
- 'PASSWORD': '',
- 'HOST': 'localhost',
- 'PORT': '3306',
- }
- }
+# DATABASES = {
+#  'default': {
+#  'ENGINE': 'django.db.backends.mysql',
+#  'NAME': 'bloodbank',
+#  'USER': 'root',
+#  'PASSWORD': '',
+#  'HOST': 'localhost',
+#  'PORT': '3306',
+#  }
+#  }
 
-#DATABASES = {
-  #  'default': {
-  #      'ENGINE': 'django.db.backends.mysql',
-  #      'NAME': 'mydb_kindborder',
-   #     'USER': 'mydb_kindborder',
-   #     'PASSWORD': '47e15bc18e5dc6afa5a856508c8663cd4f0df33d',  # Replace with your actual password
-   #     'HOST': '2djp9.h.filess.io',
-   #     'PORT': '3307',
-   # }
-#}
+DATABASES = {
+   'default': {
+       'ENGINE': 'django.db.backends.mysql',
+       'NAME': 'mydb_kindborder',
+       'USER': 'mydb_kindborder',
+       'PASSWORD': '47e15bc18e5dc6afa5a856508c8663cd4f0df33d',  # Replace with your actual password
+       'HOST': '2djp9.h.filess.io',
+       'PORT': '3307',
+   }
+}
 
 
 # Password validation
@@ -155,8 +155,8 @@ SOCIAL_AUTH_PIPELINE = (
 LOGIN_REDIRECT_URL = 'donor_dashboard'
 LOGOUT_REDIRECT_URL = '/'
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenviron('client_id')
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenviron('client_secret')
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get('client_id')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get('client_secret')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
