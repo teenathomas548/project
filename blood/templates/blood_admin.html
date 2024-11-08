@@ -82,11 +82,9 @@
                     <a class="nav-link" href="{% url 'manage_users' %}">User Management</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Inventory</a>
+                    <a class="nav-link" href="{% url 'inventory_list' %}">Inventory</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Reports</a>
-                </li>
+                
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'manage_campaigns' %}">Campaigns</a>
                 </li>
@@ -110,7 +108,6 @@
                             <li class="list-group-item"><i class="fas fa-tint"></i> <a href="{% url 'inventory_list' %}">Blood Inventory</a></li>
                             <li class="list-group-item"><i class="fas fa-cogs"></i> <a href="{% url 'manage_campaigns' %}">Donation Campaigns</a></li>
                             <li class="list-group-item"><i class="fas fa-cogs"></i> <a href="{% url 'pending_hospitals' %}">Hospital Approval</a></li>
-                            <li class="list-group-item"><i class="fas fa-chart-line"></i> <a href="#">Reports</a></li>
                         </ul>
                     </div>
                 </div>

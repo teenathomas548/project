@@ -13,9 +13,16 @@
         body {
             background-color: #f8f9fa;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            margin-top: -50px;
+        }
+        .home-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
         }
         .registration-container {
             max-width: 500px;
@@ -23,6 +30,7 @@
             background-color: white;
             box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
             border-radius: 10px;
+            margin-top: 50px;
         }
         h2 {
             text-align: center;
@@ -39,6 +47,9 @@
     </style>
 </head>
 <body>
+
+    <!-- Home Button -->
+    <a href="/" class="btn btn-outline-primary home-button">Home</a>
 
     <div class="registration-container">
         <h2>Hospital Registration</h2>

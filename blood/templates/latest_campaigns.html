@@ -1,14 +1,36 @@
-{%load static%}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Latest Campaigns</title>
-    <link rel="stylesheet" href="{% static 'latestcampaigns.css' %}">  <!-- Link to your CSS file -->
+    <link rel="stylesheet" href="{% static 'latestcampaigns.css' %}">
+    <style>
+        /* Inline CSS for positioning the home button, update in manageuser.css if preferred */
+        .home-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: darkred;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .home-button:hover {
+            background-color: red;
+        }
+    </style>
 </head>
 <body>
-    <h2>Latest Campaigns</h2>
+
+    <div class="header">
+        <h1>Latest Campaigns</h1>
+        <a href="{% url 'home' %}" class="home-button">Home</a> <!-- Link to home page -->
+    </div>
+
+
     <ul>
         {% for campaign in campaigns %}
             <li>

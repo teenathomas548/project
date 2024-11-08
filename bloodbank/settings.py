@@ -103,7 +103,7 @@ DATABASES = {
        'ENGINE': 'django.db.backends.mysql',
        'NAME': 'mydb_kindborder',
        'USER': 'mydb_kindborder',
-       'PASSWORD': '47e15bc18e5dc6afa5a856508c8663cd4f0df33d',  
+       'PASSWORD': '47e15bc18e5dc6afa5a856508c8663cd4f0df33d',  # Replace with your actual password
        'HOST': '2djp9.h.filess.io',
        'PORT': '3307',
    }

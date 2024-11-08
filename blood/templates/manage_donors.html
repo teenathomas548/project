@@ -5,7 +5,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Donors</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'manageuser.css' %}"> <!-- Update with your CSS file name -->
+    <link rel="stylesheet" type="text/css" href="{% static 'manageuser.css' %}"> 
+    <style>
+        /* Inline CSS for positioning the home button, update in manageuser.css if preferred */
+        .home-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: darkred;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .home-button:hover {
+            background-color: red;
+        }
+    </style>
+
+    <div class="header">
+        <a href="{% url 'blood_admin' %}" class="home-button">Home</a> <!-- Link to home page -->
+    </div><!-- Update with your CSS file name -->
 </head>
 <body>
 
