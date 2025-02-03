@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Give Feedback</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ff758c, #ff7eb3);
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 50%;
+            margin: 50px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            animation: slideIn 1s ease-in-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h2 {
+            text-align: center;
+            color: #333333;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        h2::before {
+            content: "📝 ";
+            position: absolute;
+            left: -40px;
+            font-size: 1.5em;
+            color: #ff758c;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        label {
+            font-size: 1.1em;
+            color: #333333;
+        }
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ff758c;
+            border-radius: 12px;
+            font-size: 1em;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #ff4b7d;
+            box-shadow: 0 0 8px rgba(255, 75, 125, 0.5);
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+        }
+        button {
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .submit-btn {
+            background-color: #ff758c;
+            color: white;
+        }
+        .submit-btn:hover {
+            background-color: #ff4b7d;
+            transform: translateY(-2px);
+        }
+        .cancel-btn {
+            background-color: #cccccc;
+            color: #333;
+        }
+        .cancel-btn:hover {
+            background-color: #b3b3b3;
+            transform: translateY(-2px);
+        }
+        .emoji-group {
+            text-align: center;
+            font-size: 2em;
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+        }
+        .emoji-group span {
+            cursor: pointer;
+            transition: transform 0.2s ease, color 0.3s ease;
+        }
+        .emoji-group span:hover {
+            transform: scale(1.5);
+            color: #ff4b7d;
+        }
+        .footer-note {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #555;
+        }
+        button:focus {
+            outline: 2px solid #ff4b7d;
+            outline-offset: 4px;
+        }
+        /* Your existing CSS styles */
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>We Value Your Feedback!</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <label for="feedback">How was your experience? <span>😊</span></label>
+        <textarea id="feedback" name="feedback_text" rows="5" placeholder="Write your feedback here..." required></textarea>
+        
+        <div class="emoji-group" aria-label="Rate your experience using emojis">
+            <span title="Excellent">😍</span>
+            <span title="Good">😊</span>
+            <span title="Neutral">😐</span>
+            <span title="Bad">😢</span>
+            <span title="Terrible">😡</span>
+        </div>
+
+        <div class="button-group">
+            <button type="submit" class="submit-btn">Submit Feedback 🚀</button>
+            <button type="button" class="cancel-btn" onclick="window.location.href='/'">Cancel ❌</button>
+        </div>
+    </form>
+    <p class="footer-note">Your feedback helps us improve and serve you better. Thank you! 💖</p>
+</div>
+
+</body>
+</html>

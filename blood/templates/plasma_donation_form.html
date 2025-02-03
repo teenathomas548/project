@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plasma Donation</title>
+    <!-- Add Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Add Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: url("/static/image/bloodhome.jpg") no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+        }
+
+        .form-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        .form-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-header i {
+            font-size: 60px;
+            color: #dc3545;
+            margin-bottom: 15px;
+        }
+
+        .form-header h1 {
+            color: #2c3e50;
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .form-header p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-group.hidden {
+            display: none;
+        }
+
+        .form-group label {
+            display: block;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        .form-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: #666;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border: 2px solid #e1e8ef;
+            border-radius: 10px;
+            font-size: 15px;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+
+        .form-control:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+            outline: none;
+        }
+
+        .btn-submit, .btn-confirm {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #dc3545, #ff6b6b);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+            margin-top: 20px;
+        }
+
+        .btn-submit:hover, .btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.4);
+        }
+
+        .top-buttons {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .top-buttons a {
+            text-decoration: none;
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #2c3e50, #4a69bd);
+            color: white;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(44, 62, 80, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .top-buttons a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(44, 62, 80, 0.4);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .form-card {
+                padding: 30px 20px;
+            }
+
+            .form-header h1 {
+                font-size: 24px;
+            }
+
+            .top-buttons a {
+                padding: 8px 15px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Back and Logout Buttons -->
+    <div class="top-buttons">
+        <a href="javascript:history.back()"><i class="fas fa-arrow-left"></i> Back</a>
+        <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+
+    <div class="container">
+        <div class="form-card">
+            <div class="form-header">
+                <i class="fas fa-hand-holding-droplet"></i>
+                <h1>Plasma Donation Form</h1>
+                <p>Your plasma can save lives. Become a hero today by donating plasma!</p>
+            </div>
+            
+            <form method="post" action="{% url 'plasma_donation_request' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" class="form-control" name="name" placeholder="Full Name" required>
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" class="form-control" name="email" placeholder="Email Address" required>
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-phone"></i>
+                    <input type="text" class="form-control" name="phone" placeholder="Contact Number" required>
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-tint"></i>
+                    <select class="form-control" name="blood_type" required>
+                        <option value="" disabled selected>Select Blood Type</option>
+                        <option value="A+">A Positive (A+)</option>
+                        <option value="A-">A Negative (A-)</option>
+                        <option value="B+">B Positive (B+)</option>
+                        <option value="B-">B Negative (B-)</option>
+                        <option value="O+">O Positive (O+)</option>
+                        <option value="O-">O Negative (O-)</option>
+                        <option value="AB+">AB Positive (AB+)</option>
+                        <option value="AB-">AB Negative (AB-)</option>
+                    </select>
+                </div>
+                <button type="button" class="btn-confirm" onclick="showDateTimeFields()">Confirm</button>
+                
+                <!-- Hidden Date and Time Fields -->
+                <div id="dateTimeFields" class="form-group hidden">
+                    <i class="fas fa-calendar"></i>
+                    <input type="date" class="form-control" name="donation_date" placeholder="Donation Date" required>
+                </div>
+                <div id="timeField" class="form-group hidden">
+                    <i class="fas fa-clock"></i>
+                    <input type="time" class="form-control" name="donation_time" placeholder="Donation Time" required>
+                </div>
+                
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-paper-plane"></i> Submit
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showDateTimeFields() {
+            document.getElementById('dateTimeFields').classList.remove('hidden');
+            document.getElementById('timeField').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

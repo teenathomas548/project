@@ -463,3 +463,73 @@ class AdminRegistrationForm(forms.ModelForm):
     class Meta:
         model = Admin
         fields = ['username', 'password', 'email', 'first_name', 'last_name']
+
+from django import forms
+from .models import PlasmaRequest, Doctor  # Assuming you have a Doctor model
+
+
+class PlasmaRequestForm(forms.ModelForm):
+    class Meta:
+        model = PlasmaRequest
+        fields = ['blood_type', 'quantity', 'hospital', 'urgency', 'patient_name', 'patient_age', 'reason']
+        widgets = {
+            'patient_age': forms.NumberInput(attrs={'min': 1, 'placeholder': 'Enter patient age'}),
+            'quantity': forms.NumberInput(attrs={'min': 1, 'placeholder': 'Enter required quantity in units'}),
+            'urgency': forms.Select(choices=[('normal', 'Normal'), ('emergency', 'Emergency')]),
+            'reason': forms.Textarea(attrs={
+                'placeholder': 'Please provide a reason for the blood application.',
+                'rows': 4,
+                'maxlength': 500,
+            }),
+        }
+        error_messages = {
+            'blood_type': {'required': 'Blood type is required.'},
+            'quantity': {'required': 'Quantity is required.', 'min_value': 'Quantity must be at least 1.'},
+            'hospital': {'required': 'Hospital name is required.'},
+            'urgency': {'required': 'Please specify the urgency level.'},
+            'patient_name': {'required': 'Patient name is required.'},
+            'patient_age': {'required': 'Patient age is required.', 'invalid': 'Enter a valid age.'},
+            'reason': {'required': 'Reason for the plasma request is required.'},
+        }
+
+    def clean_patient_name(self):
+        patient_name = self.cleaned_data.get('patient_name')
+        if not patient_name.replace(' ', '').isalpha():
+            raise forms.ValidationError("Patient name must contain only alphabetic characters.")
+        return patient_name
+
+    def clean_patient_age(self):
+        patient_age = self.cleaned_data.get('patient_age')
+        if patient_age < 1 or patient_age > 120:
+            raise forms.ValidationError("Patient age must be between 1 and 120.")
+        return patient_age
+
+    def clean_quantity(self):
+        quantity = self.cleaned_data.get('quantity')
+        if quantity < 1:
+            raise forms.ValidationError("Quantity must be at least 1 unit.")
+        return quantity
+
+    def clean_reason(self):
+        reason = self.cleaned_data.get('reason')
+        if len(reason) < 10:
+            raise forms.ValidationError("Reason must be at least 10 characters long.")
+        return reason
+    
+    def clean_hospital(self):
+        hospital = self.cleaned_data.get('hospital')
+        if not hospital.replace(' ', '').isalpha():
+            raise forms.ValidationError("Hospital name must contain only alphabetic characters.")
+        return hospital
+
+# forms.py
+from django import forms
+from .models import Feedback
+
+class FeedbackForm(forms.ModelForm):
+    class Meta:
+        model = Feedback
+        fields = ['feedback_text']
+        widgets = {
+            'feedback_text': forms.Textarea(attrs={'placeholder': 'Your feedback here...', 'rows': 5}),
+        }

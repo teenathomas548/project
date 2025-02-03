@@ -8,7 +8,601 @@
     <link rel="stylesheet" href="{% static 'home.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .component-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
 
+        .component-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .component-icon {
+            background: rgba(0, 0, 0, 0.05);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .card-title {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .card-text {
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .list-unstyled li {
+            padding: 0.5rem 0;
+            color: #555;
+        }
+
+        .list-unstyled i {
+            margin-right: 10px;
+        }
+
+        #blood-components {
+            background-color: #f8f9fa;
+        }
+
+        #blood-components h2 {
+            color: #2c3e50;
+            font-weight: 700;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        #blood-components h2:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background-color: #dc3545;
+        }
+
+        /* Modern Service Section Styles */
+        .services-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 80px 0;
+            position: relative;
+        }
+
+        /* Header Styles */
+        .header-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #dc3545, #ff6b6b);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin-bottom: 20px;
+        }
+
+        .header-badge i {
+            margin-right: 10px;
+        }
+
+        .gradient-text {
+            background:linear-gradient(45deg, #dc3545, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .header-design {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .line {
+            height: 2px;
+            width: 50px;
+            background: #dc3545;
+            margin: 0 15px;
+        }
+
+        /* Service Card Styles */
+        .service-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        /* Icon Styles */
+        .service-icon-wrap {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .icon-circle {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(45deg, #dc3545, #ff6b6b);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+            margin: 0 auto;
+        }
+
+        .icon-circle i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .icon-background {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90px;
+            height: 90px;
+            background: rgba(220, 53, 69, 0.1);
+            border-radius: 50%;
+        }
+
+        /* Content Styles */
+        .service-content {
+            text-align: center;
+        }
+
+        .service-content h3 {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-list li:hover {
+            background: rgba(220, 53, 69, 0.1);
+            transform: translateX(5px);
+        }
+
+        .feature-list i {
+            color: #dc3545;
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+
+        /* Stats Styles */
+        .service-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 15px 0;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #dc3545;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        /* Button Styles */
+        .service-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 25px;
+            background: linear-gradient(45deg, #dc3545, #ff6b6b);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .service-button:hover {
+            background: linear-gradient(45deg, #c82333, #ff5252);
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+        }
+
+        .service-button i {
+            margin-left: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .service-button:hover i {
+            transform: translateX(5px);
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .service-card {
+                margin-bottom: 30px;
+            }
+        }
+
+        #donation-days {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        }
+
+        .event-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            height: 100%;
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .event-date {
+            background: linear-gradient(45deg, #dc3545, #ff6b6b);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-width: 120px;
+        }
+
+        .event-date .date {
+            font-size: 2rem;
+            font-weight: bold;
+            
+            line-height: 1;
+        }
+
+        .event-date .month {
+            font-size: 1.2rem;
+            margin-top: 5px;
+        }
+
+        .event-date .type {
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+
+        .event-content {
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .event-content h3 {
+            color: #2c3e50;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .event-content p {
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+
+        .event-info {
+            display: flex;
+            justify-content: space-between;
+            color: #495057;
+            font-size: 0.9rem;
+        }
+
+        .event-info span {
+            display: flex;
+            align-items: center;
+        }
+
+        .event-info i {
+            margin-right: 5px;
+            color: #dc3545;
+        }
+
+        /* Quick Facts Styles */
+        .fact-item {
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .fact-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .fact-item i {
+            font-size: 2rem;
+            color: #dc3545;
+            margin-bottom: 15px;
+        }
+
+        .fact-item h4 {
+            color: #2c3e50;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .fact-item p {
+            color: #6c757d;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .event-date {
+                min-width: 100px;
+                padding: 15px;
+            }
+
+            .event-date .date {
+                font-size: 1.5rem;
+            }
+
+            .event-content h3 {
+                font-size: 1.1rem;
+            }
+
+            .event-info {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+
+        .chatbot-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .chat-toggle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #dc3545;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #28a745;
+            color: white;
+            border-radius: 50%;
+            padding: 5px 8px;
+            font-size: 12px;
+        }
+
+        .chat-window {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: #dc3545;
+            color: white;
+            padding: 15px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-message {
+            align-items: flex-end;
+        }
+
+        .bot-message {
+            align-items: flex-start;
+        }
+
+        .message-content {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .user-message .message-content {
+            background: #007bff;
+            color: white;
+        }
+
+        .bot-message .message-content {
+            background: #f1f1f1;
+            color: #333;
+        }
+
+        .chat-input {
+            padding: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .chat-input form {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+        }
+
+        .chat-input button {
+            background: #dc3545;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .whatsapp-chat {
+    position: fixed;
+    bottom:100px;/* Moved 500px higher from the original 20px */
+    right: 20px;
+    z-index: 1000;
+}
+
+
+.whatsapp-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    background-color: #25D366;
+    color: white;
+    font-size: 28px;
+    border-radius: 50%;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease-in-out;
+    position: relative;
+    animation: float 2s infinite ease-in-out;
+}
+
+.whatsapp-button i {
+    transition: transform 0.3s ease-in-out;
+}
+
+.whatsapp-button:hover {
+    background-color: #1ebe57;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+.whatsapp-button:hover i {
+    transform: scale(1.1);
+}
+
+/* Floating Animation */
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+/* Tooltip Styling */
+.chat-tooltip {
+    position: absolute;
+    bottom: 70px;
+    background-color: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateY(5px);
+    transition: all 0.3s ease-in-out;
+    visibility: hidden;
+}
+
+.whatsapp-button:hover .chat-tooltip {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+}
+
+    </style>
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -28,15 +622,12 @@
                             Login
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="{% url 'login' %}">Registered Users </a></li>
-                            <li><a class="dropdown-item" href="{% url 'register_hospital' %}"> New Hospital</a></li>
-                            <li><a class="dropdown-item" href="{% url 'register_donor' %}"> New Donor</a></li>
+                            <li><a class="dropdown-item" href="{% url 'login' %}">Registered Users</a></li>
+                            <li><a class="dropdown-item" href="{% url 'register_hospital' %}">New Hospital</a></li>
+                            <li><a class="dropdown-item" href="{% url 'register_donor' %}">New Donor</a></li>
                             <li><a class="dropdown-item" href="{% url 'doctor_register' %}">New Doctor</a></li>
-
-                            <!-- Add other login options if necessary -->
                         </ul>
-                    </li>                   
-                     
+                    </li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'latest_campaigns' %}">Campaign</a></li>
                     <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
                 </ul>
@@ -66,7 +657,9 @@
             <span class="visually-hidden">Next</span>
         </button>
     </div>
-
+    
+    
+    
     <!-- About Section -->
     <section id="about" class="about-section text-center py-5 bg-light">
         <div class="container">
@@ -74,11 +667,26 @@
             <p>Lifeline Blood Bank is committed to providing safe and sufficient blood supplies. We connect donors and recipients with quality blood that can save lives.</p>
         </div>
     </section>
+    
 
     <!-- Services Section -->
     <section id="services" class="services-section py-5">
         <div class="container">
-            <h2>Our Services</h2>
+            <!-- Animated Header -->
+            <div class="section-header text-center mb-5">
+                <div class="header-badge">
+                    <i class="fas fa-star-of-life fa-spin"></i>
+                    <span>Our Premium Services</span>
+                </div>
+                <h2 class="gradient-text">Lifeline Blood Services</h2>
+                <div class="header-design">
+                    <span class="line"></span>
+                    <i class="fas fa-heartbeat pulse"></i>
+                    <span class="line"></span>
+                </div>
+                <p class="lead">Committed to Excellence in Blood Banking Services</p>
+            </div>
+
             <div class="row">
                 <div class="col-md-3">
                     <h3>Blood Donation</h3>
@@ -100,6 +708,182 @@
         </div>
     </section>
 
+    <!-- Platelets and Plasma Section -->
+    <section id="blood-components" class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Blood Components</h2>
+            <div class="row">
+                <!-- Whole Blood Card -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 component-card">
+                        <div class="card-body text-center">
+                            <div class="component-icon mb-3">
+                                <i class="fas fa-tint fa-3x text-danger"></i>
+                            </div>
+                            <h3 class="card-title">Whole Blood</h3>
+                            <p class="card-text">
+                                The most flexible type of donation. It can be transfused in its original form or used to help multiple people when separated into its specific components.
+                            </p>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success"></i> Used for trauma patients</li>
+                                <li><i class="fas fa-check text-success"></i> General surgeries</li>
+                                <li><i class="fas fa-check text-success"></i> All blood types needed</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Platelets Card -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 component-card">
+                        <div class="card-body text-center">
+                            <div class="component-icon mb-3">
+                                <i class="fas fa-circle fa-3x text-warning"></i>
+                            </div>
+                            <h3 class="card-title">Platelets</h3>
+                            <p class="card-text">
+                                Vital for blood clotting and essential for cancer patients undergoing chemotherapy or people with bleeding disorders.
+                            </p>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success"></i> Cancer treatments</li>
+                                <li><i class="fas fa-check text-success"></i> Bleeding disorders</li>
+                                <li><i class="fas fa-check text-success"></i> Organ transplants</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plasma Card -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 component-card">
+                        <div class="card-body text-center">
+                            <div class="component-icon mb-3">
+                                <i class="fas fa-water fa-3x text-info"></i>
+                            </div>
+                            <h3 class="card-title">Plasma</h3>
+                            <p class="card-text">
+                                The liquid portion of blood that carries essential nutrients and proteins. Critical for patients with severe burns and clotting disorders.
+                            </p>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success"></i> Burn treatments</li>
+                                <li><i class="fas fa-check text-success"></i> Shock patients</li>
+                                <li><i class="fas fa-check text-success"></i> Immune deficiencies</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blood Donation Days Section -->
+    <section id="donation-days" class="py-5">
+        <div class="container">
+            <div class="section-header text-center mb-5">
+                <span class="badge bg-danger px-3 py-2 mb-3">
+                    <i class="fas fa-calendar-alt me-2"></i>Important Dates
+                </span>
+                <h2 class="gradient-text">Blood Donation Days</h2>
+                <div class="header-design">
+                    <span class="line"></span>
+                    <i class="fas fa-hand-holding-medical pulse"></i>
+                    <span class="line"></span>
+                </div>
+                <p class="lead">Join us in celebrating these important days for blood donation</p>
+            </div>
+
+            <div class="row">
+                <!-- World Blood Donor Day -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="event-card">
+                        <div class="event-date">
+                            <span class="date">14</span>
+                            <span class="month">June</span>
+                        </div>
+                        <div class="event-content">
+                            <h3>World Blood Donor Day</h3>
+                            <p>Global celebration of blood donors, raising awareness about regular blood donation.</p>
+                            <div class="event-info">
+                                <span><i class="fas fa-globe"></i> Global Event</span>
+                                <span><i class="fas fa-clock"></i> Annual</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- National Blood Donor Month -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="event-card">
+                        <div class="event-date">
+                            <span class="month">January</span>
+                            <span class="type">Month</span>
+                        </div>
+                        <div class="event-content">
+                            <h3>National Blood Donor Month</h3>
+                            <p>Month-long observance encouraging blood donation during winter shortage.</p>
+                            <div class="event-info">
+                                <span><i class="fas fa-flag"></i> National</span>
+                                <span><i class="fas fa-calendar-week"></i> Monthly</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- World Blood Donation Week -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="event-card">
+                        <div class="event-date special">
+                            <span class="date">1-7</span>
+                            <span class="month">October</span>
+                        </div>
+                        <div class="event-content">
+                            <h3>Blood Donation Week</h3>
+                            <p>Week-long campaign promoting voluntary blood donation awareness.</p>
+                            <div class="event-info">
+                                <span><i class="fas fa-heart"></i> Special Event</span>
+                                <span><i class="fas fa-calendar-day"></i> Weekly</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Facts -->
+            <div class="facts-container mt-5">
+                <div class="row text-center">
+                    <div class="col-md-3 col-6 mb-4">
+                        <div class="fact-item">
+                            <i class="fas fa-clock"></i>
+                            <h4>Every 2 Seconds</h4>
+                            <p>Someone needs blood</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-4">
+                        <div class="fact-item">
+                            <i class="fas fa-users"></i>
+                            <h4>1 Donation</h4>
+                            <p>Can save up to 3 lives</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-4">
+                        <div class="fact-item">
+                            <i class="fas fa-tint"></i>
+                            <h4>1 Point</h4>
+                            <p>Average donation amount</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-4">
+                        <div class="fact-item">
+                            <i class="fas fa-calendar-check"></i>
+                            <h4>56 Days</h4>
+                            <p>Between donations</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Contact Section -->
     <section id="contact" class="contact-section bg-dark text-white py-5">
         <div class="container text-center">
@@ -107,13 +891,186 @@
             <p>Email: info@lifelinebloodbank.com | Phone: +123456789</p>
         </div>
     </section>
-
+    
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- jQuery, Popper.js, and Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
+  
+   // ... existing code ...
+
+<!-- Replace the existing script section with this: -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatToggle = document.getElementById('chatToggle');
+        const chatWindow = document.getElementById('chatWindow');
+        const chatMessages = document.getElementById('chatMessages');
+        const chatForm = document.getElementById('chatForm');
+        const messageInput = document.getElementById('messageInput');
+        const minimizeChat = document.getElementById('minimizeChat');
+        const closeChat = document.getElementById('closeChat');
+
+        // Show welcome message when chat is first opened
+        let welcomeMessageShown = false;
+
+        chatToggle.addEventListener('click', function() {
+            chatWindow.style.display = chatWindow.style.display === 'none' ? 'flex' : 'none';
+            
+            // Show welcome message only the first time chat is opened
+            if (!welcomeMessageShown) {
+                addMessage("Hello! I'm your Blood Bank Assistant. How can I help you today?", 'bot');
+                welcomeMessageShown = true;
+            }
+        });
+
+        // Close chat
+        closeChat.addEventListener('click', function() {
+            chatWindow.style.display = 'none';
+        });
+
+        // Minimize chat
+        minimizeChat.addEventListener('click', function() {
+            chatWindow.style.display = 'none';
+        });
+
+        // Handle form submission
+        chatForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const message = messageInput.value.trim();
+            
+            if (message) {
+                // Add user message
+                addMessage(message, 'user');
+                
+                // Get bot response
+                const response = processMessage(message);
+                
+                // Add bot response with a small delay
+                setTimeout(() => {
+                    addMessage(response, 'bot');
+                }, 500);
+
+                // Clear input
+                messageInput.value = '';
+            }
+        });
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            messageDiv.innerHTML = `<div class="message-content">${text}</div>`;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function processMessage(message) {
+            message = message.toLowerCase();
+
+            if (message.includes('hi') || message.includes('hello')) {
+                return "Hello! How can I assist you today?";
+            }
+            else if (message.includes('benefit') || message.includes('why donate')) {
+                return `Benefits of blood donation include:
+                • Saves up to 3 lives per donation
+                • Free health screening
+                • Reduces risk of heart disease
+                • Burns calories
+                • Helps accident victims and cancer patients`;
+            }
+            else if (message.includes('plasma')) {
+                return `Plasma donation takes 1-2 hours. You can donate every 28 days.
+                Benefits include:
+                • Helps create life-saving medications
+                • Critical for burn victims
+                • Treats immune disorders
+                • Helps COVID-19 patients`;
+            }
+            else if (message.includes('side effect') || message.includes('risk')) {
+                return `Common side effects are mild:
+                • Slight bruising
+                • Temporary fatigue
+                • Light-headedness
+                Always follow staff instructions and stay hydrated!`;
+            }
+            else if (message.includes('prepare') || message.includes('before')) {
+                return `To prepare for donation:
+                • Get good sleep
+                • Eat a healthy meal
+                • Stay hydrated
+                • Bring ID
+                • Wear comfortable clothing`;
+            }
+            else if (message.includes('after') || message.includes('care')) {
+                return `After donation:
+                • Rest for 15 minutes
+                • Drink extra fluids
+                • Avoid heavy lifting
+                • Keep bandage on
+                • Eat well`;
+            }
+            else {
+                return `I can help you with:
+                • Benefits of blood donation
+                • Plasma donation information
+                • Side effects
+                • How to prepare
+                • Aftercare instructions
+                
+                What would you like to know about?`;
+            }
+        }
+    });
+</script>
+
+// ... rest of existing code ...
+    <!-- Chatbot Widget -->
+    <div class="chatbot-widget">
+    <div class="whatsapp-chat">
+        <a href="https://wa.me/919562290332?text=Hello!%20I%20need%20assistance." 
+           class="whatsapp-button" 
+           id="whatsappButton" 
+           target="_blank">
+            <i class="fab fa-whatsapp"></i>
+            <span class="chat-tooltip">Chat with us!</span>
+        </a>
+    
+</div>
+
+        <button class="chat-toggle" id="chatToggle">
+            <i class="fas fa-comments"></i>
+            <span class="notification-badge">1</span>
+        </button>
+
+        <div class="chat-window" id="chatWindow" style="display: none;">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <div class="bot-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="header-text">
+                        <h4>Blood Bank Assistant</h4>
+                        <p class="typing-indicator">Online</p>
+                    </div>
+                </div>
+                <div class="chat-controls">
+                    <button id="minimizeChat"><i class="fas fa-minus"></i></button>
+                    <button id="closeChat"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chatMessages"></div>
+
+            <div class="chat-input">
+                <form id="chatForm">
+                    <input type="text" id="messageInput" placeholder="Ask me anything..." autocomplete="off">
+                    <button type="submit">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

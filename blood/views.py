@@ -269,7 +269,13 @@ def blood_admin(request):
 
     return render(request, 'blood_admin.html', context)
 
+from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from .models import BloodApply, Inventory
+
 def approve_request(request, request_id):
+    # Retrieve the blood request
     blood_request = get_object_or_404(BloodApply, id=request_id)
     
     # Update the request status to approved
@@ -277,13 +283,30 @@ def approve_request(request, request_id):
     blood_request.save()
 
     # Decrease the available blood units based on the correct field name
-    inventory_entry = get_object_or_404(Inventory, blood_type=blood_request.blood_type)  # Use blood_type instead of blood_group
-    if inventory_entry.units_available > 0:
-        inventory_entry.units_available -= 1  # Decrease the blood unit count
+    inventory_entry = get_object_or_404(Inventory, blood_type=blood_request.blood_type)
+    if inventory_entry.units_available >= blood_request.quantity:
+        inventory_entry.units_available -= blood_request.quantity  # Decrease the blood unit count
         inventory_entry.save()
-        messages.success(request, 'The request has been successfully approved, and blood availability has been updated.')
+
+        # Send an email notification to the doctor
+        try:
+            send_mail(
+                subject="Blood Request Approved",
+                message=f"Dear Dr. {blood_request.doctor.doctor_name},\n\n"
+                        f"Your blood request for {blood_request.blood_type} has been approved and deliver within 1hr.\n"
+                        f"Requested Quantity: {blood_request.quantity} units\n"
+                        f"Urgency: {blood_request.urgency}\n\n"
+                        f"Thank you for using our services.\n\n"
+                        f"Best Regards,\nLifeline Blood Bank Team",
+                from_email="teenathomas2025@mca.ajce.in",  # Replace with your sender email
+                recipient_list=["teenathomasoyr2019@gmail.com"],  # Doctor's email
+                fail_silently=False,
+            )
+            messages.success(request, 'The request has been approved, and a notification email has been sent to the doctor.')
+        except Exception as e:
+            messages.error(request, f'An error occurred while sending the email: {str(e)}')
     else:
-        messages.warning(request, 'Blood unit not available. Request cannot be approved.')
+        messages.warning(request, 'Insufficient blood units available. Request cannot be approved.')
 
     return redirect('blood_admin')
 
@@ -723,7 +746,7 @@ def forgot_password(request):
         if form.is_valid():
             email = form.cleaned_data['email']
             try:
-                user = Registration.objects.get(email=email)
+                user = DonorProfile.objects.get(email=email)
                 
                 # Generate reset token
                 reset_token = get_random_string(32)
@@ -751,7 +774,7 @@ def forgot_password(request):
 # views.py
 def reset_password(request, token):
     try:
-        user = Registration.objects.get(reset_token=token)
+        user = DonorProfile.objects.get(reset_token=token)
     except Registration.DoesNotExist:
         messages.error(request, 'The password reset token is invalid or has expired.')
         return redirect('login')
@@ -930,14 +953,18 @@ def hospital_login(request):
 
 
 
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Hospital
+
 def hospital_dashboard(request):
     hospital_id = request.session.get('hospital_id')
     if not hospital_id:
         return redirect('hospital_register')  # Redirect to login if not logged in
     
-    hospital = Hospital.objects.get(hospital_id=hospital_id)
-    return render(request, 'hospital_dashboard.html', {'hospital': hospital})
+    # Fetch the hospital object using 'hospital_id' as the primary key
+    hospital = get_object_or_404(Hospital, hospital_id=hospital_id)
 
+    return render(request, 'hospital_dashboard.html', {'hospital': hospital})
 
 # views.py
 
@@ -988,40 +1015,52 @@ def doctor_login(request):
 
 
 from django.shortcuts import render, redirect
+from django.core.mail import send_mail
+from django.contrib import messages
 from .forms import BloodApplyForm
-from .models import Doctor
+from .models import Doctor, BloodApply
 
 def doctor_dashboard(request):
     # Ensure the doctor is logged in by checking the session
     doctor_id = request.session.get('doctor_id')
     
     if not doctor_id:
-        # If not logged in, redirect to the login page
         return redirect('login')
 
     try:
-        # Get the logged-in doctor's profile using 'doctor_id'
-        doctor = Doctor.objects.get(doctor_id=doctor_id)  # Correct field name
+        doctor = Doctor.objects.get(doctor_id=doctor_id)
     except Doctor.DoesNotExist:
-        # Handle the case where the doctor does not exist in the database
         return redirect('login')
 
-    # If the form is submitted, process the form data
     if request.method == 'POST':
         blood_apply_form = BloodApplyForm(request.POST)
         if blood_apply_form.is_valid():
-            # Save the form, but don't commit yet
             blood_apply = blood_apply_form.save(commit=False)
-            # Attach the logged-in doctor to the blood application
             blood_apply.doctor = doctor
-            # Now save the blood application with the attached doctor
             blood_apply.save()
-            # Redirect to a success page or show a success message
+
+            try:
+                # Send a success email to the doctor
+                send_mail(
+                    subject="Blood Request Submitted Successfully",
+                    message=f"Dear Dr. {doctor.doctor_name},\n\n"
+                            f"Your blood request for {blood_apply.blood_type} has been successfully submitted.\n"
+                            f"Requested Quantity: {blood_apply.quantity} units\n"
+                            f"Urgency: {blood_apply.urgency}\n\n"
+                            f"Thank you for using our services.\n\n"
+                            f"Best Regards,\nLifeline Blood Bank Team",
+                    from_email="teenathomas2025@mca.ajce.in",  # Replace with your sender email
+                    recipient_list=["teenathomasoyr2019@gmail.com"],  # Send to the doctor's email
+                    fail_silently=False,
+                )
+                messages.success(request, "Your blood request has been submitted successfully. A confirmation email has been sent to you.")
+            except Exception as e:
+                messages.error(request, f"An error occurred while sending the email: {str(e)}")
+
             return redirect('blood_application_success')
     else:
         blood_apply_form = BloodApplyForm()
 
-    # Add the context data for rendering the dashboard and the form
     context = {
         'doctor': doctor,
         'profile': {
@@ -1029,16 +1068,13 @@ def doctor_dashboard(request):
             'specialization': doctor.specialization,
             'email': doctor.email,
         },
-        'blood_apply_form': blood_apply_form,  # Pass the form to the template
+        'blood_apply_form': blood_apply_form,
     }
 
     return render(request, 'doctor_dashboard.html', context)
 
 def blood_application_success(request):
     return render(request, 'blood_application_success.html')
-
-
-
 
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -1277,3 +1313,502 @@ def register_admin(request):
         form = AdminRegistrationForm()
     
     return render(request, 'aregister.html', {'form': form})
+
+
+
+
+
+
+from django.shortcuts import render, redirect
+from .models import PlateletsDonation
+from datetime import datetime
+import logging
+
+logger = logging.getLogger(__name__)
+
+def platelets_donation_request(request):
+    if request.method == "POST":
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        blood_type = request.POST.get('blood_type')
+        donation_date = request.POST.get('donation_date')
+        donation_time = request.POST.get('donation_time')
+
+        # Validate date and time formats
+        try:
+            donation_date = datetime.strptime(donation_date, '%Y-%m-%d').date()
+            donation_time = datetime.strptime(donation_time, '%H:%M').time()
+        except ValueError as e:
+            logger.error(f"Date or time format error: {e}")
+            messages.error(request, 'Invalid date or time format. Please try again.')
+            return render(request, 'platelets_donation_form.html')
+
+        # Save the data to the database
+        try:
+            PlateletsDonation.objects.create(
+                name=name,
+                email=email,
+                phone=phone,
+                blood_type=blood_type,
+                donation_date=donation_date,
+                donation_time=donation_time
+            )
+            messages.success(request, 'Your platelet donation request has been submitted successfully!')
+            return redirect('platelets_donation_status')  # Use the correct URL name
+        except Exception as e:
+            logger.error(f"Error saving data to the database: {e}")
+            messages.error(request, 'An error occurred while saving your request. Please try again later.')
+            return render(request, 'platelets_donation_form.html')
+
+    # Render the form for GET requests
+    return render(request, 'platelets_donation_form.html')
+
+def platelets_donation_status(request):
+    donations = PlateletsDonation.objects.all().order_by('-donation_date')
+    return render(request, 'platelets_donation_status.html', {'donations': donations})
+
+
+from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from .models import PlasmaDonation
+
+def plasma_donation_request(request):
+    if request.method == 'POST':
+        # Extract form data
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        blood_type = request.POST.get('blood_type')
+        donation_date = request.POST.get('donation_date')
+        donation_time = request.POST.get('donation_time')
+
+        # Validate required fields
+        if not (name and email and phone and blood_type and donation_date and donation_time):
+            return render(request, 'plasma_donation_form.html', {
+                'error': 'All fields are required. Please fill out the form completely.'
+            })
+
+        # Save data to the database
+        donation = PlasmaDonation(
+            name=name,
+            email=email,
+            phone=phone,
+            blood_type=blood_type,
+            donation_date=donation_date,
+            donation_time=donation_time
+        )
+        donation.save()
+
+        # Redirect to a success page or show a success message
+        return render(request, 'plasma_sucess.html', {
+            'message': 'Thank you for your plasma donation request!'
+        })
+
+    # For GET requests, render the form
+    return render(request, 'plasma_donation_form.html')
+
+
+from django.shortcuts import render
+
+def plasma_sucess(request):
+    return render(request, 'plasma_sucess.html')
+
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import PlasmaRequest
+
+# View to display all plasma requests
+def plasma_requests_page(request):
+    plasma_requests = PlasmaRequest.objects.all()
+    return render(request, 'plasma_requests_page.html', {'plasma_requests': plasma_requests})
+
+# View to approve a plasma request
+def approve_plasma_request(request, request_id):
+    try:
+        plasma_request = PlasmaRequest.objects.get(id=request_id)
+        plasma_request.status = 'approved'  # Update status to 'approved'
+        plasma_request.save()  # Save the change
+        messages.success(request, 'Plasma request approved successfully.')
+    except PlasmaRequest.DoesNotExist:
+        messages.error(request, 'Plasma request not found.')
+
+    return redirect('plasma_requests_page')  # Redirect back to the plasma requests page
+
+# View to reject a plasma request
+def reject_plasma_request(request, request_id):
+    try:
+        plasma_request = PlasmaRequest.objects.get(id=request_id)
+        plasma_request.status = 'rejected'  # Update status to 'rejected'
+        plasma_request.save()  # Save the change
+        messages.success(request, 'Plasma request rejected successfully.')
+    except PlasmaRequest.DoesNotExist:
+        messages.error(request, 'Plasma request not found.')
+
+    return redirect('plasma_requests_page')  # Redirect back to the plasma requests page
+# views.py
+from django.shortcuts import render, redirect
+from django.core.mail import send_mail
+from django.contrib import messages
+from .forms import PlasmaRequestForm
+from .models import PlasmaRequest, Doctor
+
+def plasma_request_view(request):
+    # Ensure the doctor is logged in by checking the session
+    doctor_id = request.session.get('doctor_id')
+    
+    if not doctor_id:
+        return redirect('login')
+
+    try:
+        doctor = Doctor.objects.get(doctor_id=doctor_id)
+    except Doctor.DoesNotExist:
+        return redirect('login')
+
+    if request.method == 'POST':
+        plasma_request_form = PlasmaRequestForm(request.POST)
+        if plasma_request_form.is_valid():
+            plasma_request = plasma_request_form.save(commit=False)
+            plasma_request.save()
+
+            try:
+                # Send a success email to the doctor
+                send_mail(
+                    subject="Plasma Request Submitted Successfully",
+                    message=f"Dear Dr. {doctor.doctor_name},\n\n"
+                            f"Your plasma request for {plasma_request.blood_type} has been successfully submitted.\n"
+                            f"Patient Name: {plasma_request.patient_name}\n"
+                            f"Requested Quantity: {plasma_request.quantity} units\n"
+                            f"Urgency: {plasma_request.urgency}\n\n"
+                            f"Thank you for using our services.\n\n"
+                            f"Best Regards,\nLifeline Blood Bank Team",
+                    from_email="teenathomas2025@mca.ajce.in",  # Replace with your sender email
+                    recipient_list=["teenathomasoyr2019@gmail.com"],  # Send to the doctor's email
+                    fail_silently=False,
+                )
+                messages.success(request, "Your plasma request has been submitted successfully. A confirmation email has been sent to you.")
+            except Exception as e:
+                messages.error(request, f"An error occurred while sending the email: {str(e)}")
+
+            return redirect('plasma_application_success')
+    else:
+        plasma_request_form = PlasmaRequestForm()
+
+    context = {
+        'doctor': doctor,
+        'profile': {
+            'doctor_name': f"Dr. {doctor.doctor_name}",
+            'specialization': doctor.specialization,
+            'email': doctor.email,
+        },
+        'plasma_request_form': plasma_request_form,
+    }
+
+    return render(request, 'plasma_request.html', context)
+
+def plasma_application_success(request):
+    return render(request, 'plasma_application_success.html')
+
+
+
+# views.py
+# views.py
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import Feedback, DonorProfile
+from .forms import FeedbackForm
+
+def give_feedback(request):
+    if request.method == "POST":
+        form = FeedbackForm(request.POST)
+        if form.is_valid():
+            feedback_text = form.cleaned_data['feedback_text']
+            
+            # Retrieve donor_id from session (ensure this is set during login)
+            donor_id = request.session.get('donor_id')  # Replace with actual donor session logic
+            
+            if donor_id:
+                try:
+                    # Attempt to retrieve the donor profile
+                    donor = DonorProfile.objects.get(donor_id=donor_id)
+                    
+                    # Create feedback record
+                    Feedback.objects.create(donor=donor, feedback_text=feedback_text)
+                    
+                    # Success message
+                    messages.success(request, "Your feedback has been submitted successfully.")
+                    return redirect('feedback_success')  # Redirect to success page
+                
+                except DonorProfile.DoesNotExist:
+                    # Handle case where the donor profile doesn't exist
+                    messages.error(request, "Donor profile not found. Please contact support.")
+                
+            else:
+                messages.error(request, "You must be logged in to submit feedback.")
+                return redirect('login')  # Redirect to login if not logged in
+        
+        else:
+            messages.error(request, "There was an error with your submission. Please try again.")
+    
+    else:
+        form = FeedbackForm()
+
+    return render(request, 'donor_feedback.html', {'form': form})
+
+def feedback_success(request):
+    return render(request, 'feedback_success.html')
+
+
+from django.shortcuts import render
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+from .models import Feedback  # Assuming you have a Feedback model
+
+def manage_feedback(request):
+    feedbacks = Feedback.objects.all()  # Fetch all feedback from the database
+    return render(request, 'manage_feedback.html', {'feedbacks': feedbacks})
+
+def render_to_pdf(template_src, context_dict):
+    template = get_template(template_src)
+    html = template.render(context_dict)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="donor_feedback.pdf"'
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    if pisa_status.err:
+        return HttpResponse('Error generating PDF', status=400)
+    return response
+
+from django.http import HttpResponse
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from .models import Feedback  # Import your Feedback model
+
+def download_feedback_pdf(request):
+    # Retrieve all feedback data from the Feedback model
+    feedback_data = Feedback.objects.all()
+
+    # Prepare the data for the table (list of lists)
+    table_data = [['Donor Name', 'Feedback', 'Date']]  # Table header
+
+    # Add feedback data to the table
+    for feedback in feedback_data:
+        table_data.append([feedback.donor.donor_name, feedback.feedback_text[:100], str(feedback.created_at)])
+
+    # Create the HTTP response object with PDF content type
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="feedback.pdf"'
+
+    # Create the PDF document
+    doc = SimpleDocTemplate(response, pagesize=letter)
+
+    # Create the table object
+    table = Table(table_data)
+
+    # Apply styles to the table (like borders, alignment, etc.)
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),  # Header background color
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),  # Header text color
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Center align all cells
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Bold font for header
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  # Padding for header
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),  # Alternate row background color
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Add grid lines
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),  # Regular font for data rows
+        ('FONTSIZE', (0, 0), (-1, -1), 10),  # Font size
+    ]))
+
+    # Build the PDF with the table
+    doc.build([table])
+
+    return response
+
+
+
+from datetime import date, timedelta
+from django.core.mail import send_mail
+from django.shortcuts import render
+from django.http import JsonResponse
+from .models import DonorProfile, BloodType
+
+def emergency_alert_page(request):
+    if request.method == "POST":
+        blood_group_needed = request.POST.get("blood_group")
+
+        # Fetch eligible donors
+        eligible_donors = DonorProfile.objects.filter(
+            blood_type__blood_group=blood_group_needed,
+            is_active=True,
+            last_donation_date__lte=date.today() - timedelta(days=90)
+        )
+
+        if not eligible_donors.exists():
+            return JsonResponse({'status': 'error', 'message': f'No eligible donors found for blood group {blood_group_needed}.'})
+
+        # Send alerts
+        for donor in eligible_donors:
+            send_mail(
+                subject="Urgent: Blood Donation Needed",
+                message=f"Dear {donor.donor_name},\n\n"
+                        f"There is an urgent need for blood donations of your type ({blood_group_needed}). "
+                        "If you are available to donate, please contact your nearest blood bank.\n\n"
+                        "Thank you for your support.\n\n"
+                        "Lifeline Blood Bank",
+                from_email="teenathomas2025@mca.ajce.in",
+                recipient_list=[donor.email],
+                fail_silently=False,
+            )
+        return JsonResponse({'status': 'success', 'message': f'Alerts sent for blood group {blood_group_needed}.'})
+
+    # Get all blood types for the dropdown
+    blood_types = BloodType.objects.all()
+    return render(request, "emergency_alert.html", {"blood_types": blood_types})
+
+
+from django.shortcuts import render, redirect
+from .models import Appointment
+
+def manage_appointments(request):
+    appointments = Appointment.objects.select_related("donor").all()  # Fetch appointments with donor details
+
+    if request.method == "POST":
+        appointment_id = request.POST.get("appointment_id")
+        new_status = request.POST.get("status")
+
+        appointment = Appointment.objects.get(id=appointment_id)
+        appointment.status = new_status
+        appointment.save()
+
+        return redirect("manage_appointments")  # Reload the page after updating
+
+    return render(request, "manage_appointments.html", {"appointments": appointments})
+
+
+from django.shortcuts import render, get_object_or_404
+from .models import BloodApply, Inventory, Hospital  # Removed unnecessary Doctor import
+
+def hospital_report(request, hospital_id):
+    hospital = get_object_or_404(Hospital, pk=hospital_id)
+
+    # Get all blood requests by this hospital, including doctor details
+    blood_requests = BloodApply.objects.select_related('doctor', 'blood_type').filter(hospital=hospital)
+
+    # Count requests by status
+    total_requests = blood_requests.count()
+    pending_count = blood_requests.filter(status='pending').count()
+    approved_count = blood_requests.filter(status='approved').count()
+    fulfilled_count = blood_requests.filter(status='fulfilled').count()
+    rejected_count = blood_requests.filter(status='rejected').count()
+
+    # Urgency breakdown
+    normal_count = blood_requests.filter(urgency='normal').count()
+    emergency_count = blood_requests.filter(urgency='emergency').count()
+
+    # Available Blood Inventory (filtered by hospital, if applicable)
+    blood_inventory = Inventory.objects.all()
+
+    context = {
+        'hospital': hospital,
+        'blood_requests': blood_requests,
+        'total_requests': total_requests,
+        'pending_count': pending_count,
+        'approved_count': approved_count,
+        'fulfilled_count': fulfilled_count,
+        'rejected_count': rejected_count,
+        'normal_count': normal_count,
+        'emergency_count': emergency_count,
+        'blood_inventory': blood_inventory,
+    }
+    return render(request, 'hospital_report.html', context)
+
+
+from django.http import HttpResponse
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.platypus import Table, TableStyle
+from reportlab.lib import colors
+from .models import Hospital, BloodApply
+
+def download_hospital_report_pdf(request):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="hospital_report.pdf"'
+
+    p = canvas.Canvas(response, pagesize=letter)
+    width, height = letter
+
+    y_position = height - 50  # Start position
+
+    p.setFont("Helvetica-Bold", 16)
+    p.drawString(200, y_position, "Hospital Blood Request Report")
+    y_position -= 40  # Space after title
+
+    hospitals = Hospital.objects.all()
+
+    for hospital in hospitals:
+        if y_position < 200:  # Create a new page if space is low
+            p.showPage()
+            p.setFont("Helvetica", 12)
+            y_position = height - 50  # Reset position
+
+        # Fetch hospital blood requests
+        blood_requests = BloodApply.objects.filter(hospital=hospital)
+
+        # Count request statuses
+        total_requests = blood_requests.count()
+        pending_requests = blood_requests.filter(status="pending").count()
+        approved_requests = blood_requests.filter(status="approved").count()
+        emergency_requests = blood_requests.filter(urgency="emergency").count()
+
+        # Hospital Info
+        p.setFont("Helvetica-Bold", 12)
+        p.drawString(50, y_position, f"Hospital: {hospital.hospital_name}")
+        p.setFont("Helvetica", 12)
+        p.drawString(50, y_position - 20, f"Phone: {hospital.phone_number}  |  Email: {hospital.email}")
+        p.drawString(50, y_position - 40, f"Total Requests: {total_requests}, Pending: {pending_requests}, Approved: {approved_requests}, Emergency: {emergency_requests}")
+        
+        y_position -= 60  # Space after hospital info
+
+        # Table Headers
+        data = [
+            ["Blood Type", "Quantity", "Urgency", "Status", "Patient Name", "Patient Age", "Reason"]
+        ]
+
+        # Table Data
+        for request in blood_requests:
+            data.append([
+                request.blood_type.blood_group,
+                request.quantity,
+                request.urgency.capitalize() if request.urgency else "-",
+                request.status.capitalize(),
+                request.patient_name if request.patient_name else "-",
+                request.patient_age if request.patient_age else "-",
+                request.reason if request.reason else "-"
+            ])
+
+        # Define Table Style
+        table = Table(data, colWidths=[80, 60, 60, 80, 100, 60, 120])
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 5),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ]))
+
+        # Draw Table
+        table.wrapOn(p, width, height)
+        table.drawOn(p, 50, y_position - (len(data) * 20))  # Adjust Y position dynamically
+
+        y_position -= (len(data) * 20) + 40  # Space after table
+
+        if y_position < 200:  # If space is low, start a new page
+            p.showPage()
+            y_position = height - 50
+
+    p.showPage()
+    p.save()
+
+    return response

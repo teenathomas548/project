@@ -72,6 +72,7 @@ class Inventory(models.Model):
     inventory_id = models.AutoField(primary_key=True)
     blood_type = models.ForeignKey('BloodType', on_delete=models.CASCADE)
     units_available = models.IntegerField()
+    plasma_available = models.IntegerField(default=0)  # New field to track plasma units
     price = models.DecimalField(max_digits=8, decimal_places=2)
     is_active = models.BooleanField(default=True)  # New field to enable/disable the record
 
@@ -229,6 +230,9 @@ class DonorProfile(models.Model):
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=255)
     blood_type = models.ForeignKey(BloodType, on_delete=models.SET_NULL, null=True, blank=True)
+    reset_token = models.CharField(max_length=32, blank=True, null=True)  # Add this field for storing reset token
+    points = models.IntegerField(default=0)  # New field for gamification
+
 
     class Meta:
         db_table = 'donor_profiles'
@@ -250,15 +254,22 @@ from django.utils import timezone
 from .models import DonorProfile
 
 class Appointment(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Complete', 'Complete'),
+        ('Cancelled', 'Cancelled'),
+    ]
+
     donor = models.ForeignKey(DonorProfile, on_delete=models.CASCADE)
     appointment_date = models.DateField()
     appointment_time = models.TimeField()
-    status = models.CharField(max_length=20, default='Scheduled')  # Example: 'Scheduled', 'Completed', 'Cancelled'
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
 
     class Meta:
         db_table = 'appointments'
 
 
+from django.utils import timezone
 
 class MedicalReport(models.Model):
     donor = models.ForeignKey(DonorProfile, on_delete=models.CASCADE)
@@ -267,3 +278,128 @@ class MedicalReport(models.Model):
 
     class Meta:
         db_table = 'medical_reports'
+
+
+
+
+from django.db import models
+
+class PlateletsDonation(models.Model):
+    BLOOD_TYPE_CHOICES = [
+        ('A+', 'A Positive (A+)'),
+        ('A-', 'A Negative (A-)'),
+        ('B+', 'B Positive (B+)'),
+        ('B-', 'B Negative (B-)'),
+        ('O+', 'O Positive (O+)'),
+        ('O-', 'O Negative (O-)'),
+        ('AB+', 'AB Positive (AB+)'),
+        ('AB-', 'AB Negative (AB-)'),
+    ]
+
+    name = models.CharField(max_length=100, verbose_name="Full Name")
+    email = models.EmailField(max_length=100, unique=True, verbose_name="Email Address")
+    phone = models.CharField(max_length=15, verbose_name="Contact Number")
+    blood_type = models.CharField(max_length=3, choices=BLOOD_TYPE_CHOICES, verbose_name="Blood Type")
+    donation_date = models.DateField(verbose_name="Available Date", null=True, blank=True)
+    donation_time = models.TimeField(verbose_name="Available Time", null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Submission Time")
+
+    def __str__(self):
+        return f"{self.name} ({self.blood_type})"
+
+from django.db import models
+
+class PlasmaDonation(models.Model):
+    BLOOD_TYPE_CHOICES = [
+        ('A+', 'A Positive (A+)'),
+        ('A-', 'A Negative (A-)'),
+        ('B+', 'B Positive (B+)'),
+        ('B-', 'B Negative (B-)'),
+        ('O+', 'O Positive (O+)'),
+        ('O-', 'O Negative (O-)'),
+        ('AB+', 'AB Positive (AB+)'),
+        ('AB-', 'AB Negative (AB-)'),
+    ]
+
+    name = models.CharField(max_length=100, verbose_name="Full Name")
+    email = models.EmailField(verbose_name="Email Address")
+    phone = models.CharField(max_length=15, verbose_name="Contact Number")
+    blood_type = models.CharField(max_length=3, choices=BLOOD_TYPE_CHOICES, verbose_name="Blood Type")
+    donation_date = models.DateField(verbose_name="Donation Date")
+    donation_time = models.TimeField(verbose_name="Donation Time")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
+
+    def __str__(self):
+        return f"{self.name} - {self.blood_type}"
+
+
+class PlasmaRequest(models.Model):
+    BLOOD_TYPE_CHOICES = [
+        ('A+', 'A+'),
+        ('A-', 'A-'),
+        ('B+', 'B+'),
+        ('B-', 'B-'),
+        ('AB+', 'AB+'),
+        ('AB-', 'AB-'),
+        ('O+', 'O+'),
+        ('O-', 'O-'),
+    ]
+
+    URGENCY_CHOICES = [
+        ('Low', 'Low'),
+        ('Medium', 'Medium'),
+        ('High', 'High'),
+    ]
+
+    REQUEST_STATUSES = (
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    )
+
+    patient_name = models.CharField(max_length=255)
+    patient_age = models.PositiveIntegerField()
+    blood_type = models.CharField(max_length=3, choices=BLOOD_TYPE_CHOICES)
+    quantity = models.PositiveIntegerField(help_text="Enter quantity in units")
+    hospital = models.CharField(max_length=255)
+    urgency = models.CharField(max_length=10, choices=URGENCY_CHOICES)
+    reason = models.TextField()
+    request_date = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=10, choices=REQUEST_STATUSES, default='pending')  # Added status field
+
+    def __str__(self):
+        return f"{self.patient_name} - {self.blood_type} - {self.hospital}"
+
+
+# models.py
+from django.db import models
+from .models import DonorProfile  # Import DonorProfile model
+
+class Feedback(models.Model):
+    donor = models.ForeignKey(DonorProfile, on_delete=models.CASCADE)
+    feedback_text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Feedback from {self.donor.donor_name} on {self.created_at}"
+
+
+
+from django.shortcuts import render, redirect
+from .models import Appointment
+
+def manage_appointments(request):
+    appointments = Appointment.objects.all()  # Fetch all appointments
+
+    if request.method == "POST":
+        appointment_id = request.POST.get("appointment_id")
+        new_status = request.POST.get("status")
+
+        # Update the status
+        appointment = Appointment.objects.get(id=appointment_id)
+        appointment.status = new_status
+        appointment.save()
+
+        return redirect("manage_appointments")  # Reload the page after updating
+
+    return render(request, "manage_appointments.html", {"appointments": appointments})

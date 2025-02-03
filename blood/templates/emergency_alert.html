@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Alert System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url("/static/image/plat.jpg") no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #007bff;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        label {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #555;
+        }
+
+        select {
+            width: 80%;
+            padding: 12px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            transition: border-color 0.3s ease;
+        }
+
+        select:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+        }
+
+        button {
+            width: 40%;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="submit"] {
+            background-color: #007bff;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        button[type="button"] {
+            background-color: #dc3545;
+        }
+
+        button[type="button"]:hover {
+            background-color: #a71d2a;
+        }
+
+        #response-message {
+            margin-top: 20px;
+            font-size: 1rem;
+        }
+
+        #response-message p {
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        #response-message p.success {
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+
+        #response-message p.error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Emergency Alert System</h1>
+        <form method="POST" id="alert-form">
+            {% csrf_token %}
+            <label for="blood_group">Select Blood Group:</label>
+            <select name="blood_group" id="blood_group" required>
+                <option value="">-- Select Blood Group --</option>
+                {% for blood_type in blood_types %}
+                    <option value="{{ blood_type.blood_group }}">{{ blood_type.blood_group }}</option>
+                {% endfor %}
+            </select>
+            <div class="button-group">
+                <button type="submit">Send Alerts</button>
+                <button type="button" id="cancel-button">Cancel</button>
+            </div>
+        </form>
+        <div id="response-message"></div>
+    </div>
+
+    <script>
+        document.getElementById("alert-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+
+            fetch("", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-CSRFToken": formData.get("csrfmiddlewaretoken")
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const messageDiv = document.getElementById("response-message");
+                if (data.status === "success") {
+                    messageDiv.innerHTML = `<p class="success">${data.message}</p>`;
+                } else {
+                    messageDiv.innerHTML = `<p class="error">${data.message}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        });
+
+        // Cancel button functionality
+        document.getElementById("cancel-button").addEventListener("click", function() {
+            window.location.href = "/blood_admin/"; // Update this path to your admin dashboard URL
+        });
+    </script>
+</body>
+</html>

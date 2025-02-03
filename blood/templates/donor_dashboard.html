@@ -140,7 +140,12 @@
                 <li><a href="{% url 'donor_profile' %}">My Profile</a></li>
                 <li><a href="{% url 'apply_blood' %}" id ="blood">Request Blood</a></li>
                 <li><a href="{% url 'first_time_donation' %}" id="book">Book Appointment</a></li>
-                <li><a href="{% url 'logout' %}">Logout</a></li>
+               <!-- <li> <a href="{% url 'plasma_donation_request' %}">Donate plasma</a></li> -->
+               <li> <a href="{% url 'give_feedback' %}">Give Feedback</a></li>
+
+               <li><a href="{% url 'logout' %}">Logout</a></li>
+
+
             </ul>
         </div>
 
@@ -157,7 +162,6 @@
     <footer>
         <p>&copy; {{ current_year }} Lifeline Blood Bank. All rights reserved.</p>
     </footer>
-
     <script>
         // Add any JavaScript functionality here if needed
         console.log('Donor Dashboard Loaded');

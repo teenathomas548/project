@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Report</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #e63946;
+            --secondary: #457b9d;
+            --dark: #1d3557;
+            --light: #f1faee;
+            --accent: #a8dadc;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f6f8fd 0%, #f1faee 100%);
+            min-height: 100vh;
+        }
+
+        .hospital-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .hospital-header h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .hospital-info {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-item i {
+            font-size: 1.2rem;
+        }
+
+        .summary-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-section h3 {
+            color: var(--dark);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 0.5rem;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background: var(--dark);
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-weight: 500;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background-color: rgba(168, 218, 220, 0.1);
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(168, 218, 220, 0.2);
+        }
+
+        .blood-type {
+            font-weight: 600;
+            color: var(--primary);
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            background: rgba(230, 57, 70, 0.1);
+        }
+
+        .status-badge {
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .urgency-normal {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .urgency-emergency {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title i {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .section-title h3 {
+            margin: 0;
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .hospital-header {
+                padding: 1.5rem;
+            }
+
+            .hospital-header h2 {
+                font-size: 2rem;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-container {
+                padding: 1rem;
+            }
+            /* Back Button Styles */
+/* Back Button Styles */
+.back-button-container {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 24px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 500;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.back-button:hover {
+    background: var(--dark);
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.back-button i {
+    font-size: 1.2rem;
+}
+
+/* Responsive adjustment for mobile */
+@media (max-width: 768px) {
+    .back-button-container {
+        top: 10px;
+        left: 10px;
+    }
+
+    .back-button {
+        padding: 8px 16px;
+    }
+
+    .back-button span {
+        display: none; /* Hide text on mobile, show only icon */
+    }
+}
+
+/* Adjust main container padding to prevent overlap */
+.container {
+    padding-top: 80px; /* Increased top padding to accommodate fixed back button */
+}        }
+    </style>
+</head>
+<body>
+    <div class="back-button-container">
+        <a href="javascript:history.back()" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to Dashboard</span>
+        </a>
+    </div>
+    <div class="container py-4">
+        <!-- Hospital Header -->
+        <div class="hospital-header">
+            <h2>{{ hospital.hospital_name }}</h2>
+            <div class="hospital-info">
+                <div class="info-item">
+                    <i class="fas fa-phone"></i>
+                    <span>{{ hospital.phone_number }}</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>{{ hospital.email }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="summary-section">
+            <div class="section-title">
+                <i class="fas fa-chart-pie"></i>
+                <h3>Blood Requests Summary</h3>
+            </div>
+            <div class="summary-grid">
+                <div class="stat-card">
+                    <i class="fas fa-clipboard-list stat-icon"></i>
+                    <div class="stat-value">{{ total_requests }}</div>
+                    <div class="stat-label">Total Requests</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-clock stat-icon"></i>
+                    <div class="stat-value">{{ pending_count }}</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-check-circle stat-icon"></i>
+                    <div class="stat-value">{{ approved_count }}</div>
+                    <div class="stat-label">Approved</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-times-circle stat-icon"></i>
+                    <div class="stat-value">{{ rejected_count }}</div>
+                    <div class="stat-label">Rejected</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Urgency Breakdown -->
+        <div class="summary-section">
+            <div class="section-title">
+                <i class="fas fa-heartbeat"></i>
+                <h3>Urgency Breakdown</h3>
+            </div>
+            <div class="summary-grid">
+                <div class="stat-card">
+                    <i class="fas fa-user-clock stat-icon"></i>
+                    <div class="stat-value">{{ normal_count }}</div>
+                    <div class="stat-label">Normal Cases</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-ambulance stat-icon"></i>
+                    <div class="stat-value">{{ emergency_count }}</div>
+                    <div class="stat-label">Emergency Cases</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Blood Requests Table -->
+        <div class="table-container">
+            <div class="section-title">
+                <i class="fas fa-list-alt"></i>
+                <h3>Blood Requests</h3>
+            </div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Doctor</th>
+                            <th>Blood Type</th>
+                            <th>Quantity</th>
+                            <th>Urgency</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in blood_requests %}
+                        <tr>
+                            <td>
+                                {% if request.doctor %}
+                                    {{ request.doctor.doctor_name }}
+                                {% else %}
+                                    <span class="text-muted">No Doctor Assigned</span>
+                                {% endif %}
+                            </td>
+                            <td><span class="blood-type">{{ request.blood_type.blood_group }}</span></td>
+                            <td>{{ request.quantity }}</td>
+                            <td>
+                                <span class="status-badge {% if request.urgency == 'Emergency' %}urgency-emergency{% else %}urgency-normal{% endif %}">
+                                    {{ request.urgency|default:"Normal" }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge status-{{ request.status|lower }}">
+                                    {{ request.status }}
+                                </span>
+                            </td>
+                            <td>{{ request.request_date }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No blood requests available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Blood Inventory Table -->
+        <div class="table-container">
+            <div class="section-title">
+                <i class="fas fa-warehouse"></i>
+                <h3>Available Blood Inventory</h3>
+            </div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Blood Type</th>
+                            <th>Units Available</th>
+                            <th>Plasma Available</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inventory in blood_inventory %}
+                        <tr>
+                            <td><span class="blood-type">{{ inventory.blood_type.blood_group }}</span></td>
+                            <td>{{ inventory.units_available }}</td>
+                            <td>{{ inventory.plasma_available }}</td>
+                            <td>₹{{ inventory.price }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">No blood inventory available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -17,6 +17,7 @@ from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv()
 
 
 # Quick-start development settings - unsuitable for production
@@ -84,8 +85,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'bloodbank.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+#Database
+#https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 # DATABASES = {
 #  'default': {
@@ -149,14 +150,15 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.user.create_user',                               
     'social_core.pipeline.social_auth.associate_user',  
     'social_core.pipeline.social_auth.load_extra_data', 
-    'social_core.pipeline.user.user_details',          
+    'social_core.pipeline.user.user_details',    
+    'blood.pipeline.create_donor_profile',      
 )
 
 LOGIN_REDIRECT_URL = 'donor_dashboard'
 LOGOUT_REDIRECT_URL = '/'
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get('client_id')
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get('client_secret')
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get('CLIENT_ID')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get('CLIENT_SECRET')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
@@ -169,16 +171,15 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Use the SMTP backend for sending emails
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'teenathomas2025@mca.ajce.in'
-EMAIL_HOST_PASSWORD = 'Zoom#2023'  # Ensure this is correct
+EMAIL_HOST_PASSWORD = 'Zoom#2023'  # Ensure this is correct, or use an app password if you have two-factor authentication enabled
 DEFAULT_FROM_EMAIL = 'teenathomas2025@mca.ajce.in'
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default session engine
-
 
 LOGIN_URL = '/login/'
 
