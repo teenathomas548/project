@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Risk Assessment</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(45deg, #0a0a2e, #1a1a4e);
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            color: #fff;
+            padding-bottom: 3rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path fill="%23ffffff10" d="M47.5,-67.2C59.9,-56.7,67.5,-40.8,71.7,-24.4C75.9,-8,76.8,8.9,71.7,23.5C66.6,38.1,55.5,50.3,42.2,58.9C28.9,67.5,13.4,72.5,-2.4,75.6C-18.2,78.8,-36.4,80.1,-48.4,71.6C-60.4,63.1,-66.2,44.8,-71.2,27.2C-76.2,9.6,-80.3,-7.3,-76.3,-22.4C-72.3,-37.5,-60.1,-50.8,-46,-61.1C-31.8,-71.4,-15.9,-78.7,1.1,-80.2C18,-81.8,36.1,-77.7,47.5,-67.2Z" transform="translate(100 100)" /></svg>') no-repeat center center fixed;
+            background-size: cover;
+            z-index: -1;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);
+            padding: 4rem 0 6rem;
+            margin-bottom: -3rem;
+            border-radius: 0 0 50% 50% / 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(255, 75, 43, 0.3);
+        }
+
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg"><path fill="%23ffffff20" d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,128C960,128,1056,192,1152,208C1248,224,1344,192,1392,176L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .risk-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .risk-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 45px rgba(255, 75, 43, 0.2);
+        }
+
+        .form-select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            color: white;
+            padding: 15px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #FF416C;
+            box-shadow: 0 0 20px rgba(255, 65, 108, 0.3);
+        }
+
+        .form-select option {
+            background: #1a1a4e;
+            color: white;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);
+            border: none;
+            padding: 15px 40px;
+            border-radius: 15px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 65, 108, 0.4);
+        }
+
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(transparent, rgba(255,255,255,0.2), transparent);
+            transform: rotate(45deg);
+            transition: 0.5s;
+        }
+
+        .btn-primary:hover::after {
+            left: 100%;
+        }
+
+        .donor-info {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 20px 0;
+        }
+
+        .info-icon {
+            color: #FF416C;
+            font-size: 1.2rem;
+            margin-right: 10px;
+            width: 24px;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(255, 65, 108, 0.5);
+        }
+
+        .points-badge {
+            background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);
+            padding: 10px 25px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: 0 5px 15px rgba(255, 65, 108, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .list-group-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            padding: 15px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .list-group-item:hover {
+            transform: translateX(10px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .section-title {
+            color: #FF416C;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+            text-shadow: 0 0 10px rgba(255, 65, 108, 0.3);
+        }
+
+        .alert {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            color: white;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);
+            border-radius: 5px;
+        }
+
+        /* Animations */
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Add animation delays for cascade effect */
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <div class="container">
+            <h2 class="header-title mb-0">
+                <i class="fas fa-heartbeat me-2"></i>
+                Donor Health Risk Assessment
+            </h2>
+        </div>
+    </div>
+
+    <div class="container position-relative" style="z-index: 1;">
+        {% if error %}
+            <div class="alert alert-danger fade-in-up">
+                <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+            </div>
+        {% endif %}
+
+        <div class="risk-card fade-in-up delay-1">
+            <div class="card-body">
+                <form method="POST" class="mb-4">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="donor_id">Select Donor:</label>
+                        <select name="donor_id" id="donor_id" class="form-control">
+                            <option value="">-- Select a Donor --</option>
+                            {% for donor in donors %}
+                                <option value="{{ donor.donor_id }}"> {{ donor.donor_id }} - {{ donor.donor_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3">Assess Health Risk</button>
+                </form>
+            </div>
+        </div>
+
+        {% if selected_donor and risk_assessment %}
+            <div class="risk-card fade-in-up delay-2">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0">{{ selected_donor.donor_name }}</h3>
+                        <span class="badge bg-warning points-badge">Points: {{ donor_points }}</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p><strong>Age:</strong> {{ age }} years</p>
+                            <p><strong>Blood Type:</strong> {{ selected_donor.blood_type }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Last Donation:</strong> {{ selected_donor.last_donation_date|default:"No previous donations" }}</p>
+                            {% if next_eligible_date %}
+                                <p><strong>Next Eligible Date:</strong> {{ next_eligible_date }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <h4>Risk Factors:</h4>
+                    <ul class="list-group mb-3">
+                        {% for factor in risk_factors %}
+                            <li class="list-group-item">
+                                <span class="badge {% if factor.severity == 'high' %}bg-danger
+                                               {% elif factor.severity == 'medium' %}bg-warning
+                                               {% else %}bg-info{% endif %} me-2">
+                                    {{ factor.severity|title }}
+                                </span>
+                                {{ factor.description }}
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item">No significant risk factors identified.</li>
+                        {% endfor %}
+                    </ul>
+
+                    <h4>Recommendations:</h4>
+                    <ul class="list-group">
+                        {% for rec in recommendations %}
+                            <li class="list-group-item">{{ rec }}</li>
+                        {% empty %}
+                            <li class="list-group-item">No specific recommendations at this time.</li>
+                        {% endfor %}
+                    </ul>
+
+                    {% if risk_assessment.overall_risk %}
+                        <div class="mt-4">
+                            <h4>Overall Risk Level:</h4>
+                            <div class="alert 
+                                {% if risk_assessment.overall_risk == 'high' %}alert-danger
+                                {% elif risk_assessment.overall_risk == 'medium' %}alert-warning
+                                {% else %}alert-info{% endif %}">
+                                {{ risk_assessment.overall_risk|title }} Risk
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in-up');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.risk-card, .section-title, .list-group-item').forEach((el) => {
+            observer.observe(el);
+        });
+
+        // Add hover effect to buttons
+        document.querySelectorAll('.btn').forEach(button => {
+            button.addEventListener('mousemove', (e) => {
+                const rect = button.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                button.style.setProperty('--x', `${x}px`);
+                button.style.setProperty('--y', `${y}px`);
+            });
+        });
+    </script>
+</body>
+</html>

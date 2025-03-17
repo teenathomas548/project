@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donation History</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            border-radius: 15px 15px 0 0 !important;
+            padding: 1.5rem;
+        }
+
+        .badge {
+            padding: 8px 12px;
+            font-weight: 500;
+        }
+        
+        .bg-pending {
+            background-color: #ffc107;
+        }
+        
+        .bg-approved {
+            background-color: #28a745;
+        }
+        
+        .bg-completed {
+            background-color: #17a2b8;
+        }
+        
+        .bg-cancelled {
+            background-color: #dc3545;
+        }
+
+        .btn-action {
+            padding: 5px 15px;
+            margin: 0 5px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        .btn-reschedule {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .btn-cancel {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-action:hover {
+            opacity: 0.9;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">My Donation History</h3>
+                <a href="{% url 'request_donation' %}" class="btn btn-light">Request New Donation</a>
+            </div>
+            <div class="card-body">
+                {% if donation_requests %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Request Date</th>
+                                    <th>Preferred Date</th>
+                                    <th>Preferred Time</th>
+                                    <th>Status</th>
+                                    <th>Notes</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in donation_requests %}
+                                <tr>
+                                    <td>{{ request.request_date|date:"M d, Y" }}</td>
+                                    <td>{{ request.preferred_date|date:"M d, Y" }}</td>
+                                    <td>{{ request.get_preferred_time_display }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ request.status|lower }}">
+                                            {{ request.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ request.notes|default:"-" }}</td>
+                                    <td>
+                                        {% if request.status == 'pending' %}
+                                            <div class="btn-group">
+                                                <a href="{% url 'reschedule_donation' request.id %}" 
+                                                   class="btn btn-action btn-reschedule">
+                                                    <i class="fas fa-calendar-alt"></i> Reschedule
+                                                </a>
+                                                <a href="{% url 'cancel_donation' request.id %}" 
+                                                   class="btn btn-action btn-cancel"
+                                                   onclick="return confirm('Are you sure you want to cancel this donation request?')">
+                                                    <i class="fas fa-times"></i> Cancel
+                                                </a>
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-tint fa-3x text-muted mb-3"></i>
+                        <h4>No Donation History</h4>
+                        <p class="text-muted">You haven't made any donation requests yet.</p>
+                        <a href="{% url 'request_donation' %}" class="btn btn-primary mt-3">
+                            Request Your First Donation
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Display Django Messages -->
+    {% if messages %}
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        {% for message in messages %}
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header {% if message.tags %}bg-{{ message.tags }}{% endif %} text-white">
+                <strong class="me-auto">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                {{ message }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <script>
+        // Auto-hide toasts after 3 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            var toasts = document.querySelectorAll('.toast');
+            toasts.forEach(function(toast) {
+                setTimeout(function() {
+                    toast.classList.remove('show');
+                }, 3000);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Donation Camp Locator</title>
+
+    <!-- Bootstrap, Font Awesome, and Google Fonts -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Leaflet Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #dc3545 0%, #c0392b 100%);
+            padding: 40px 0;
+            color: white;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .map-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin: 0 auto;
+            max-width: 1200px;
+        }
+
+        #map {
+            height: 600px;
+            width: 100%;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .legend {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .legend-icon {
+            width: 30px;
+            height: 30px;
+            background: #dc3545;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 10px;
+            font-size: 0.9rem;
+        }
+
+        .legend-text {
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        .home-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            color: #dc3545;
+            padding: 10px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            z-index: 2;
+        }
+
+        .home-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+            color: #c0392b;
+        }
+
+        .leaflet-popup-content {
+            font-family: 'Poppins', sans-serif;
+            padding: 10px;
+        }
+
+        .leaflet-popup-content b {
+            color: #dc3545;
+            font-size: 1.1rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            #map {
+                height: 400px;
+            }
+            
+            .map-container {
+                margin: 0 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-map-marker-alt me-3"></i>Blood Donation Camp Locator</h1>
+            <p>Find nearby blood donation camps and contribute to saving lives</p>
+        </div>
+        <a href="{% url 'home' %}" class="home-button">
+            <i class="fas fa-home me-2"></i>Home
+        </a>
+    </div>
+
+    <div class="container">
+        <div class="map-container">
+            <div id="map"></div>
+            
+            <div class="legend">
+                <h5 class="mb-3">Map Legend</h5>
+                <div class="legend-item">
+                    <div class="legend-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="legend-text">Your Location</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="legend-text">Blood Donation Camp</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet Map JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([20.5937, 78.9629], 5);
+
+        // Custom map style
+        L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Custom user location marker
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var userLat = position.coords.latitude;
+                var userLon = position.coords.longitude;
+                
+                var userIcon = L.divIcon({
+                    html: '<i class="fas fa-user" style="color: #dc3545; font-size: 24px;"></i>',
+                    className: 'custom-div-icon',
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15]
+                });
+
+                L.marker([userLat, userLon], {icon: userIcon}).addTo(map)
+                    .bindPopup("<b>Your Location</b>").openPopup();
+                map.setView([userLat, userLon], 10);
+            });
+        }
+
+        // Custom camp marker
+        var campIcon = L.divIcon({
+            html: '<i class="fas fa-heart" style="color: #dc3545; font-size: 24px;"></i>',
+            className: 'custom-div-icon',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        });
+
+        // Add blood donation camp markers
+        var campaigns = {{ campaign_data|safe }};
+        campaigns.forEach(function(camp) {
+            L.marker([camp.lat, camp.lon], {icon: campIcon}).addTo(map)
+                .bindPopup(`
+                    <b>${camp.name}</b>
+                    <div style="color: #666;">${camp.description}</div>
+                `);
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

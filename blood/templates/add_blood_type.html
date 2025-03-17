@@ -1,0 +1,101 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Blood Type - Blood Bank</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+            padding: 2rem;
+        }
+        .blood-type-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .blood-type-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .blood-type-header i {
+            font-size: 3rem;
+            color: #dc3545;
+            margin-bottom: 1rem;
+        }
+        .blood-type-list {
+            margin-top: 2rem;
+        }
+        .blood-type-badge {
+            font-size: 1.2rem;
+            padding: 0.5rem 1rem;
+            margin: 0.5rem;
+            border-radius: 25px;
+            background: #dc3545;
+            color: white;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="blood-type-container">
+        <div class="blood-type-header">
+            <i class="fas fa-tint"></i>
+            <h2>Add Blood Type</h2>
+        </div>
+
+        {% if messages %}
+        <div class="messages mb-3">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST" class="mb-4">
+            {% csrf_token %}
+            <div class="row align-items-end">
+                <div class="col-md-8">
+                    <label for="blood_group" class="form-label">Blood Group</label>
+                    <input type="text" class="form-control" id="blood_group" name="blood_group" 
+                           placeholder="e.g., A+, B-, O+" required maxlength="3">
+                    <small class="text-muted">Enter blood group in the format: A+, B-, O+, etc.</small>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-plus-circle me-2"></i>Add Blood Type
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <div class="blood-type-list">
+            <h4 class="mb-3">Existing Blood Types</h4>
+            {% if blood_types %}
+                {% for blood_type in blood_types %}
+                    <span class="blood-type-badge">{{ blood_type.blood_group }}</span>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted">No blood types added yet.</p>
+            {% endif %}
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="{% url 'blood_admin' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Admin Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

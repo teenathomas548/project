@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Blood Test</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .card {
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            border: none;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .card-header {
+            background: linear-gradient(45deg, #dc3545, #ff4d5a);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+        }
+        .badge-safe {
+            background-color: #28a745;
+        }
+        .badge-unsafe {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Blood Test Results</h4>
+                    <span class="badge {% if blood_test.is_safe %}badge-safe{% else %}badge-unsafe{% endif %}">
+                        {{ blood_test.is_safe|yesno:"Safe,Unsafe" }}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Donor Information -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5>Donor Information</h5>
+                        <p><strong>Name:</strong> {{ blood_test.donation.donor.donor_name }}</p>
+                        <p><strong>Blood Type:</strong> {{ blood_test.donation.donor.blood_type }}</p>
+                        <p><strong>Test Date:</strong> {{ blood_test.test_date|date:"F d, Y" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Test Information</h5>
+                        <p><strong>Tested By:</strong> {{ blood_test.tested_by }}</p>
+                        <p><strong>Hemoglobin:</strong> {{ blood_test.hemoglobin }} g/dL</p>
+                    </div>
+                </div>
+
+                <!-- Disease Test Results -->
+                <h5>Disease Test Results</h5>
+                <div class="table-responsive mb-4">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Test</th>
+                                <th>Result</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>HIV</td>
+                                <td>
+                                    <span class="badge bg-{{ blood_test.hiv|yesno:'danger,success' }}">
+                                        {{ blood_test.hiv|yesno:"Positive,Negative" }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Hepatitis B</td>
+                                <td>
+                                    <span class="badge bg-{{ blood_test.hepatitis_b|yesno:'danger,success' }}">
+                                        {{ blood_test.hepatitis_b|yesno:"Positive,Negative" }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Hepatitis C</td>
+                                <td>
+                                    <span class="badge bg-{{ blood_test.hepatitis_c|yesno:'danger,success' }}">
+                                        {{ blood_test.hepatitis_c|yesno:"Positive,Negative" }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Syphilis</td>
+                                <td>
+                                    <span class="badge bg-{{ blood_test.syphilis|yesno:'danger,success' }}">
+                                        {{ blood_test.syphilis|yesno:"Positive,Negative" }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Malaria</td>
+                                <td>
+                                    <span class="badge bg-{{ blood_test.malaria|yesno:'danger,success' }}">
+                                        {{ blood_test.malaria|yesno:"Positive,Negative" }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Remarks -->
+                {% if blood_test.remarks %}
+                <div class="mb-4">
+                    <h5>Remarks</h5>
+                    <p class="mb-0">{{ blood_test.remarks }}</p>
+                </div>
+                {% endif %}
+
+                <!-- Action Buttons -->
+                <div class="text-center">
+                    <a href="{% url 'print_test' blood_test.id %}" class="btn btn-primary">
+                        <i class="fas fa-print me-2"></i>Print Report
+                    </a>
+                    <a href="{% url 'test_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-list me-2"></i>Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

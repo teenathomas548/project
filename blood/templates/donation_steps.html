@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Donation Steps</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .donation-timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-item {
+            padding: 20px 30px;
+            position: relative;
+            margin-bottom: 20px;
+            border-left: 2px solid #dee2e6;
+        }
+
+        .timeline-item.active {
+            border-left: 2px solid #28a745;
+        }
+
+        .timeline-icon {
+            position: absolute;
+            left: -15px;
+            top: 20px;
+            width: 30px;
+            height: 30px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #dee2e6;
+        }
+
+        .timeline-item.active .timeline-icon {
+            border-color: #28a745;
+            color: #28a745;
+        }
+
+        .timeline-content {
+            padding-left: 20px;
+        }
+
+        .timeline-content h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .timeline-content ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .timeline-content ul li {
+            margin-bottom: 8px;
+            color: #666;
+        }
+
+        .timeline-content ul li:before {
+            content: "•";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            border-radius: 15px 15px 0 0 !important;
+            padding: 1.5rem;
+        }
+
+        .btn-primary {
+            background-color: #0d6efd;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h3 class="mb-0">Blood Donation Steps</h3>
+            </div>
+            <div class="card-body">
+                <div class="donation-timeline">
+                    <!-- Step 1 -->
+                    <div class="timeline-item active">
+                        <div class="timeline-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h4>Step 1: Registration Complete</h4>
+                            <p>Your donation request has been registered for {{ donation_request.preferred_date|date:"F d, Y" }} 
+                               ({{ donation_request.get_preferred_time_display }})</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="timeline-item">
+                        <div class="timeline-icon">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h4>Step 2: Basic Screening</h4>
+                            <ul>
+                                <li>Blood pressure check</li>
+                                <li>Temperature measurement</li>
+                                <li>Weight verification</li>
+                                <li>Basic health questions</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="timeline-item">
+                        <div class="timeline-icon">
+                            <i class="fas fa-microscope"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h4>Step 3: Medical Screening</h4>
+                            <ul>
+                                <li>Hemoglobin test</li>
+                                <li>Medical history review</li>
+                                <li>Physical examination</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="timeline-item">
+                        <div class="timeline-icon">
+                            <i class="fas fa-tint"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h4>Step 4: Blood Donation</h4>
+                            <ul>
+                                <li>Duration: 15-20 minutes</li>
+                                <li>Comfortable donation process</li>
+                                <li>Professional supervision</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Step 5 -->
+                    <div class="timeline-item">
+                        <div class="timeline-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h4>Step 5: Post-Donation Care</h4>
+                            <ul>
+                                <li>Refreshments provided</li>
+                                <li>15-minute rest period</li>
+                                <li>Post-donation instructions</li>
+                                <li>Certificate of appreciation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <p class="text-muted">Please arrive 15 minutes before your scheduled time</p>
+                    <a href="{% url 'donor_dashboard' %}" class="btn btn-primary">Back to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -4,119 +4,282 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Latest Campaigns</title>
-    <link rel="stylesheet" href="{% static 'latestcampaigns.css' %}">
+    <title>Latest Blood Donation Campaigns</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        /* General styles */
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-            color: #333;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f6f8fd 0%, #f1f4f9 100%);
+            min-height: 100vh;
         }
 
         .header {
-            background-color: #8b0000;
-            color: white;
-            padding: 20px;
-            text-align: center;
+            background: linear-gradient(135deg, #dc3545 0%, #c0392b 100%);
+            padding: 30px 0;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('{% static "image/blood-pattern.png" %}') repeat;
+            opacity: 0.1;
         }
 
         .header h1 {
+            color: white;
+            font-weight: 600;
+            font-size: 2.5rem;
             margin: 0;
-            font-size: 2.5em;
+            text-align: center;
+            position: relative;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
 
         .home-button {
             position: absolute;
             top: 20px;
             right: 20px;
-            padding: 10px 20px;
-            background-color: #ff4d4d;
-            color: white;
+            padding: 10px 25px;
+            background-color: white;
+            color: #dc3545;
             text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
         .home-button:hover {
-            background-color: #ff6666;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+            background-color: #f8f9fa;
+            color: #c0392b;
         }
 
         .campaigns-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
             padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         .campaign-card {
-            background-color: white;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            width: 300px;
-            padding: 20px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+            border: none;
         }
 
         .campaign-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.15);
         }
 
-        .campaign-card h3 {
-            margin-top: 0;
-            color: #8b0000;
+        .campaign-header {
+            background: linear-gradient(45deg, #ff6b6b, #ff8787);
+            color: white;
+            padding: 20px;
+            border-radius: 20px 20px 0 0;
         }
 
-        .campaign-card p {
-            margin: 10px 0;
-            line-height: 1.5;
+        .campaign-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
         }
 
-        .campaign-card strong {
-            color: #555;
+        .campaign-body {
+            padding: 25px;
+        }
+
+        .campaign-info {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .campaign-info i {
+            color: #dc3545;
+            font-size: 1.2rem;
+            width: 25px;
+        }
+
+        .campaign-dates {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .date-box {
+            text-align: center;
+            flex: 1;
+        }
+
+        .date-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .date-value {
+            font-weight: 500;
+            color: #dc3545;
         }
 
         .no-campaigns {
             text-align: center;
-            font-size: 1.2em;
+            padding: 50px 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            margin: 20px;
+        }
+
+        .no-campaigns i {
+            font-size: 4rem;
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+
+        .no-campaigns p {
+            font-size: 1.2rem;
             color: #666;
-            margin-top: 50px;
+            margin: 0;
         }
 
         @media (max-width: 768px) {
-            .campaign-card {
-                width: 100%;
-                max-width: 90%;
+            .header h1 {
+                font-size: 2rem;
+                padding: 0 60px;
             }
+
+            .home-button {
+                padding: 8px 20px;
+                font-size: 0.9rem;
+            }
+
+            .campaigns-container {
+                grid-template-columns: 1fr;
+                padding: 15px;
+            }
+        }
+
+        .success-rate-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .success-rate-button {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .success-rate-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
+            color: white;
+        }
+
+        .button-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .arrow-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .success-rate-button:hover .arrow-icon {
+            transform: translateX(5px);
         }
     </style>
 </head>
 <body>
-
     <div class="header">
-        <h1>Latest Campaigns</h1>
-        <a href="{% url 'home' %}" class="home-button">Home</a>
+        <div class="container">
+            <h1><i class="fas fa-hand-holding-medical me-3"></i>Latest Blood Donation Campaigns</h1>
+            <a href="{% url 'home' %}" class="home-button">
+                <i class="fas fa-home me-2"></i>Home
+            </a>
+        </div>
     </div>
 
     <div class="campaigns-container">
         {% for campaign in campaigns %}
             <div class="campaign-card">
-                <h3>{{ campaign.name }}</h3>
-                <p>{{ campaign.description }}</p>
-                <p><strong>Location:</strong> {{ campaign.location }}</p>
-                <p><strong>Start Date:</strong> {{ campaign.start_date|date:"F j, Y" }}</p>
-                <p><strong>End Date:</strong> {{ campaign.end_date|date:"F j, Y" }}</p>
+                <div class="campaign-header">
+                    <h3>{{ campaign.name }}</h3>
+                </div>
+                <div class="campaign-body">
+                    <div class="campaign-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p>{{ campaign.description }}</p>
+                    </div>
+                    <div class="campaign-info">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <p>{{ campaign.location }}</p>
+                    </div>
+                    <div class="campaign-dates">
+                        <div class="date-box">
+                            <div class="date-label">Starts</div>
+                            <div class="date-value">{{ campaign.start_date|date:"M d, Y" }}</div>
+                        </div>
+                        <div class="date-box">
+                            <div class="date-label">Ends</div>
+                            <div class="date-value">{{ campaign.end_date|date:"M d, Y" }}</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Add Success Rate Button -->
+                    <div class="success-rate-section">
+                        <a href="{% url 'show_campaign_success' campaign.campaign_id %}" class="success-rate-button">
+                            <div class="button-content">
+                                <i class="fas fa-chart-line"></i>
+                                <span>View Success Rate</span>
+                            </div>
+                            <i class="fas fa-arrow-right arrow-icon"></i>
+                        </a>
+                    </div>
+                </div>
             </div>
         {% empty %}
-            <p class="no-campaigns">No recent campaigns available.</p>
+            <div class="no-campaigns">
+                <i class="fas fa-calendar-times"></i>
+                <p>No recent campaigns available at the moment.</p>
+            </div>
         {% endfor %}
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

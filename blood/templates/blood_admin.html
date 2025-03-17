@@ -11,215 +11,327 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">  <!-- Link to external CSS file -->
     <style>
         body {
-            background-color: #f4f6f9;
-            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            font-family: 'Poppins', sans-serif;
         }
+        
         .navbar {
+            background: linear-gradient(135deg, #dc3545 0%, #c0392b 100%);
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .card-body {
+
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 24px;
+        }
+
+        .side-menu .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .side-menu .list-group-item {
+            border: none;
+            padding: 12px 20px;
+            margin-bottom: 5px;
+            border-radius: 8px;
             transition: all 0.3s ease;
         }
-        .card-body:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        .card-title {
-            font-weight: bold;
+
+        .side-menu .list-group-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(5px);
         }
 
-        .pending-request-card {
-    background-color: #fff3cd; /* Light yellow background for pending requests */
-    border-left: 5px solid #ffc107; /* Yellow left border to highlight */
-    border-radius: 10px;
-    padding: 15px;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.pending-request-card:hover {
-    transform: translateY(-2px); /* Slight lift effect on hover */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow on hover */
-}
-
-.pending-request-title {
-    font-weight: bold;
-    color: #856404; /* Darker yellow for the title */
-}
-
-        .card {
-            border-radius: 10px;
+        .side-menu .list-group-item i {
+            margin-right: 10px;
+            color: #dc3545;
         }
-        .list-group-item a {
+
+        .side-menu .list-group-item a {
+            color: #343a40;
             text-decoration: none;
-            color: #007bff;
-            transition: color 0.3s ease;
+            font-weight: 500;
         }
-        .list-group-item a:hover {
-            color: #0056b3;
+
+        .dashboard-stats .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
         }
-        .badge-custom {
-            font-size: 14px;
-            font-weight: bold;
+
+        .dashboard-stats .card:hover {
+            transform: translateY(-5px);
         }
+
+        .dashboard-stats .card-body {
+            padding: 25px;
+        }
+
+        .dashboard-stats .icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .recent-activities {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .table th {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .badge {
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+
         .btn-approve {
-            background-color: #28a745; /* Green */
+            background-color: #28a745;
             color: white;
+            border-radius: 8px;
+            padding: 8px 15px;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-approve:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        /* Custom colors for stats cards */
+        .bg-donors {
+            background: linear-gradient(135deg, #4e54c8 0%, #8f94fb 100%);
+        }
+
+        .bg-blood-units {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .bg-requests {
+            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+        }
+
+        .stats-card-title {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .stats-card-number {
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">Lifeline Blood Bank</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Dashboard</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'manage_users' %}">User Management</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'inventory_list' %}">Inventory</a>
-                </li>
-                
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'manage_campaigns' %}">Campaigns</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-                </li>
-            </ul>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-heartbeat me-2"></i>
+                Lifeline Blood Bank
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'blood_admin' %}">
+                            <i class="fas fa-home me-1"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">
+                            <i class="fas fa-sign-out-alt me-1"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
 
-    <div class="container-fluid mt-4">
+    <div class="container-fluid py-4">
         <div class="row">
-            <div class="col-md-3">
-                <div class="card bg-light mb-3">
-                    <div class="card-header">Menu</div>
-                    <div class="card-body">
-                        <ul class="list-group">
-                            <li class="list-group-item"><i class="fas fa-users"></i> <a href="{% url 'manage_users' %}">User Management</a></li>
-                            <li class="list-group-item"><i class="fas fa-users"></i> <a href="{% url 'manage_donors' %}">Donor Management</a></li>
-                            <li class="list-group-item"><i class="fas fa-users"></i> <a href="{% url 'manage_doctors' %}">Doctor Management</a></li>
-                            <li class="list-group-item"><i class="fas fa-tint"></i> <a href="{% url 'inventory_list' %}">Blood Inventory</a></li>
-                            <li class="list-group-item"><i class="fas fa-cogs"></i> <a href="{% url 'manage_campaigns' %}">Donation Campaigns</a></li>
-                            <li class="list-group-item"><i class="fas fa-cogs"></i> <a href="{% url 'pending_hospitals' %}">Hospital Approval</a></li>
-                            <li class="list-group-item"><i class="fas fa-cogs"></i> <a href="{% url 'plasma_requests_page' %}">Plasma Request</a></li>
-                            <li class="list-group-item"><i class="fas fa-cogs"></i> <a href="{% url 'download_feedback_pdf' %}">Download feedback</a></li>
-                            <li class="list-group-item"><i class="fas fa-cogs"></i> <a href="{% url 'emergency_alert' %}">Emergency Alerts</a></li>
-                            <li class="list-group-item">
-                                <i class="fas fa-file-download"></i>
-                                <a href="{% url 'download_hospital_report_pdf' %}">Download Hospital Report</a>
-                            </li>
-                            
-                        </ul>
+            <!-- Side Menu -->
+            <div class="col-md-3 side-menu">
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-bars me-2"></i> Menu
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item">
+                                <i class="fas fa-users"></i>
+                                <a href="{% url 'manage_users' %}">User Management</a>
+                            </div>
+                            <div class="list-group-item">
+                                <i class="fas fa-user-md"></i>
+                                <a href="{% url 'manage_doctors' %}">Doctor Management</a>
+                            </div>
+                            <div class="list-group-item">
+                                <i class="fas fa-hospital"></i>
+                                <a href="{% url 'pending_hospitals' %}">Hospital Approval</a>
+                            </div>
+                            <div class="list-group-item">
+                                <i class="fas fa-tint"></i>
+                                <a href="{% url 'inventory_list' %}">Blood Inventory</a>
+                            </div>
+                            <div class="list-group-item">
+                                <i class="fas fa-calendar-alt"></i>
+                                <a href="{% url 'manage_campaigns' %}">Donation Campaigns</a>
+                            </div>
+                            <div class="list-group-item">
+                                <i class="fas fa-vial"></i>
+                                <a href="{% url 'admin_test_list' %}">Donor Tests</a>
+                            </div>
+                            <div class="list-group-item">
+                                <i class="fas fa-comments"></i>
+                                <a href="{% url 'manage_feedback' %}">Feedback</a>
+                            </div>
+                            <div class="list-group-item">
+                                <i class="fas fa-bell"></i>
+                                <a href="{% url 'emergency_alert' %}">Emergency Alerts</a>
+                            </div>
+                            <div class="list-group-item">
+                                <i class="fas fa-handshake"></i> <!-- Handshake icon for matching -->
+                                <a href="{% url 'find_matches' %}">find matches</a>
+                            </div>
+                            <!-- Add this where you want the prediction link to appear -->
+<div class="list-group-item">
+    <i class="fas fa-chart-line"></i> <!-- Chart icon for predictions -->
+    <a href="{% url 'predict_demand' %}">Predict Blood Demand</a>
+</div>
+<div class="list-group-item">
+    <i class="fas fa-calendar-check"></i> <!-- Calendar check icon for campaign prediction -->
+    <a href="{% url 'latest_campaigns' %}">Campaign Success Prediction</a>
+</div>
+<div class="list-group-item">
+    <i class="fas fa-heartbeat"></i>
+    <a href="{% url 'health_risk' %}">Health Risk Assessment</a>
+</div>
+<!-- Add this where appropriate in your admin dashboard -->
+<!-- Add this to your sidebar navigation -->
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'add_blood_type' %}">
+        <i class="fas fa-tint"></i>
+        Add Blood Type
+    </a>
+</li>
+
+                        </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Main Content -->
             <div class="col-md-9">
-                <div class="card">
-                    <div class="card-header">Dashboard</div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="card text-white bg-primary mb-3">
-                                    <div class="card-body">
-                                        <i class="fas fa-users fa-3x"></i>
-                                        <h5 class="card-title">Total Donors</h5>
-                                        <p class="card-text">{{ total_donors }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card text-white bg-success mb-3">
-                                    <div class="card-body">
-                                        <i class="fas fa-blood-type fa-3x"></i>
-                                        <h5 class="card-title">Blood Units Available</h5>
-                                        <p class="card-text">{{ blood_units }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card text-white bg-danger mb-3">
-                                    <div class="card-body">
-                                        <i class="fas fa-exclamation-triangle fa-3x"></i>
-                                        <h5 class="card-title">Pending Requests</h5>
-                                        <p class="card-text">Total: {{ pending_requests }}</p>
-                                        <a href="{% url 'all_pending_requests' %}" class="btn btn-light btn-sm">View </a>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                                </div>
+                <!-- Stats Cards -->
+                <div class="row dashboard-stats">
+                    <div class="col-md-4">
+                        <div class="card bg-donors text-white">
+                            <div class="card-body text-center">
+                                <i class="fas fa-users icon"></i>
+                                <h5 class="stats-card-title">Total Donors</h5>
+                                <p class="stats-card-number">{{ total_donors }}</p>
                             </div>
                         </div>
-
-                        <div class="row mt-4">
-                            <div class="col-md-12">
-                                <h4>Recent Activities</h4>
-                                {% if messages %}
-                                    <div class="alert alert-success">
-                                        {% for message in messages %}
-                                            <p>{{ message }}</p>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Date</th>
-                                            <th>Doctor</th>
-                                            <th>Patient</th>
-                                            <th>Hospital</th>
-                                            <th>Blood Group</th>
-                                            <th>Status</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for activity in recent_activities %}
-                                            <tr>
-                                                <td>{{ activity.date }}</td>
-                                                <td>{{ activity.doctor }}</td>
-                                                <td>{{ activity.patient }}</td>
-                                                <td>{{ activity.hospital }}</td>
-                                                <td>{{ activity.blood_group }}</td>
-                                                <td>
-                                                    {% if activity.status == "approved" %}
-                                                        <span class="badge bg-success badge-custom">{{ activity.status }}</span>
-                                                    {% elif activity.status == "pending" %}
-                                                        <span class="badge bg-warning badge-custom">{{ activity.status }}</span>
-                                                    {% else %}
-                                                        <span class="badge bg-danger badge-custom">{{ activity.status }}</span>
-                                                    {% endif %}
-                                                </td>
-                                                <td>
-                                                    {% if activity.status == "pending" %}
-                                                        <form action="{% url 'approve_request' activity.id %}" method="post" style="display:inline;">
-                                                            {% csrf_token %}
-                                                            <button type="submit" class="btn btn-approve btn-sm">Approve</button>
-                                                        </form>
-                                                    {% else %}
-                                                        <button class="btn btn-secondary btn-sm" disabled>Approved</button>
-                                                    {% endif %}
-                                                </td>
-                                            </tr>
-                                        {% empty %}
-                                            <tr>
-                                                <td colspan="7" class="text-center">No recent activities found.</td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-blood-units text-white">
+                            <div class="card-body text-center">
+                                <i class="fas fa-tint icon"></i>
+                                <h5 class="stats-card-title">Blood Units Available</h5>
+                                <p class="stats-card-number">{{ blood_units }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-requests text-white">
+                            <div class="card-body text-center">
+                                <i class="fas fa-clock icon"></i>
+                                <h5 class="stats-card-title">Pending Requests</h5>
+                                <p class="stats-card-number">{{ pending_requests }}</p>
+                                <a href="{% url 'all_pending_requests' %}" class="btn btn-light btn-sm">View All</a>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Recent Activities -->
+                <div class="recent-activities">
+                    <h4 class="mb-4">
+                        <i class="fas fa-history me-2"></i>
+                        Recent Activities
+                    </h4>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Doctor</th>
+                                    <th>Patient</th>
+                                    <th>Hospital</th>
+                                    <th>Blood Group</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for activity in recent_activities %}
+                                <tr>
+                                    <td>{{ activity.date }}</td>
+                                    <td>{{ activity.doctor }}</td>
+                                    <td>{{ activity.patient }}</td>
+                                    <td>{{ activity.hospital }}</td>
+                                    <td>{{ activity.blood_group }}</td>
+                                    <td>
+                                        {% if activity.status == "approved" %}
+                                            <span class="badge bg-success">Approved</span>
+                                        {% elif activity.status == "pending" %}
+                                            <span class="badge bg-warning">Pending</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Rejected</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if activity.status == "pending" %}
+                                            <form action="{% url 'approve_request' activity.id %}" method="post" style="display:inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-approve btn-sm">
+                                                    <i class="fas fa-check me-1"></i> Approve
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">
+                                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                                        <p>No recent activities found</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Add this form where you want the matching functionality -->
+               
             </div>
         </div>
     </div>

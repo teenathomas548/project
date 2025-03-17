@@ -1,0 +1,163 @@
+<!-- bloodbank/blood/templates/donor_iron_list.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donor Iron Status List</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <style>
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .page-header {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card-header {
+            border-radius: 15px 15px 0 0 !important;
+            padding: 20px;
+        }
+        .status-normal .card-header {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+        }
+        .status-deficient .card-header {
+            background: linear-gradient(45deg, #dc3545, #f86d7d);
+            color: white;
+        }
+        .status-excess .card-header {
+            background: linear-gradient(45deg, #ffc107, #ffdb4d);
+            color: black;
+        }
+        .icon {
+            font-size: 1.2rem;
+            margin-right: 10px;
+            width: 25px;
+            text-align: center;
+        }
+        .card-body {
+            padding: 25px;
+        }
+        .stat-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+        .diet-plan {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #0056b3, #003980);
+        }
+        .alert {
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="page-header d-flex justify-content-between align-items-center">
+            <h2><i class="fas fa-list-alt text-primary"></i> Donor Iron Status List</h2>
+            <a href="{% url 'add_donor_iron_status' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add New Donor
+            </a>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="row">
+            {% for donor in donors %}
+                <div class="col-md-6 mb-4">
+                    <div class="card {% if donor.iron_deficiency_status == 'Normal' %}status-normal
+                         {% elif 'Deficiency' in donor.iron_deficiency_status %}status-deficient
+                         {% else %}status-excess{% endif %}">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-user-circle icon"></i>
+                                {{ donor.donor.donor_name }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="stat-item">
+                                <p class="mb-0"><i class="fas fa-thermometer-half icon text-primary"></i>
+                                <strong>Iron Status:</strong> {{ donor.iron_deficiency_status }}</p>
+                            </div>
+                            <div class="stat-item">
+                                <p class="mb-0"><i class="fas fa-tint icon text-danger"></i>
+                                <strong>Hemoglobin:</strong> {{ donor.hemoglobin_level }} g/dL</p>
+                            </div>
+                            <div class="stat-item">
+                                <p class="mb-0"><i class="fas fa-flask icon text-success"></i>
+                                <strong>Ferritin:</strong> {{ donor.serum_ferritin }} ng/ml</p>
+                            </div>
+                            <div class="stat-item">
+                                <p class="mb-0"><i class="fas fa-chart-line icon text-info"></i>
+                                <strong>TSI:</strong> {{ donor.transferrin_saturation_index }}%</p>
+                            </div>
+                            <div class="stat-item">
+                                <p class="mb-0"><i class="fas fa-weight-hanging icon text-warning"></i>
+                                <strong>TIBC:</strong> {{ donor.total_iron_binding_capacity }} µg/dL</p>
+                            </div>
+                            <div class="stat-item">
+                                <p class="mb-0"><i class="fas fa-calendar-check icon text-secondary"></i>
+                                <strong>Donations Last Year:</strong> {{ donor.donation_count_last_year }}</p>
+                            </div>
+                            <div class="diet-plan">
+                                <h6><i class="fas fa-utensils icon text-primary"></i> Recommended Diet Plan:</h6>
+                                <p class="mb-0">{{ donor.diet_plan }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        No donor records found.
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

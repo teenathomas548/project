@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Donor Iron Status</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <style>
+        body {
+            background-color: #f0f2f5;
+        }
+        .form-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        .form-title {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .form-group label {
+            font-weight: 600;
+            color: #34495e;
+        }
+        .btn-submit {
+            background-color: #3498db;
+            border: none;
+            padding: 10px 30px;
+            font-weight: 600;
+        }
+        .btn-submit:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="form-container">
+                <h2 class="form-title">
+                    <i class="fas fa-notes-medical"></i>
+                    Add Donor Iron Status
+                </h2>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form id="donorIronForm" method="POST" onsubmit="return validateForm()">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="donor_name">Donor Name</label>
+                        <input type="text" class="form-control" id="donor_name" name="donor_name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select class="form-control" id="gender" name="gender" required>
+                            <option value="">Select Gender</option>
+                            <option value="M">Male</option>
+                            <option value="F">Female</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="age">Age</label>
+                        <input type="number" class="form-control" id="age" name="age" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hemoglobin">Hemoglobin (g/dL)</label>
+                        <input type="number" step="0.1" class="form-control" id="hemoglobin" name="hemoglobin" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ferritin">Ferritin (ng/ml)</label>
+                        <input type="number" step="0.1" class="form-control" id="ferritin" name="ferritin" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="transferrin_sat">Transferrin Saturation (%)</label>
+                        <input type="number" step="0.1" class="form-control" id="transferrin_sat" name="transferrin_sat" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tibc">Total Iron Binding Capacity (µg/dL)</label>
+                        <input type="number" step="0.1" class="form-control" id="tibc" name="tibc" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="donations">Donations Last Year</label>
+                        <input type="number" class="form-control" id="donations" name="donations" required>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-submit">
+                            <i class="fas fa-save"></i> Submit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+function validateForm() {
+    const serumFerritin = parseFloat(document.getElementById('serumFerritin').value);
+    const tsi = parseFloat(document.getElementById('tsi').value);
+    const hemoglobin = parseFloat(document.getElementById('hemoglobin').value);
+    const tibc = parseFloat(document.getElementById('tibc').value);
+    const donationCount = parseInt(document.getElementById('donationCount').value);
+
+    if (serumFerritin < 0 || serumFerritin > 1000) {
+        alert('Please enter a valid Serum Ferritin value (0-1000 ng/ml)');
+        return false;
+    }
+
+    if (tsi < 0 || tsi > 100) {
+        alert('Please enter a valid TSI value (0-100%)');
+        return false;
+    }
+
+    if (hemoglobin < 0 || hemoglobin > 25) {
+        alert('Please enter a valid Hemoglobin value (0-25 g/dl)');
+        return false;
+    }
+
+    if (tibc < 100 || tibc > 500) {
+        alert('Please enter a valid TIBC value (100-500 µg/dL)');
+        return false;
+    }
+
+    if (donationCount < 0 || donationCount > 12) {
+        alert('Please enter a valid number of donations (0-12)');
+        return false;
+    }
+
+    return true;
+}
+</script>
+
+</body>
+</html>

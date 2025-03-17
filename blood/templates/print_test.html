@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Test Report</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .report-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            border-bottom: 2px solid #dc3545;
+        }
+        .report-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #dc3545;
+        }
+        .report-date {
+            font-size: 14px;
+            color: #666;
+        }
+        .test-result {
+            margin-bottom: 30px;
+        }
+        .result-label {
+            font-weight: bold;
+            color: #333;
+        }
+        @media print {
+            .no-print {
+                display: none;
+            }
+            body {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <!-- Print Controls -->
+        <div class="no-print mb-4">
+            <button onclick="window.print()" class="btn btn-primary">
+                Print Report
+            </button>
+            <a href="{% url 'test_list' %}" class="btn btn-secondary">
+                Back to List
+            </a>
+        </div>
+
+        <!-- Report Header -->
+        <div class="report-header">
+            <h1 class="report-title">Blood Test Report</h1>
+            <p class="report-date">Test Date: {{ blood_test.test_date|date:"F d, Y" }}</p>
+        </div>
+
+        <!-- Donor Information -->
+        <div class="row test-result">
+            <div class="col-md-6">
+                <h4>Donor Information</h4>
+                <p><span class="result-label">Name:</span> {{ blood_test.donation.donor.donor_name }}</p>
+                <p><span class="result-label">Blood Type:</span> {{ blood_test.donation.donor.blood_type }}</p>
+                <p><span class="result-label">Age:</span> {{ blood_test.donation.donor.age }}</p>
+            </div>
+            <div class="col-md-6">
+                <h4>Test Information</h4>
+                <p><span class="result-label">Test ID:</span> {{ blood_test.id }}</p>
+                <p><span class="result-label">Tested By:</span> {{ blood_test.tested_by }}</p>
+                <p><span class="result-label">Status:</span> 
+                    <span class="badge {% if blood_test.is_safe %}bg-success{% else %}bg-danger{% endif %}">
+                        {{ blood_test.is_safe|yesno:"Safe,Unsafe" }}
+                    </span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="test-result">
+            <h4>Disease Test Results</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Test</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>HIV</td>
+                        <td>{{ blood_test.hiv|yesno:"Positive,Negative" }}</td>
+                    </tr>
+                    <tr>
+                        <td>Hepatitis B</td>
+                        <td>{{ blood_test.hepatitis_b|yesno:"Positive,Negative" }}</td>
+                    </tr>
+                    <tr>
+                        <td>Hepatitis C</td>
+                        <td>{{ blood_test.hepatitis_c|yesno:"Positive,Negative" }}</td>
+                    </tr>
+                    <tr>
+                        <td>Syphilis</td>
+                        <td>{{ blood_test.syphilis|yesno:"Positive,Negative" }}</td>
+                    </tr>
+                    <tr>
+                        <td>Malaria</td>
+                        <td>{{ blood_test.malaria|yesno:"Positive,Negative" }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Other Parameters -->
+        <div class="test-result">
+            <h4>Other Parameters</h4>
+            <p><span class="result-label">Hemoglobin Level:</span> {{ blood_test.hemoglobin }} g/dL</p>
+        </div>
+
+        <!-- Remarks -->
+        {% if blood_test.remarks %}
+        <div class="test-result">
+            <h4>Remarks</h4>
+            <p>{{ blood_test.remarks }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Signature Section -->
+        <div class="row mt-5">
+            <div class="col-md-6">
+                <p class="result-label">Tested By:</p>
+                <p>{{ blood_test.tested_by }}</p>
+            </div>
+            <div class="col-md-6 text-end">
+                <p class="result-label">Date:</p>
+                <p>{{ blood_test.test_date|date:"F d, Y" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

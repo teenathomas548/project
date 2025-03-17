@@ -4,167 +4,403 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'donordashboard.css' %}">
     <title>Donor Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
     <style>
+        :root {
+            --primary-color: #e74c3c;
+            --secondary-color: #c0392b;
+            --accent-color: #e67e22;
+            --text-color: #2c3e50;
+            --light-bg: #f5f6fa;
+        }
+
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f0f4f8; /* Soft background color */
-            margin: 0;
-            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
         }
-        header {
-            background-color: #dc3545; /* Bootstrap danger color */
-            color: white;
-            padding: 20px 0;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            position: relative;
+
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 0;
         }
-        h1 {
-            margin: 0;
-            font-size: 2.5em; /* Increased size for better visibility */
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: 700;
+            font-size: 1.6rem;
+            letter-spacing: 1px;
         }
-        .container {
-            display: flex;
-            height: calc(100vh - 70px); /* Full height minus header */
-            padding: 20px;
-            gap: 20px; /* Space between sidebar and main content */
+
+        .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
         }
-        .sidebar {
-            background-color: #dc3545; /* Sidebar color */
-            color: white;
-            width: 250px; /* Sidebar width */
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
         }
-        .sidebar h2 {
-            margin-bottom: 20px;
-            font-size: 1.5em; /* Adjusted for better readability */
-            text-align: center;
-        }
-        .sidebar ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        .sidebar ul li {
-            margin: 15px 0;
-        }
-        .sidebar ul li a {
-            color: #ffcccb; /* Light red for links */
-            text-decoration: none;
-            padding: 10px;
-            display: block;
-            border-radius: 5px;
-            text-align: center; /* Center align the links */
-            transition: background-color 0.3s;
-        }
-        .sidebar ul li a:hover {
-            background-color: #ff6666; /* Lighter red on hover */
-            color: #ffffff; /* White text on hover */
-        }
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column; /* Arrange content vertically */
-            align-items: center; /* Center content horizontally */
-            justify-content: center; /* Center content vertically */
-        }
-        .welcome-card {
-            background: #f8f9fa; /* Light card background */
-            padding: 30px;
-            margin: 20px 0;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            transition: transform 0.2s;
-            text-align: center;
-            width: 100%; /* Make card full width */
-            max-width: 600px; /* Limit maximum width for larger screens */
-        }
-        .welcome-card:hover {
-            transform: translateY(-5px); /* Lift card effect */
-        }
-        .welcome-card h2 {
-            color: #dc3545; /* Heading color */
-            font-size: 1.8em; /* Increased heading size */
-            margin-bottom: 10px;
-        }
-        .btn {
-            background-color: #dc3545; /* Button color */
-            color: white;
-            padding: 12px 20px; /* Increased padding */
+
+        .dashboard-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
             border: none;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 1em; /* Font size for the button */
-            transition: background-color 0.3s;
+            overflow: hidden;
         }
-        .btn:hover {
-            background-color: #c82333; /* Darker red on hover */
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
-        footer {
-            background-color: #dc3545; /* Footer color */
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
-            text-align: center;
-            padding: 15px;
-            position: relative;
-            bottom: 0;
-            width: 100%;
-            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 20px 20px 0 0 !important;
+            padding: 1.5rem;
+            border: none;
         }
-        @media (max-width: 600px) {
-            .container {
-                flex-direction: column;
-                padding: 10px;
+
+        .stat-card {
+            padding: 1.5rem;
+            text-align: center;
+            background: white;
+            border-radius: 15px;
+            margin: 10px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            background: rgba(231, 76, 60, 0.1);
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .action-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+            height: 100%;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .action-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .action-card:hover .action-icon {
+            transform: scale(1.1);
+        }
+
+        .badge-custom {
+            background: linear-gradient(45deg, #28a745, #34ce57);
+            padding: 8px 20px;
+            border-radius: 25px;
+            color: white;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .table th {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--text-color);
+            font-weight: 600;
+            border: none;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        .btn-custom {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            padding: 10px 25px;
+            color: white;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .quick-actions {
+                grid-template-columns: 1fr;
             }
-            .sidebar {
-                width: 100%;
+            
+            .stat-card {
+                margin-bottom: 15px;
             }
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Donor Dashboard</h1>
-    </header>
-
-    <div class="container">
-        <div class="sidebar">
-            <h2>Menu</h2>
-            <ul>
-                <li><a href="{% url 'donor_profile' %}">My Profile</a></li>
-                <li><a href="{% url 'apply_blood' %}" id ="blood">Request Blood</a></li>
-                <li><a href="{% url 'first_time_donation' %}" id="book">Book Appointment</a></li>
-               <!-- <li> <a href="{% url 'plasma_donation_request' %}">Donate plasma</a></li> -->
-               <li> <a href="{% url 'give_feedback' %}">Give Feedback</a></li>
-
-               <li><a href="{% url 'logout' %}">Logout</a></li>
-
-
-            </ul>
-        </div>
-
-        <div class="main-content">
-            <div class="welcome-card">
-                <h2>Welcome back, {{ donor.donor_name }}!</h2>
-                <p>Your blood type: <strong>{{ donor.blood_type.blood_group }}</strong></p>
-                <p>Thank you for your continued support in saving lives!</p>
-                <p><a href="{% url 'apply_blood' %}" class="btn">Request Blood Now</a></p>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-heartbeat me-2"></i>LifeLine Blood Bank
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'donor_profile' %}">
+                            <i class="fas fa-user me-2"></i>Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'donor_card' %}">
+                            <i class="fas fa-id-card me-2"></i>Donor Card
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
-    </div>
+    </nav>
 
-    <footer>
-        <p>&copy; {{ current_year }} Lifeline Blood Bank. All rights reserved.</p>
-    </footer>
-    <script>
-        // Add any JavaScript functionality here if needed
-        console.log('Donor Dashboard Loaded');
-    </script>
+    <div class="container">
+        <!-- Welcome Section -->
+        <div class="dashboard-card mb-4">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Welcome, {{ donor.donor_name }}!</h4>
+                    <span class="badge-custom">
+                        <i class="fas fa-star me-1"></i>{{ donor.points }} Points
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <i class="fas fa-tint stat-icon"></i>
+                            <h5>Blood Type</h5>
+                            <p class="mb-0">{{ donor.blood_type }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <i class="fas fa-calendar-check stat-icon"></i>
+                            <h5>Last Donation</h5>
+                            <p class="mb-0">
+                                {% if donor.last_donation_date %}
+                                    {{ donor.last_donation_date|date:"M d, Y" }}
+                                {% else %}
+                                    No previous donations
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <i class="fas fa-award stat-icon"></i>
+                            <h5>Status</h5>
+                            <p class="mb-0">Active Donor</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a href="{% url 'apply_blood' %}" class="text-decoration-none">
+                <div class="action-card">
+                    <i class="fas fa-hand-holding-medical action-icon"></i>
+                    <h5>Request Blood</h5>
+                    <p class="text-muted">Submit a blood request</p>
+                </div>
+            </a>
+
+            
+            
+            <a href="{% url 'pending_test' %}" class="text-decoration-none">
+                <div class="action-card">
+                    <i class="fas fa-microscope action-icon"></i>
+                    <h5>Apply Test</h5>
+                    <p class="text-muted">Record blood test results</p>
+                </div>
+            </a>
+
+            <a href="{% url 'request_donation' %}" id ="book_appointment"class="text-decoration-none">
+                <div class="action-card">
+                    <i class="fas fa-calendar-plus action-icon"></i>
+                    <h5>Book Appointment</h5>
+                    <p class="text-muted">Schedule a donation</p>
+                </div>
+            </a>
+
+            <a href="{% url 'test_list' %}" id ="blood_test"class="text-decoration-none">
+                <div class="action-card">
+                    <i class="fas fa-vial action-icon"></i>
+                    <h5>Blood Tests</h5>
+                    <p class="text-muted">View test results</p>
+                </div>
+            </a>
+
+            <a href="{% url 'donation_history' %}" class="text-decoration-none">
+                <div class="action-card">
+                    <i class="fas fa-history action-icon"></i>
+                    <h5>Donation History</h5>
+                    <p class="text-muted">View your donations</p>
+                </div>
+            </a>
+
+           <!-- Existing iron status card -->
+<!-- <a href="{% url 'donor_iron_status_list' %}" class="text-decoration-none">
+    <div class="action-card">
+        <i class="fas fa-tint action-icon"></i>  
+        <h5>Iron Status</h5>
+        <p class="text-muted">Check your iron levels</p>
+    </div>
+</a> -->
+
+<!-- New iron diet prediction card -->
+<a href="{% url 'predict_iron_diet' donor_id=donor.donor_id %}" id ="iron_diet"class="text-decoration-none">
+    <div class="action-card">
+        <i class="fas fa-tint action-icon"></i>  
+        <h5>Iron Status</h5>
+        <p class="text-muted">Check your iron levels</p>
+    </div>
+</a>
+<!-- Add this somewhere in your template -->
+     <a href="{% url 'add_donor_iron_status' %}" class="text-decoration-none">
+                <div class="action-card">
+                    <i class="fas fa-plus-circle action-icon"></i>  
+                    <h5>Update Iron Status</h5>
+                    <p class="text-muted">Enter new iron test results</p>
+                </div>
+            </a>
+            
+            
+
+            {% if pending_request and pending_request.id %}
+            <a href="{% url 'basic_screening' pending_request.id %}" id = "basic_screening" class="text-decoration-none">
+                <div class="action-card">
+                    <i class="fas fa-notes-medical action-icon"></i>
+                    <h5>Basic Screening</h5>
+                    <p class="text-muted">Complete your screening</p>
+                </div>
+            </a>
+            {% else %}
+            <div class="action-card" style="opacity: 0.7;">
+                <i class="fas fa-notes-medical action-icon"></i>
+                <h5>Basic Screening</h5>
+                <p class="text-muted">No pending requests</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Upcoming Appointments -->
+        {% if upcoming_appointments %}
+        <div class="dashboard-card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Upcoming Appointments</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in upcoming_appointments %}
+                            <tr>
+                                <td>{{ appointment.preferred_date|date:"M d, Y" }}</td>
+                                <td>{{ appointment.preferred_time }}</td>
+                                <td>
+                                    <span class="badge bg-{{ appointment.status|lower }}">
+                                        {{ appointment.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="#" class="btn btn-sm btn-outline-primary">View Details</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

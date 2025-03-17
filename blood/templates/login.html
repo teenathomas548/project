@@ -4,48 +4,436 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="{% static 'login.css' %}">
+    <title>Login - Life Line Blood Bank</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #e74c3c;
+            --secondary-color: #c0392b;
+            --gradient: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .login-container {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Left Side - Animated Background */
+        .left-side {
+            flex: 1;
+            background: var(--gradient);
+            padding: 4rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* Animated shapes */
+        .shape {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 20s infinite;
+        }
+
+        .shape-1 {
+            width: 500px;
+            height: 500px;
+            top: -250px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            width: 300px;
+            height: 300px;
+            bottom: -150px;
+            left: -50px;
+            animation-delay: 3s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(50px, 50px) rotate(90deg); }
+            50% { transform: translate(0, 100px) rotate(180deg); }
+            75% { transform: translate(-50px, 50px) rotate(270deg); }
+        }
+
+        .brand-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .brand-description {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+        }
+
+        .features-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .features-list li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            animation: slideIn 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        .features-list li:nth-child(1) { animation-delay: 0.2s; }
+        .features-list li:nth-child(2) { animation-delay: 0.4s; }
+        .features-list li:nth-child(3) { animation-delay: 0.6s; }
+        .features-list li:nth-child(4) { animation-delay: 0.8s; }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .features-list i {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1.5rem;
+            font-size: 1.4rem;
+            transition: all 0.3s ease;
+        }
+
+        .features-list li:hover i {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Right Side - Login Form */
+        .right-side {
+            flex: 1;
+            background: white;
+            padding: 4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-form-container {
+            width: 100%;
+            max-width: 450px;
+            padding: 2rem;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .login-header .icon-circle {
+            width: 100px;
+            height: 100px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            box-shadow: 0 10px 25px rgba(238, 82, 83, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(238, 82, 83, 0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(238, 82, 83, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(238, 82, 83, 0); }
+        }
+
+        .login-header i {
+            font-size: 3rem;
+            color: white;
+        }
+
+        .login-header h2 {
+            font-size: 2.5rem;
+            color: #2d3436;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1.2rem 1.2rem 1.2rem 3rem;
+            border: 2px solid #e1e1e1;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 5px 20px rgba(238, 82, 83, 0.2);
+            background: white;
+        }
+
+        .form-label {
+            position: absolute;
+            left: 3rem;
+            top: 1.2rem;
+            padding: 0 0.5rem;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            color: #666;
+        }
+
+        .form-control:focus + .form-label,
+        .form-control:not(:placeholder-shown) + .form-label {
+            top: -0.7rem;
+            left: 1rem;
+            font-size: 0.8rem;
+            background: white;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .form-icon {
+            position: absolute;
+            left: 1rem;
+            top: 1.2rem;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus ~ .form-icon {
+            color: var(--primary-color);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 1.2rem;
+            border: none;
+            border-radius: 15px;
+            background: var(--gradient);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(238, 82, 83, 0.3);
+        }
+
+        .google-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            width: 100%;
+            padding: 1.2rem;
+            border: 2px solid #e1e1e1;
+            border-radius: 15px;
+            background: white;
+            color: #333;
+            font-size: 1.1rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+
+        .google-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border-color: #ccc;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 2rem 0;
+            position: relative;
+            color: #666;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background: #e1e1e1;
+        }
+
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
+
+        .links {
+            text-align: center;
+        }
+
+        .links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .links a:hover {
+            color: var(--secondary-color);
+        }
+
+        @media (max-width: 992px) {
+            .login-container {
+                flex-direction: column;
+            }
+            .left-side {
+                display: none;
+            }
+            .right-side {
+                padding: 3rem 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <nav>
-                <h1>Life Line Blood Bank</h1>
-                <ul>
-                    <li><a href="{% url 'home' %}">Home</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
-
-    <main>
-        <div class="wrapper">
-            <h1>Login</h1>
-            <form method="POST">
-                {% csrf_token %}
-                {% if messages %}
-                    <ul class="messages">
-                        {% for message in messages %}
-                            <li class="{{ message.tags }}">{{ message }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
+    <div class="login-container">
+        <!-- Left Side -->
+        <div class="left-side">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            
+            <div class="brand-content">
+                <h1 class="brand-title">
+                    <i class="fas fa-heartbeat me-2"></i>
+                    Life Line Blood Bank
+                </h1>
+                <p class="brand-description">
+                    Join our mission to save lives through blood donation. 
+                    Every drop counts, every donor matters.
+                </p>
                 
-                {{ form.as_p }}
-                <button type="submit" id="login">Login</button>
-            </form>
-            <div class="social-login">
-                <a href="{% url 'social:begin' 'google-oauth2' %}">
-                    <button class="google-button">
-                        <img src="{% static 'image/google.png' %}" alt="Google Logo" style="width: 24px; height: 24px;">
-                        Login with Google
-                    </button>
-                </a>
+                <ul class="features-list">
+                    <li>
+                        <i class="fas fa-hand-holding-heart"></i>
+                        <span>Make a difference by donating blood</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-hospital"></i>
+                        <span>Connect with hospitals nationwide</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-clock"></i>
+                        <span>24/7 emergency blood support</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Secure and confidential service</span>
+                    </li>
+                </ul>
             </div>
-            <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
-            <p><a href="{% url 'forgot_password' %}">Forgot Password?</a></p>
         </div>
-    </main>
+
+        <!-- Right Side -->
+        <div class="right-side">
+            <div class="login-form-container">
+                <div class="login-header">
+                    <div class="icon-circle">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h2>Welcome Back</h2>
+                    <p class="text-muted">Sign in to continue your noble cause</p>
+                </div>
+
+                {% if messages %}
+                <div class="messages mb-4">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <input type="email" id="email" name="email" class="form-control" placeholder="Email Address " required>
+                        <i class="fas fa-envelope form-icon"></i>
+                    </div>
+                    <div class="form-group">
+                        <input type="password"id="password" name="password" class="form-control" placeholder="Password " required>
+                        <i class="fas fa-lock form-icon"></i>
+                    </div>
+                    <button type="submit" id="login"class="btn-login">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login 
+                    </button>
+                </form>
+
+                <div class="divider">or continue with</div>
+
+                <a href="{% url 'social:begin' 'google-oauth2' %}" class="google-button">
+                    <img src="{% static 'image/google.png' %}" alt="Google Logo" width="24" height="24">
+                    Sign in with Google
+                </a>
+
+                <div class="links">
+                    <p class="mb-2">New to Life Line? <a href="{% url 'register' %}">Create an account</a></p>
+                    <p><a href="{% url 'forgot_password' %}">Forgot your password?</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipient Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f6f9;
+        }
+
+        .navbar {
+            background-color: #e74c3c;
+            padding: 1rem 2rem;
+        }
+
+        .navbar-brand {
+            color: #fff !important;
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+        }
+
+        .main-content {
+            padding: 2rem;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .profile-image {
+            width: 120px;
+            height: 120px;
+            background: #f8f9fa;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            border: 5px solid #e74c3c;
+        }
+
+        .profile-image i {
+            font-size: 3.5rem;
+            color: #e74c3c;
+        }
+
+        .blood-type {
+            background: #e74c3c;
+            color: white;
+            padding: 0.5rem 2rem;
+            border-radius: 25px;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .request-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .request-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .btn-new-request {
+            background: #e74c3c;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 25px;
+            border: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-new-request:hover {
+            background: #c0392b;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .section-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e74c3c;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-heartbeat mr-2"></i>Blood Bank
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'recipient_dashboard' %}">
+                            <i class="fas fa-home mr-1"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">
+                            <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container main-content">
+        <div class="row">
+            <!-- Profile Section -->
+            <div class="col-lg-4">
+                <div class="profile-card text-center">
+                    <div class="profile-image">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h3 class="mb-2">{{ recipient.recipient_name }}</h3>
+                    <div class="blood-type">
+                        <i class="fas fa-tint mr-2"></i>{{ recipient.blood_type }}
+                    </div>
+                    <div class="profile-info mt-4">
+                        <p><i class="fas fa-envelope mr-2"></i>{{ recipient.email }}</p>
+                        <p><i class="fas fa-phone mr-2"></i>{{ recipient.contact_number }}</p>
+                        <p><i class="fas fa-map-marker-alt mr-2"></i>{{ recipient.address }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Requests Section -->
+            <div class="col-lg-8">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="section-title">My Blood Requests</h4>
+                    <button class="btn btn-new-request">
+                        <i class="fas fa-plus mr-2"></i>New Request
+                    </button>
+                </div>
+
+                <!-- Pending Requests -->
+                {% if pending_requests %}
+                    <h5 class="mb-3">Pending Requests</h5>
+                    {% for request in pending_requests %}
+                        <div class="request-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-1">Request #{{ request.id }}</h5>
+                                    <p class="text-muted mb-1">{{ request.request_date|date:"F d, Y" }}</p>
+                                    <p class="mb-0">Units Required: {{ request.quantity }}</p>
+                                </div>
+                                <span class="status-badge status-pending">
+                                    Pending
+                                </span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Approved Requests -->
+                {% if approved_requests %}
+                    <h5 class="mb-3 mt-4">Approved Requests</h5>
+                    {% for request in approved_requests %}
+                        <div class="request-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-1">Request #{{ request.id }}</h5>
+                                    <p class="text-muted mb-1">{{ request.request_date|date:"F d, Y" }}</p>
+                                    <p class="mb-0">
+                                        <span class="mr-3">Units: {{ request.quantity }}</span>
+                                        <span>Hospital: {{ request.hospital_name }}</span>
+                                    </p>
+                                </div>
+                                <span class="status-badge status-approved">
+                                    Approved
+                                </span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if not pending_requests and not approved_requests %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No blood requests yet</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

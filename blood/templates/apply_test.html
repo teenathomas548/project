@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply Blood Test</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .card {
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            border: none;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .card-header {
+            background: linear-gradient(45deg, #dc3545, #ff4d5a);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #dc3545, #ff4d5a);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #c82333, #dc3545);
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Blood Test Form</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <!-- Donor Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>Donor Information</h5>
+                            <p><strong>Name:</strong> {{ donation.donor.donor_name }}</p>
+                            <p><strong>Blood Type:</strong> {{ donation.donor.blood_type }}</p>
+                            <p><strong>Age:</strong> {{ donation.donor.age }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Disease Tests -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>Disease Tests</h5>
+                            <div class="form-check mb-2">
+                                <input type="checkbox" class="form-check-input" id="hiv" name="hiv">
+                                <label class="form-check-label" for="hiv">HIV</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input type="checkbox" class="form-check-input" id="hepatitis_b" name="hepatitis_b">
+                                <label class="form-check-label" for="hepatitis_b">Hepatitis B</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input type="checkbox" class="form-check-input" id="hepatitis_c" name="hepatitis_c">
+                                <label class="form-check-label" for="hepatitis_c">Hepatitis C</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input type="checkbox" class="form-check-input" id="syphilis" name="syphilis">
+                                <label class="form-check-label" for="syphilis">Syphilis</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input type="checkbox" class="form-check-input" id="malaria" name="malaria">
+                                <label class="form-check-label" for="malaria">Malaria</label>
+                            </div>
+                        </div>
+
+                        <!-- Other Test Parameters -->
+                        <div class="col-md-6">
+                            <h5>Other Parameters</h5>
+                            <div class="mb-3">
+                                <label for="hemoglobin" class="form-label">Hemoglobin Level (g/dL)</label>
+                                <input type="number" step="0.1" class="form-control" id="hemoglobin" name="hemoglobin" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="tested_by" class="form-label">Tested By</label>
+                                <input type="text" class="form-control" id="tested_by" name="tested_by" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="remarks" class="form-label">Remarks</label>
+                                <textarea class="form-control" id="remarks" name="remarks" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary">Submit Test Results</button>
+                        <a href="{% url 'test_list' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

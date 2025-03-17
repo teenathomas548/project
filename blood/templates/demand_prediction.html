@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Demand Prediction Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white">
+                <h3>Blood Demand Prediction Results</h3>
+                <h5>{{ hospital.hospital_name }} - {{ blood_type.blood_group }}</h5>
+                <p class="mb-0">Next {{ days }} days prediction</p>
+            </div>
+            <div class="row mt-3 mb-3 px-3">
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Predicted Demand</h5>
+                            <h2 class="card-text">
+                                {{ total_demand }} units
+                            </h2>
+                            <p class="mb-0">For next {{ days }} days</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-dark">
+                        <div class="card-body">
+                            <h5 class="card-title">Average Daily Demand</h5>
+                            <h2 class="card-text">
+                                {{ avg_demand|floatformat:1 }} units
+                            </h2>
+                            <p class="mb-0">Per day</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Minimum Demand</h5>
+                            <h2 class="card-text">
+                                {{ min_demand }} units
+                            </h2>
+                            <p class="mb-0">Lowest predicted</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-danger text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Maximum Demand</h5>
+                            <h2 class="card-text">
+                                {{ max_demand }} units
+                            </h2>
+                            <p class="mb-0">Highest predicted</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Prediction Chart -->
+                <div class="mb-4">
+                    <canvas id="predictionChart"></canvas>
+                </div>
+
+                <!-- Prediction Table -->
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Day</th>
+                                <th>Predicted Demand</th>
+                                <th>Confidence Score</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for prediction in predictions %}
+                            <tr>
+                                <td>{{ prediction.prediction_date|date:"Y-m-d" }}</td>
+                                <td>{{ prediction.prediction_date|date:"l" }}</td>
+                                <td>{{ prediction.predicted_demand }} units</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar" 
+                                             style="width: {{ prediction.confidence_score|floatformat:2 }}%">
+                                            {{ prediction.confidence_score|floatformat:2 }}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if prediction.predicted_demand > 15 %}
+                                        <span class="badge bg-danger">High Demand</span>
+                                    {% elif prediction.predicted_demand > 10 %}
+                                        <span class="badge bg-warning">Medium Demand</span>
+                                    {% else %}
+                                        <span class="badge bg-success">Low Demand</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Seasonal Pattern -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h4>Seasonal Pattern</h4>
+                        <canvas id="seasonalChart"></canvas>
+                    </div>
+                    <div class="col-md-6">
+                        <h4>Holiday Impact</h4>
+                        <canvas id="holidayChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mb-4">
+            <a href="{% url 'predict_demand' %}" class="btn btn-primary">Make Another Prediction</a>
+        </div>
+    </div>
+
+    <script>
+        // Prediction Chart
+        const predictionData = {
+            labels: [{% for pred in predictions %}'{{ pred.prediction_date|date:"M d" }}',{% endfor %}],
+            datasets: [{
+                label: 'Predicted Demand (Units)',
+                data: [{% for pred in predictions %}{{ pred.predicted_demand }},{% endfor %}],
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        };
+
+        new Chart(document.getElementById('predictionChart'), {
+            type: 'line',
+            data: predictionData,
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Predicted Blood Demand Over Time'
+                    }
+                }
+            }
+        });
+
+        // Seasonal Chart
+        const seasonalData = {
+            labels: Object.keys({{ seasonal_pattern|safe }}),
+            datasets: [{
+                label: 'Average Demand',
+                data: Object.values({{ seasonal_pattern|safe }}),
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.5)',
+                    'rgba(75, 192, 192, 0.5)',
+                    'rgba(255, 99, 132, 0.5)',
+                    'rgba(255, 159, 64, 0.5)'
+                ]
+            }]
+        };
+
+        new Chart(document.getElementById('seasonalChart'), {
+            type: 'bar',
+            data: seasonalData,
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Seasonal Blood Demand Pattern'
+                    }
+                }
+            }
+        });
+
+        // Holiday Impact Chart
+        const holidayData = {
+            labels: ['Regular Days', 'Holidays'],
+            datasets: [{
+                label: 'Average Demand',
+                data: Object.values({{ holiday_impact|safe }}),
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.5)',
+                    'rgba(255, 99, 132, 0.5)'
+                ]
+            }]
+        };
+
+        new Chart(document.getElementById('holidayChart'), {
+            type: 'bar',
+            data: holidayData,
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Holiday Impact on Blood Demand'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

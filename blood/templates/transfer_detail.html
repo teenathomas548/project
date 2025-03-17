@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfer Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Transfer Details #{{ transfer.transfer_id }}</h2>
+            <a href="{% url 'transfer_list' %}" class="btn btn-secondary">Back to List</a>
+        </div>
+
+        {% if messages %}
+        <div class="messages mb-4">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>From Hospital</h5>
+                        <p>{{ transfer.from_hospital.hospital_name }}</p>
+                        
+                        <h5>To Hospital</h5>
+                        <p>{{ transfer.to_hospital.hospital_name }}</p>
+                        
+                        <h5>Blood Type</h5>
+                        <p>{{ transfer.blood_type.blood_group }}</p>
+                        
+                        <h5>Units</h5>
+                        <p>{{ transfer.units }}</p>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h5>Status</h5>
+                        <p>
+                            <span class="badge 
+                                {% if transfer.status == 'requested' %}bg-info
+                                {% elif transfer.status == 'approved' %}bg-primary
+                                {% elif transfer.status == 'rejected' %}bg-danger
+                                {% elif transfer.status == 'in_transit' %}bg-warning
+                                {% elif transfer.status == 'delivered' %}bg-success
+                                {% else %}bg-secondary{% endif %}">
+                                {{ transfer.status|title }}
+                            </span>
+                        </p>
+                        
+                        <h5>Priority</h5>
+                        <p>
+                            <span class="badge 
+                                {% if transfer.priority == 'emergency' %}bg-danger
+                                {% elif transfer.priority == 'urgent' %}bg-warning
+                                {% else %}bg-info{% endif %}">
+                                {{ transfer.priority|title }}
+                            </span>
+                        </p>
+                        
+                        <h5>Request Date</h5>
+                        <p>{{ transfer.request_date|date:"Y-m-d H:i" }}</p>
+                        
+                        {% if transfer.approval_date %}
+                        <h5>Approval Date</h5>
+                        <p>{{ transfer.approval_date|date:"Y-m-d H:i" }}</p>
+                        {% endif %}
+                        
+                        {% if transfer.delivery_date %}
+                        <h5>Delivery Date</h5>
+                        <p>{{ transfer.delivery_date|date:"Y-m-d H:i" }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if transfer.notes %}
+                <div class="mt-3">
+                    <h5>Request Notes</h5>
+                    <p>{{ transfer.notes }}</p>
+                </div>
+                {% endif %}
+
+                {% if transfer.response_notes %}
+                <div class="mt-3">
+                    <h5>Response Notes</h5>
+                    <p>{{ transfer.response_notes }}</p>
+                </div>
+                {% endif %}
+
+                {% if can_approve %}
+                <div class="mt-4">
+                    <h5>Respond to Request</h5>
+                    <form method="POST" action="{% url 'approve_transfer' transfer.transfer_id %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="response_notes">Response Notes:</label>
+                            <textarea name="response_notes" id="response_notes" 
+                                      class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" name="action" value="approve" 
+                                    class="btn btn-success">Approve</button>
+                            <button type="submit" name="action" value="reject" 
+                                    class="btn btn-danger">Reject</button>
+                        </div>
+                    </form>
+                </div>
+                {% endif %}
+
+                {% if can_update %}
+                <div class="mt-4">
+                    <form method="POST" action="{% url 'update_transfer_status' transfer.transfer_id %}">
+                        {% csrf_token %}
+                        {% if transfer.status == 'approved' %}
+                        <input type="hidden" name="status" value="in_transit">
+                        <button type="submit" class="btn btn-primary">
+                            Mark as In Transit
+                        </button>
+                        {% elif transfer.status == 'in_transit' %}
+                        <input type="hidden" name="status" value="delivered">
+                        <button type="submit" class="btn btn-success">
+                            Mark as Delivered
+                        </button>
+                        {% endif %}
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

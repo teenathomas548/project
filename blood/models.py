@@ -1,4 +1,3 @@
-
 from django.db import models
 from datetime import date
 
@@ -403,3 +402,236 @@ def manage_appointments(request):
         return redirect("manage_appointments")  # Reload the page after updating
 
     return render(request, "manage_appointments.html", {"appointments": appointments})
+
+
+from django.db import models
+from django.contrib.auth.models import User
+
+class BloodDonationRequest(models.Model):
+    TIME_CHOICES = [
+        ('morning', 'Morning (9 AM - 12 PM)'),
+        ('afternoon', 'Afternoon (2 PM - 5 PM)'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    ]
+
+    donor = models.ForeignKey('DonorProfile', on_delete=models.CASCADE)
+    request_date = models.DateTimeField(auto_now_add=True)
+    preferred_date = models.DateField()
+    preferred_time = models.CharField(max_length=20, choices=TIME_CHOICES)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    notes = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Donation Request - {self.donor.full_name} ({self.preferred_date})"
+
+class BasicScreening(models.Model):
+    donation_request = models.OneToOneField(BloodDonationRequest, on_delete=models.CASCADE)
+    blood_pressure = models.CharField(max_length=20)  # e.g., "120/80"
+    temperature = models.DecimalField(max_digits=4, decimal_places=1)  # e.g., 98.6
+    weight = models.DecimalField(max_digits=5, decimal_places=2)  # in kg
+    pulse_rate = models.IntegerField()  # beats per minute
+    hemoglobin = models.DecimalField(max_digits=4, decimal_places=1)  # g/dL
+    is_eligible = models.BooleanField(default=False)
+    screening_date = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Screening for {self.donation_request.donor.donor_name}"
+    
+
+class BloodTest(models.Model):
+    donation = models.OneToOneField('BloodDonationRequest', on_delete=models.CASCADE)
+    hiv = models.BooleanField(default=False)
+    hepatitis_b = models.BooleanField(default=False)
+    hepatitis_c = models.BooleanField(default=False)
+    syphilis = models.BooleanField(default=False)
+    malaria = models.BooleanField(default=False)
+    hemoglobin = models.DecimalField(max_digits=4, decimal_places=1)
+    test_date = models.DateTimeField(auto_now_add=True)
+    tested_by = models.CharField(max_length=100)
+    remarks = models.TextField(blank=True)
+    is_safe = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Test for {self.donation.donor.donor_name} on {self.test_date}"
+
+    def check_safety(self):
+        self.is_safe = not (self.hiv or self.hepatitis_b or 
+                           self.hepatitis_c or self.syphilis or 
+                           self.malaria)
+        self.save()
+        
+        # Update donation status based on test results
+        if self.is_safe:
+            self.donation.status = 'completed'
+        else:
+            self.donation.status = 'rejected'
+        self.donation.save()
+
+    class Meta:
+        ordering = ['-test_date']
+
+
+from django.db import models
+from datetime import datetime
+
+class DonorRecipientMatch(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected'),
+        ('completed', 'Completed')
+    ]
+
+    blood_request = models.ForeignKey(BloodApply, on_delete=models.CASCADE)
+    donor = models.ForeignKey(DonorProfile, on_delete=models.CASCADE)
+    match_score = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    ml_confidence = models.FloatField()
+    donor_response = models.BooleanField(null=True)
+    
+    class Meta:
+        ordering = ['-match_score']
+
+    def __str__(self):
+        return f"{self.donor.donor_name} - {self.blood_request.blood_type}"
+    
+
+class BloodDemandPrediction(models.Model):
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE)
+    blood_type = models.ForeignKey(BloodType, on_delete=models.CASCADE)
+    predicted_demand = models.IntegerField()
+    prediction_date = models.DateField()
+    confidence_score = models.FloatField()
+    actual_demand = models.IntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-prediction_date']
+
+    def __str__(self):
+        return f"{self.hospital} - {self.blood_type} - {self.prediction_date}"
+
+class DemandHistory(models.Model):
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE)
+    blood_type = models.ForeignKey(BloodType, on_delete=models.CASCADE)
+    demand_date = models.DateField()
+    quantity = models.IntegerField()
+    is_holiday = models.BooleanField(default=False)
+    season = models.CharField(max_length=20)  # summer, winter, monsoon, etc.
+    day_of_week = models.IntegerField()  # 0-6 for Monday-Sunday
+    is_emergency = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-demand_date']
+
+
+from django.db import models
+from django.utils import timezone
+
+class BloodTransfer(models.Model):
+    TRANSFER_STATUS = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('in_transit', 'In Transit'),
+        ('delivered', 'Delivered'),
+        ('cancelled', 'Cancelled')
+    ]
+    
+    PRIORITY_LEVELS = [
+        ('normal', 'Normal'),
+        ('urgent', 'Urgent'),
+        ('emergency', 'Emergency')
+    ]
+
+    transfer_id = models.AutoField(primary_key=True)
+    from_hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='transfers_sent')
+    to_hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='transfers_received')
+    blood_type = models.ForeignKey(BloodType, on_delete=models.CASCADE)
+    units = models.IntegerField()
+    request_date = models.DateTimeField(auto_now_add=True)
+    approval_date = models.DateTimeField(null=True, blank=True)
+    delivery_date = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=TRANSFER_STATUS, default='pending')
+    priority = models.CharField(max_length=20, choices=PRIORITY_LEVELS, default='normal')
+    notes = models.TextField(blank=True)
+    # Removed the created_by field since Registration model doesn't exist
+
+    def __str__(self):
+        return f"Transfer {self.transfer_id}: {self.from_hospital} to {self.to_hospital}"
+
+    class Meta:
+        ordering = ['-request_date']
+        
+
+class DonorIronStatus(models.Model):
+    donor = models.OneToOneField(DonorProfile, on_delete=models.CASCADE)
+    serum_ferritin = models.FloatField(help_text="Iron storage levels (ng/ml)")
+    total_iron_binding_capacity = models.FloatField(help_text="TIBC (µg/dL)")
+    transferrin_saturation_index = models.FloatField(help_text="TSI (%)")
+    hemoglobin_level = models.FloatField(help_text="Hemoglobin (g/dL)")
+    donation_count_last_year = models.IntegerField()
+    iron_deficiency_status = models.CharField(max_length=50, blank=True)
+    diet_plan = models.TextField(blank=True)
+
+    def classify_deficiency(self):
+        """Classify donor's iron deficiency status and assign a diet plan"""
+        if self.serum_ferritin < 12:
+            if self.transferrin_saturation_index < 16:
+                self.iron_deficiency_status = "Iron Deficiency Anemia"
+                self.diet_plan = "High-iron meats (liver, beef), dark leafy greens, vitamin C (oranges), legumes."
+            else:
+                self.iron_deficiency_status = "Iron Deficient"
+                self.diet_plan = "Iron-rich grains, lentils, nuts, fortified cereals, fish, and citrus fruits."
+        else:
+            self.iron_deficiency_status = "Normal"
+            self.diet_plan = "Balanced diet with moderate iron intake."
+
+    def save(self, *args, **kwargs):
+        self.classify_deficiency()
+        super(DonorIronStatus, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.donor.donor_name} - {self.iron_deficiency_status}"
+
+
+from django.db import models
+from django.utils import timezone
+
+class BloodRecipient(models.Model):
+    recipient_id = models.AutoField(primary_key=True)
+    recipient_name = models.CharField(max_length=100)
+    blood_type = models.ForeignKey(BloodType, on_delete=models.SET_NULL, null=True, blank=True)
+    age = models.IntegerField()
+    gender = models.CharField(max_length=10)
+    contact_number = models.CharField(max_length=15)
+    email = models.EmailField()
+    address = models.TextField()
+    medical_history = models.TextField()
+    password = models.CharField(max_length=100)
+    registration_date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.recipient_name} ({self.blood_type})"
+
+
+from django.db import models
+
+class IronPrediction(models.Model):
+    date = models.DateTimeField(auto_now_add=True)
+    gender = models.CharField(max_length=10)
+    hemoglobin = models.FloatField()
+    mch = models.FloatField()
+    mchc = models.FloatField()
+    mcv = models.FloatField()
+    severity = models.CharField(max_length=20)
+    
+    def __str__(self):
+        return f"Prediction for {self.gender} on {self.date.strftime('%Y-%m-%d')}"

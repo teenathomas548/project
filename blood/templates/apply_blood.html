@@ -3,155 +3,358 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apply for Blood</title>
-    <!-- Bootstrap CSS -->
+    <title>Blood Request Form</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary: #ff3366;
+            --secondary: #1a1a2e;
+            --accent: #ff6b81;
+            --light: #f7f7f7;
+            --dark: #16213e;
+        }
+
         body {
-            background: url("/static/image/userhome.png") no-repeat center center fixed;
-            background-size: cover;
-            font-family: 'Arial', sans-serif;
-            margin: 20px;
+            margin: 0;
+            padding: 0;
+            background: var(--light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
         }
 
-        .blood-request-section {
-            background-color: #fff;  /* Background for the section */
-            padding: 40px;  /* Padding around the content */
-            border-radius: 10px;  /* Rounded corners */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* Subtle shadow for depth */
-            max-width: 800px;  /* Max width of the section */
-            margin: 20px auto;  /* Centering the section */
+        .top-banner {
+            background: var(--dark);
+            height: 250px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
         }
 
-        .blood-request-section h2 {
-            font-size: 2rem;  /* Font size for the title */
-            color: darkred;  /* Color for the title */
-            text-align: center;  /* Center align title */
-            margin-bottom: 30px;  /* Space below the title */
+        .banner-content {
+            z-index: 2;
+        }
+
+        .banner-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .banner-subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .animated-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 51, 102, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(255, 107, 129, 0.1) 0%, transparent 50%);
+        }
+
+        .main-container {
+            max-width: 1100px;
+            margin: -80px auto 50px;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .form-wrapper {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .form-header {
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            padding: 30px;
+            color: white;
+            text-align: center;
+        }
+
+        .form-content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 35px;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
         }
 
         .form-group label {
-            font-weight: bold;  /* Bold labels */
-            margin-bottom: 5px;  /* Space below labels */
+            display: block;
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 0.95rem;
         }
 
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;  /* Full width for input fields */
-            padding: 10px;  /* Padding inside the fields */
-            margin-top: 5px;  /* Space above the fields */
-            margin-bottom: 20px;  /* Space below the fields */
-            border-radius: 5px;  /* Rounded corners for input fields */
-            border: 1px solid #ced4da;  /* Border style */
-            font-size: 1rem;  /* Font size for input fields */
+        .form-control {
+            width: 100%;
+            padding: 0px 20px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--light);
         }
 
-        .btn-primary {
-            background-color: darkred;  /* Background color for primary button */
-            border-color: darkred;  /* Border color for primary button */
-            width: 100%;  /* Full width for button */
-            padding: 15px;  /* Padding inside the button */
-            font-size: 1.2rem;  /* Font size for button text */
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(255, 51, 102, 0.1);
+            outline: none;
+            background: white;
         }
 
-        .btn-primary:hover {
-            background-color: #b22222;  /* Darker shade on hover */
-            border-color: #b22222;  /* Darker border on hover */
+        .btn-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 40px;
         }
 
-        .btn-secondary {
-            margin-top: 20px;  /* Space above the secondary button */
-            width: 100%;  /* Full width for secondary button */
-            padding: 15px;  /* Padding inside the button */
-            font-size: 1.2rem;  /* Font size for button text */
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
         }
 
-        .btn-secondary:hover {
-            background-color: #6c757d;  /* Darker shade on hover for secondary button */
-            border-color: #6c757d;  /* Darker border on hover for secondary button */
+        .btn-submit {
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            color: white;
         }
 
-        .navbar .ml-auto {
-            margin-right: 20px;  /* Space on the right for logout button */
+        .btn-cancel {
+            background: var(--dark);
+            color: white;
         }
 
-        .icon {
-            margin-right: 10px;  /* Space between icon and text */
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .error-message {
+            color: var(--primary);
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                margin-top: -50px;
+                padding: 0 15px;
+            }
+
+            .form-content {
+                padding: 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                grid-template-columns: 1fr;
+            }
+
+            .banner-title {
+                font-size: 2rem;
+            }
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #1a1a2e;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .back-button:hover {
+            background-color: #ff3366;
+            color: white;
+            transform: translateY(-2px);
+            text-decoration: none;
         }
     </style>
 </head>
 <body>
-
-    <!-- Navbar with Back Button on the right -->
-    <nav class="navbar navbar-light bg-light">
-        <div class="container-fluid">
-            <div class="ml-auto">
-                <a href="{% url 'logout' %}" class="btn btn-secondary">
-                     Logout
-                </a>
-            </div>
+    <div class="top-banner">
+        <div class="animated-bg"></div>
+        <div class="banner-content">
+            <h1 class="banner-title">
+                <i class="fas fa-heartbeat"></i> Blood Request Form
+            </h1>
+            <p class="banner-subtitle">Your request can save lives</p>
         </div>
-    </nav>
-
-    <div class="blood-request-section">
-        <h2><i class="fas fa-tint icon"></i> Apply for Blood</h2>
-        <form method="POST" action="{% url 'apply_blood' %}">
-            {% csrf_token %}
-            
-            <div class="form-group">
-                <label for="id_blood_type">Blood Type</label>
-                {{ blood_apply_form.blood_type }}
-            </div>
-            
-            <div class="form-group">
-                <label for="id_quantity">Quantity</label>
-                {{ blood_apply_form.quantity }}
-            </div>
-    
-            <div class="form-group">
-                <label for="id_hospital">Hospital</label>
-                {{ blood_apply_form.hospital }}
-            </div>
-    
-            <div class="form-group">
-                <label for="id_urgency">Urgency</label>
-                {{ blood_apply_form.urgency }}
-            </div>
-    
-            <div class="form-group">
-                <label for="id_patient_name">Patient Name</label>
-                {{ blood_apply_form.patient_name }}
-            </div>
-    
-            <div class="form-group">
-                <label for="id_patient_age">Patient Age</label>
-                {{ blood_apply_form.patient_age }}
-            </div>
-
-            <div class="form-group">
-                <label for="id_reason">Reason</label>
-                {{ blood_apply_form.reason }}
-            </div>
-
-            <div class="form-group">
-                <label for="id_doctor">Doctor</label>
-                {{ blood_apply_form.doctor }}
-            </div>
-
-            
-            <button type="submit" class="btn btn-primary"><i class="fas fa-check-circle" id="submit"></i> Submit Blood Application</button>
-            <a href="{% url 'donor_dashboard' %}" class="btn btn-secondary">
-                <i class="fas fa-times-circle"></i> Cancel
-            </a>
-        
-        </form>
     </div>
 
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <div class="main-container">
+        <div class="form-wrapper">
+            <div class="form-header">
+                <h2><i class="fas fa-clipboard-list"></i> Fill in the Details</h2>
+            </div>
+            
+            <div class="form-content">
+                <form method="POST" action="{% url 'apply_blood' %}">
+                    {% csrf_token %}
+
+                    <div class="section">
+                        <div class="section-title">
+                            <i class="fas fa-user"></i> Patient Information
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Patient Name</label>
+                                {{ blood_apply_form.patient_name }}
+                                {% if blood_apply_form.patient_name.errors %}
+                                    <div class="error-message">{{ blood_apply_form.patient_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                <label>Patient Age</label>
+                                {{ blood_apply_form.patient_age }}
+                                {% if blood_apply_form.patient_age.errors %}
+                                    <div class="error-message">{{ blood_apply_form.patient_age.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">
+                            <i class="fas fa-tint"></i> Blood Details
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Blood Type</label>
+                                {{ blood_apply_form.blood_type }}
+                                {% if blood_apply_form.blood_type.errors %}
+                                    <div class="error-message">{{ blood_apply_form.blood_type.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                <label>Quantity Required</label>
+                                {{ blood_apply_form.quantity }}
+                                {% if blood_apply_form.quantity.errors %}
+                                    <div class="error-message">{{ blood_apply_form.quantity.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                <label>Urgency Level</label>
+                                {{ blood_apply_form.urgency }}
+                                {% if blood_apply_form.urgency.errors %}
+                                    <div class="error-message">{{ blood_apply_form.urgency.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">
+                            <i class="fas fa-hospital"></i> Hospital Details
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Hospital Name</label>
+                                {{ blood_apply_form.hospital }}
+                                {% if blood_apply_form.hospital.errors %}
+                                    <div class="error-message">{{ blood_apply_form.hospital.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                <label>Doctor Name</label>
+                                {{ blood_apply_form.doctor }}
+                                {% if blood_apply_form.doctor.errors %}
+                                    <div class="error-message">{{ blood_apply_form.doctor.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label>Reason for Request</label>
+                                {{ blood_apply_form.reason }}
+                                {% if blood_apply_form.reason.errors %}
+                                    <div class="error-message">{{ blood_apply_form.reason.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-submit">
+                            <i class="fas fa-paper-plane"></i> Submit Request
+                        </button>
+                        <a href="{% url 'home' %}" class="btn btn-cancel">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+  
 </body>
 </html>

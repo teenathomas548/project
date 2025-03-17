@@ -8,117 +8,353 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <style>
-        /* Custom Styles for the Dashboard */
+        :root {
+            --primary-color: #dc3545;
+            --primary-light: #ff4d5a;
+            --primary-dark: #c82333;
+            --secondary-color: #2c3e50;
+        }
+
         body {
-            background-color: #f8f9fa;
-            font-family: 'Arial', sans-serif;
+            background: #f0f2f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 0% 0%, rgba(220, 53, 69, 0.1) 20%, transparent 70%),
+                radial-gradient(circle at 100% 100%, rgba(255, 77, 90, 0.1) 20%, transparent 70%);
+            z-index: -1;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            padding: 1rem 0;
+            box-shadow: 0 4px 20px rgba(220, 53, 69, 0.15);
+            position: relative;
+            z-index: 100;
+        }
+
+        .navbar::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            right: 0;
+            height: 10px;
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(255, 77, 90, 0.1));
+            filter: blur(5px);
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .navbar-brand i {
+            font-size: 2rem;
+            margin-right: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
 
         .dashboard-container {
-            margin-top: 50px;
-        }
-
-        .card {
-            border: none;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-        }
-
-        .card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 2rem 0;
+            position: relative;
         }
 
         .dashboard-header {
             text-align: center;
-            margin-bottom: 30px;
-            color: darkred;
+            margin-bottom: 3rem;
+            padding: 3rem 2rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
         }
 
         .dashboard-header h1 {
-            font-size: 2.5rem;
-            font-weight: bold;
+            color: var(--secondary-color);
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            display: inline-block;
         }
 
         .dashboard-header p {
-            font-size: 1.2rem;
             color: #6c757d;
-        }
-
-        .dashboard-header .search-bar {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
             max-width: 600px;
-            margin: 20px auto;
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        .dashboard-options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 30px;
+        .search-bar {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-bar input {
+            border-radius: 50px;
+            padding: 1.2rem 1.5rem;
+            border: 2px solid #e9ecef;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            padding-right: 150px;
+        }
+
+        .search-bar input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+
+        .search-bar button {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            border-radius: 50px;
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            border: none;
+            color: white;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+        }
+
+        .card {
+            border: none;
+            border-radius: 20px;
+            background: white;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, 
+                var(--primary-color), 
+                var(--primary-light)
+            );
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
         }
 
         .card-body {
-            padding: 30px;
-        }
-
-        .card-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-
-        .card-text {
-            font-size: 1rem;
-            margin-bottom: 25px;
-        }
-
-        .btn {
-            padding: 12px 30px;
-            font-size: 16px;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+            z-index: 1;
         }
 
         .icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            color: red;
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+            transition: all 0.3s ease;
         }
 
-        .row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 30px;
+        .card:hover .icon {
+            transform: scale(1.1);
         }
 
-        .col-md-6 {
-            flex: 1 1 calc(50% - 30px);
-            box-sizing: border-box;
+        .card-title {
+            color: var(--secondary-color);
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .card-text {
+            color: #6c757d;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.2));
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .btn:hover::after {
+            transform: translateX(0);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            border: none;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            border: none;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107, #d39e00);
+            border: none;
+            color: white !important;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8, #117a8b);
+            border: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         @media (max-width: 768px) {
-            .col-md-6 {
-                flex: 1 1 100%;
+            .dashboard-header h1 {
+                font-size: 2rem;
+            }
+            
+            .card-title {
+                font-size: 1.5rem;
+            }
+            
+            .icon {
+                font-size: 3rem;
             }
         }
 
-        /* Navbar custom styling */
-        .navbar {
-            background-color: #343a40;
+        /* Floating shapes animation */
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            opacity: 0.1;
+            pointer-events: none;
         }
 
-        .navbar .navbar-brand {
-            color: #ffffff;
+        .shape-1 {
+            width: 100px;
+            height: 100px;
+            top: 10%;
+            left: 5%;
+            animation: float 8s infinite;
         }
 
-        .navbar .nav-link {
-            color: #ffffff;
+        .shape-2 {
+            width: 150px;
+            height: 150px;
+            bottom: 10%;
+            right: 5%;
+            animation: float 10s infinite;
         }
 
-        .navbar .nav-link:hover {
-            color: #ffcc00;
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(10px, -10px); }
+            50% { transform: translate(0, -20px); }
+            75% { transform: translate(-10px, -10px); }
         }
+
+        /* Card animations */
+        .card {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .col-md-6:nth-child(1) .card { animation-delay: 0.1s; }
+        .col-md-6:nth-child(2) .card { animation-delay: 0.2s; }
+        .col-md-6:nth-child(3) .card { animation-delay: 0.3s; }
+        .col-md-6:nth-child(4) .card { animation-delay: 0.4s; }
     </style>
 </head>
 <body>
+    <!-- Add floating shapes -->
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    
     <!-- Navigation Bar with Back and Logout -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <a class="navbar-brand" href="#">Hospital Dashboard</a>
@@ -139,20 +375,19 @@
             </form>
         </div>
 
-
-        <div class="row">
-            <!-- Request Blood -->
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <i class="fas fa-tint icon"></i>
-                        <h3 class="card-title">Request Blood</h3>
-                        <p class="card-text">Request blood from the blood bank for emergency or regular use.</p>
-                        <a href="{% url 'apply_blood' %}" class="btn btn-primary" id="request">Request Blood</a>
+            <div class="row">
+                <!-- Request Blood -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-tint icon"></i>
+                            <h3 class="card-title">Request Blood</h3>
+                            <p class="card-text">Request blood from the blood bank for emergency or regular use.</p>
+                            <a href="{% url 'inter_hospital_request' %}" class="btn btn-primary">Inter Hospital Request Blood</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-
+    
             <!-- Register Doctor -->
             <div class="col-md-6">
                 <div class="card">
@@ -177,6 +412,29 @@
                 </div>
             </div>
 
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                    <i class="fas fa-exchange-alt fa-3x mb-3 text-warning"></i>
+                        <h3 class="card-title">Transfer blood</h3>
+                        <p class="card-text">Transfer blood from one hospital to another.</p>
+                        <a href="{% url 'hospital_requests' %}" class="btn btn-warning">Inter-Hospital Requests</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Request Blood -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-tint icon"></i>
+                            <h3 class="card-title">Request Blood</h3>
+                            <p class="card-text">Request blood from the blood bank for emergency or regular use.</p>
+                            <a href="{% url 'apply_blood' %}" class="btn btn-primary">Request Blood</a>
+                        </div>
+                    </div>
+                </div>
             <!-- Report Section (Corrected) -->
             <div class="col-md-6">
                 <div class="card">
@@ -191,8 +449,6 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS and dependencies -->
-// ... existing code ...
     <!-- Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>

@@ -1,0 +1,108 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donor Test Records</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+        }
+        .card-header {
+            border-radius: 15px 15px 0 0 !important;
+            background: linear-gradient(135deg, #dc3545, #c0392b);
+        }
+        .accordion-button:not(.collapsed) {
+            background-color: #f8f9fa;
+            color: #dc3545;
+        }
+        .accordion-button:focus {
+            box-shadow: none;
+            border-color: rgba(0,0,0,.125);
+        }
+        .btn-primary {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        .btn-primary:hover {
+            background-color: #c0392b;
+            border-color: #c0392b;
+        }
+        .btn-info {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+            color: white;
+        }
+        .btn-info:hover {
+            background-color: #138496;
+            border-color: #138496;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-vial me-2"></i>Donor Test Records
+                        </h4>
+                        <a href="{% url 'admin_dashboard' %}" class="btn btn-light btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Search Box -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <input type="text" id="searchDonor" class="form-control" 
+                                   placeholder="Search donor by name or ID...">
+                        </div>
+                    </div>
+
+                    <!-- Donor Test Records -->
+                    <div class="accordion" id="donorAccordion">
+                        {% for data in donor_data %}
+                        <!-- Your existing accordion items remain the same -->
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Your existing JavaScript remains the same
+    document.getElementById('searchDonor').addEventListener('keyup', function() {
+        const searchText = this.value.toLowerCase();
+        document.querySelectorAll('.donor-item').forEach(item => {
+            const donorText = item.querySelector('.accordion-button').textContent.toLowerCase();
+            item.style.display = donorText.includes(searchText) ? 'block' : 'none';
+        });
+    });
+
+    function printTest(testId) {
+        window.open(`/print_test/${testId}`, '_blank');
+    }
+</script>
+
+</body>
+</html>

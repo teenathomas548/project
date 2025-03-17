@@ -304,19 +304,51 @@ class DoctorLoginForm(forms.Form):
 
 
 
-from .models import BloodApply
+from django import forms
 
-class BloodApplyForm(forms.ModelForm):
-    class Meta:
-        model = BloodApply
-        fields = ['blood_type', 'quantity', 'hospital', 'urgency', 'patient_name', 'patient_age', 'reason']
-        widgets = {
-            'patient_age': forms.NumberInput(attrs={'min': 1}),
-            'quantity': forms.NumberInput(attrs={'min': 1}),
-            'urgency': forms.Select(choices=[('normal', 'Normal'), ('emergency', 'Emergency')]),
-            'reason': forms.Textarea(attrs={'placeholder': 'Please provide a reason for the blood application.', 'rows': 4}),
-        }
+class BloodApplyForm(forms.Form):
+    BLOOD_GROUPS = [
+        ('A+', 'A+'), ('A-', 'A-'), ('B+', 'B+'), ('B-', 'B-'),
+        ('O+', 'O+'), ('O-', 'O-'), ('AB+', 'AB+'), ('AB-', 'AB-')
+    ]
+    
+    URGENCY_LEVELS = [
+        ('Low', 'Low'), ('Medium', 'Medium'), ('High', 'High'),
+        ('Emergency', 'Emergency')
+    ]
+    
+    blood_type = forms.ChoiceField(choices=BLOOD_GROUPS, required=True, label="Blood Type")
+    quantity = forms.IntegerField(min_value=1, max_value=10, required=True, label="Quantity (in units)")
+    hospital = forms.CharField(max_length=100, required=True, label="Hospital Name")
+    urgency = forms.ChoiceField(choices=URGENCY_LEVELS, required=True, label="Urgency Level")
+    patient_name = forms.CharField(max_length=100, required=True, label="Patient Name")
+    patient_age = forms.IntegerField(min_value=1, max_value=120, required=True, label="Patient Age")
+    reason = forms.CharField(widget=forms.Textarea(attrs={'rows': 3}), max_length=500, required=True, label="Reason for Blood Request")
+    doctor = forms.CharField(max_length=100, required=True, label="Doctor's Name")
 
+    def clean_hospital(self):
+        hospital = self.cleaned_data.get('hospital')
+        if len(hospital) < 3:
+            raise forms.ValidationError("Hospital name must be at least 3 characters long.")
+        return hospital
+
+    def clean_patient_name(self):
+        patient_name = self.cleaned_data.get('patient_name')
+        if not patient_name.replace(" ", "").isalpha():
+            raise forms.ValidationError("Patient name must contain only letters.")
+        return patient_name
+
+    def clean_doctor(self):
+        doctor = self.cleaned_data.get('doctor')
+        if not doctor.replace(" ", "").isalpha():
+            raise forms.ValidationError("Doctor's name must contain only letters.")
+        return doctor
+
+    def clean_reason(self):
+        reason = self.cleaned_data.get('reason')
+        if len(reason) < 10:
+            raise forms.ValidationError("Reason must be at least 10 characters long.")
+        return reason
 from django import forms
 from datetime import date  # Import date for comparison
 from .models import Appointment  # Adjust this based on your actual model
@@ -434,26 +466,137 @@ class MedicalReportForm(forms.ModelForm):
 
 
 from django import forms
-from .models import BloodApply, Doctor  # Assuming you have a Doctor model
+from .models import BloodApply, Doctor, Hospital
+import re
 
 class BloodApplyWithhospitalForm(forms.ModelForm):
     class Meta:
         model = BloodApply
         fields = ['blood_type', 'quantity', 'hospital', 'urgency', 'patient_name', 'patient_age', 'reason', 'doctor']
         widgets = {
-            'patient_age': forms.NumberInput(attrs={'min': 1}),
-            'quantity': forms.NumberInput(attrs={'min': 1}),
-            'urgency': forms.Select(choices=[('normal', 'Normal'), ('emergency', 'Emergency')]),
-            'reason': forms.Textarea(attrs={'placeholder': 'Please provide a reason for the blood application.', 'rows': 4}),
+            'blood_type': forms.Select(
+                choices=[
+                    ('', 'Select Blood Type'),
+                    ('A+', 'A+'),
+                    ('A-', 'A-'),
+                    ('B+', 'B+'),
+                    ('B-', 'B-'),
+                    ('AB+', 'AB+'),
+                    ('AB-', 'AB-'),
+                    ('O+', 'O+'),
+                    ('O-', 'O-'),
+                ],
+                attrs={'class': 'form-control', 'required': True}
+            ),
+            'quantity': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 1,
+                'max': 5,
+                'required': True,
+                'placeholder': 'Enter quantity (1-5 units)'
+            }),
+            'hospital': forms.Select(attrs={
+                'class': 'form-control',
+                'required': True
+            }),
+            'urgency': forms.Select(
+                choices=[
+                    ('', 'Select Urgency'),
+                    ('normal', 'Normal'),
+                    ('emergency', 'Emergency')
+                ],
+                attrs={'class': 'form-control', 'required': True}
+            ),
+            'patient_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'required': True,
+                'placeholder': 'Enter patient full name'
+            }),
+            'patient_age': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 1,
+                'max': 65,
+                'required': True,
+                'placeholder': 'Enter age (1-65)'
+            }),
+            'reason': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'required': True,
+                'placeholder': 'Please provide a detailed reason for blood request'
+            })
         }
 
-    # Add a doctor field with choices populated from the Doctor model
     doctor = forms.ModelChoiceField(
         queryset=Doctor.objects.all(), 
         empty_label="Select a Doctor",
         widget=forms.Select(attrs={'class': 'form-control'})  # You can customize widget further if needed
     )
+
+    def clean_patient_name(self):
+        patient_name = self.cleaned_data.get('patient_name')
+        if not patient_name:
+            raise forms.ValidationError("Patient name is required!")
+        if len(patient_name.strip()) < 3:
+            raise forms.ValidationError("Name must be at least 3 characters long!")
+        if not re.match("^[A-Za-z\s]*$", patient_name):
+            raise forms.ValidationError("Name should only contain letters!")
+        return patient_name.strip()
+
+    def clean_patient_age(self):
+        age = self.cleaned_data.get('patient_age')
+        if not age:
+            raise forms.ValidationError("Age is required!")
+        if age < 18 or age > 65:
+            raise forms.ValidationError("Please enter a valid age between 18 and 65!")
+        return age
+
     
+
+    def clean_quantity(self):
+        quantity = self.cleaned_data.get('quantity')
+        if not quantity:
+            raise forms.ValidationError("Quantity is required!")
+        if quantity < 1:
+            raise forms.ValidationError("Quantity must be at least 1 unit!")
+        if quantity > 5:
+            raise forms.ValidationError("Maximum quantity allowed is 5 units!")
+        return quantity
+
+    def clean_urgency(self):
+        urgency = self.cleaned_data.get('urgency')
+        valid_urgency = ['normal', 'emergency']
+        if not urgency:
+            raise forms.ValidationError("Urgency level is required!")
+        if urgency not in valid_urgency:
+            raise forms.ValidationError("Please select a valid urgency level!")
+        return urgency
+
+    def clean_hospital(self):
+        hospital = self.cleaned_data.get('hospital')
+        if not hospital:
+            raise forms.ValidationError("Please select a hospital!")
+        return hospital
+
+    def clean_reason(self):
+        reason = self.cleaned_data.get('reason')
+        if not reason:
+            raise forms.ValidationError("Reason is required!")
+        if len(reason.strip()) < 10:
+            raise forms.ValidationError("Please provide a detailed reason (minimum 10 characters)!")
+        if len(reason) > 500:
+            raise forms.ValidationError("Reason is too long (maximum 500 characters)!")
+        return reason.strip()
+
+   
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make all fields required
+        for field in self.fields:
+            self.fields[field].required = True
+
+        # Filter doctors based on selected hospital
+        
 from django import forms
 from .models import Admin
 
@@ -533,3 +676,12 @@ class FeedbackForm(forms.ModelForm):
         widgets = {
             'feedback_text': forms.Textarea(attrs={'placeholder': 'Your feedback here...', 'rows': 5}),
         }
+
+from django import forms
+from .models import DonorIronStatus
+
+class DonorIronForm(forms.ModelForm):
+    class Meta:
+        model = DonorIronStatus
+        fields = ['donor', 'serum_ferritin', 'total_iron_binding_capacity',
+                  'transferrin_saturation_index', 'hemoglobin_level', 'donation_count_last_year']

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blood Bank Campaign Prediction</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #e52d27;
+            --secondary-color: #b31217;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e5e9f2 100%);
+            min-height: 100vh;
+            padding: 30px 0;
+        }
+
+        .card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+            background: white;
+            margin-bottom: 30px;
+        }
+
+        .resource-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .resource-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .resource-item:last-child {
+            border-bottom: none;
+        }
+
+        .resource-value {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% if not show_results %}
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Campaign Prediction Form</h3>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Campaign Name</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Location Type</label>
+                        <select name="location" class="form-select" required>
+                            <option value="">Select Location</option>
+                            <option value="Urban">Urban</option>
+                            <option value="Suburban">Suburban</option>
+                            <option value="Rural">Rural</option>
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" name="start_date" class="form-control" 
+                                   min="{{ today }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">End Date</label>
+                            <input type="date" name="end_date" class="form-control" 
+                                   min="{{ today }}" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        Generate Prediction
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if show_results %}
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Campaign Prediction Results</h3>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="resource-card">
+                            <h4 class="text-primary mb-3">
+                                <i class="fas fa-info-circle me-2"></i>Campaign Details
+                            </h4>
+                            <div class="resource-item">
+                                <span>Campaign Name:</span>
+                                <span class="resource-value">{{ campaign.name }}</span>
+                            </div>
+                            <div class="resource-item">
+                                <span>Location:</span>
+                                <span class="resource-value">{{ location_type }}</span>
+                            </div>
+                            <div class="resource-item">
+                                <span>Duration:</span>
+                                <span class="resource-value">{{ duration }} days</span>
+                            </div>
+                            <div class="resource-item">
+                                <span>Success Rate:</span>
+                                <span class="resource-value">{{ success_rate }}%</span>
+                            </div>
+                            <div class="resource-item">
+                                <span>Estimated Donors:</span>
+                                <span class="resource-value">{{ estimated_donors }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="resource-card">
+                            <h4 class="text-primary mb-3">
+                                <i class="fas fa-box me-2"></i>Required Resources
+                            </h4>
+                            {% for key, value in resources.items %}
+                            <div class="resource-item">
+                                <span>{{ key }}:</span>
+                                <span class="resource-value">{{ value }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="resource-card">
+                    <h4 class="text-primary mb-3">
+                        <i class="fas fa-rupee-sign me-2"></i>Cost Estimation
+                    </h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Amount (in ₹)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for key, value in costs.items %}
+                                <tr>
+                                    <td>{{ key }}</td>
+                                    <td>₹ {{ value }}</td>
+                                </tr>
+                                {% endfor %}
+                                <tr class="table-info fw-bold">
+                                    <td>Total Estimated Cost</td>
+                                    <td>₹ {{ total_cost }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <a href="{% url 'predict_campaign' %}" class="btn btn-primary">
+                        <i class="fas fa-redo me-2"></i>Make New Prediction
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('campaignForm');
+            if (form) {
+                const nameInput = form.querySelector('input[name="name"]');
+                nameInput.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^A-Za-z\s]/g, '');
+                    validateInput(this, /^[A-Za-z\s]{3,100}$/, 'Campaign name must be 3-100 letters');
+                });
+
+                const descInput = form.querySelector('textarea[name="description"]');
+                descInput.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^A-Za-z\s]/g, '');
+                    if (this.value.length > 0) {
+                        validateInput(this, /^[A-Za-z\s]{0,500}$/, 'Description must contain only letters and spaces');
+                    }
+                });
+
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    if (validateForm()) {
+                        this.submit();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -4,238 +4,338 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Donor Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_red.css">
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background: url("/static/image/bloodcolor.jpeg") no-repeat center center fixed;
-            background-size: cover;    margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+        }
 
-            margin: 0;
-            padding: 0;
-            color: #333;
+        .navbar {
+            background: linear-gradient(45deg, #dc3545, #ff4d5a);
+            padding: 1rem 0;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
         }
-        /* Navbar Styles */
-        nav {
-            background-color: #d9534f;
-            padding: 10px 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+
+        .navbar-brand {
+            color: white !important;
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
-        .navbar-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+
+        .nav-link {
+            color: white !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
-        .navbar-container h2 {
-            margin: 0;
-            color: white;
+
+        .nav-link:hover {
+            transform: translateY(-2px);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
         }
-        ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            gap: 20px; /* Gap between items */
-        }
-        .navbar-container a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-            padding: 5px 10px;
-            transition: background-color 0.3s;
-        }
-        .navbar-container a:hover {
-            background-color: rgba(255, 255, 255, 0.3);
-            border-radius: 5px;
-        }
-        /* Container Styles */
-        .container {
-            width: 90%;
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
-            background: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-        }
-        h2 {
-            margin-bottom: 20px;
+
+        .page-title {
+            color: #2c3e50;
             text-align: center;
-            color: #d9534f;
-            font-size: 24px; /* Increased font size */
+            margin: 2rem 0;
+            font-weight: 600;
+            font-size: 2.2rem;
         }
+
+        .edit-profile-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin: 2rem auto;
+            max-width: 800px;
+            position: relative;
+        }
+
+        .card-header {
+            background: linear-gradient(45deg, #dc3545, #ff4d5a);
+            color: white;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .card-header::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: white;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 50% 0);
+        }
+
+        .header-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .card-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .card-subtitle {
+            opacity: 0.9;
+            margin-top: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .card-body {
+            padding: 3rem 2rem 2rem;
+        }
+
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 2rem;
+            position: relative;
         }
-        label {
+
+        .form-label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.8rem;
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+            font-size: 1.1rem;
         }
-        input, select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            transition: border-color 0.3s;
+
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 1rem 1.2rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
         }
-        input:focus, select:focus {
-            border-color: #d9534f; /* Change border color on focus */
-            outline: none;
+
+        .form-control:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+            background-color: white;
         }
+
+        .calendar-input-group {
+            position: relative;
+        }
+
+        .calendar-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #dc3545;
+            font-size: 1.2rem;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-input:hover + .calendar-icon {
+            transform: translateY(-50%) scale(1.1);
+            color: #ff4d5a;
+        }
+
         .error-message {
-            color: red;
-            font-size: 0.9em;
-            margin-top: 5px;
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        button {
-            padding: 10px;
-            background-color: #d9534f;
+
+        .btn-save {
+            background: linear-gradient(45deg, #dc3545, #ff4d5a);
             color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
             border: none;
-            border-radius: 5px;
-            font-size: 18px; /* Increased font size */
-            cursor: pointer;
-            margin-top: 10px;
+            font-weight: 600;
             width: 100%;
-            transition: background-color 0.3s, transform 0.3s; /* Smooth transition */
+            margin-top: 2rem;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        button:hover {
-            background-color: #c9302c;
-            transform: translateY(-2px); /* Subtle lift effect */
+
+        .btn-save:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
         }
-        button:active {
-            transform: translateY(0); /* Reset lift effect on click */
-        }
-        .back-link {
-            text-align: center;
-            display: inline-block;
-            margin-top: 15px;
-            color: #5bc0de;
+
+        .btn-back {
+            color: #6c757d;
             text-decoration: none;
-            transition: color 0.3s;
+            display: block;
+            text-align: center;
+            margin-top: 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
-        .back-link:hover {
-            color: #3a9dc1; /* Change color on hover */
+
+        .btn-back:hover {
+            color: #dc3545;
+            transform: translateX(-3px);
         }
+
+        /* Flatpickr Custom Styling */
+        .flatpickr-calendar {
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border: none;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .flatpickr-day.selected {
+            background: #dc3545 !important;
+            border-color: #dc3545 !important;
+        }
+
+        .flatpickr-day:hover {
+            background: #ffebee !important;
+            border-color: #ffcdd2 !important;
+        }
+
+        .flatpickr-day.today {
+            border-color: #dc3545 !important;
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #dc3545;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus + .input-icon {
+            color: #ff4d5a;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        /* Animation for form fields */
+        .form-group {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.2s; }
+        .form-group:nth-child(3) { animation-delay: 0.3s; }
+        .form-group:nth-child(4) { animation-delay: 0.4s; }
     </style>
 </head>
 <body>
-
-    <nav>
-        <div class="navbar-container">
-            <h2>Lifeline Blood Bank</h2>
-            <ul>
-                <li><a href="{% url 'logout' %}" class="logout-btn">Logout</a></li>
-            </ul>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-heartbeat me-2"></i>Lifeline Blood Bank
+            </a>
+            <div class="d-flex">
+                <a href="{% url 'donor_dashboard' %}" class="nav-link me-3">
+                    <i class="fas fa-home me-1"></i>Dashboard
+                </a>
+                <a href="{% url 'logout' %}" class="nav-link">
+                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                </a>
+            </div>
         </div>
     </nav>
 
     <div class="container">
-        <h2>Edit your Profile</h2>
-        <form method="POST" novalidate>
-            {% csrf_token %}
-            {% for field in form %}
-                <div class="form-group">
-                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                    {{ field }}  <!-- Render the form field -->
-                    {% if field.errors %}
-                        <div class="error-message">{{ field.errors|join:", " }}</div>
-                    {% endif %}
-                </div>
-            {% endfor %}
-            <button type="submit">Save Changes</button>
-        </form>
-        {% if error %}
-            <div class="error-message">{{ error }}</div>
-        {% endif %}
+        <div class="edit-profile-card">
+            <div class="card-header">
+                <i class="fas fa-user-edit header-icon"></i>
+                <h2 class="card-title">Edit Your Profile</h2>
+                <p class="card-subtitle">Update your personal information</p>
+            </div>
+            
+            <div class="card-body">
+                <form method="POST" novalidate>
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="form-group">
+                        <label class="form-label" for="{{ field.id_for_label }}">
+                            <i class="fas fa-{% if field.name == 'email' %}envelope{% elif field.name == 'phone_number' %}phone{% elif field.name == 'date_of_birth' %}calendar{% else %}user{% endif %} me-2"></i>
+                            {{ field.label }}
+                        </label>
+                        {% if field.name == 'date_of_birth' %}
+                        <div class="calendar-input-group">
+                            <input type="text" 
+                                   name="{{ field.name }}" 
+                                   id="{{ field.id_for_label }}" 
+                                   class="form-control calendar-input" 
+                                   value="{{ field.value|default:'' }}"
+                                   autocomplete="off">
+                            <i class="fas fa-calendar-alt calendar-icon"></i>
+                        </div>
+                        {% else %}
+                        <div class="input-group">
+                            {{ field }}
+                            <i class="fas fa-{% if field.name == 'email' %}envelope{% elif field.name == 'phone_number' %}phone{% else %}user{% endif %} input-icon"></i>
+                        </div>
+                        {% endif %}
+                        {% if field.errors %}
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ field.errors|join:", " }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
+                    
+                    <a href="{% url 'donor_profile' %}" class="btn-back">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Profile
+                    </a>
+                </form>
+            </div>
+        </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
-        // Validate the form fields on submit
-        document.querySelector('form').addEventListener('submit', function(event) {
-            const formFields = this.elements;
-            let valid = true;
-    
-            for (let i = 0; i < formFields.length; i++) {
-                const field = formFields[i];
-    
-                // Check for required fields
-                if (field.required && !field.value) {
-                    valid = false;
-                    field.classList.add('error'); // Optional: add error class for styling
-                    alert(`${field.labels[0].innerText} is required.`);
-                } else {
-                    field.classList.remove('error');
-                }
-    
-                // Additional validation checks
-                // Validate phone number
-                if (field.name === 'phone_number' && field.value) {
-                    const phonePattern = /^[6789]\d{9}$/; // Phone number must start with 6, 7, 8, or 9 and have 10 digits
-                    if (!phonePattern.test(field.value)) {
-                        valid = false;
-                        field.classList.add('error');
-                        alert('Phone number must start with 6, 7, 8, or 9 and must be 10 digits long.');
-                    } else {
-                        field.classList.remove('error');
-                    }
-                }
-    
-                // Validate first name and last name
-                if ((field.name === 'first_name' || field.name === 'last_name') && field.value) {
-                    const namePattern = /^[A-Za-z\s]+$/; // Only letters and spaces allowed
-                    if (!namePattern.test(field.value)) {
-                        valid = false;
-                        field.classList.add('error');
-                        alert(`${field.labels[0].innerText} should not contain numbers or special characters.`);
-                    } else {
-                        field.classList.remove('error');
-                    }
-                }
-    
-                // Validate date of birth
-                if (field.name === 'date_of_birth' && field.value) {
-                    const dob = new Date(field.value);
-                    const today = new Date();
-                    if (dob >= today) {
-                        valid = false;
-                        field.classList.add('error');
-                        alert('Date of birth must be a past date.');
-                    } else {
-                        field.classList.remove('error');
-                    }
-                }
-    
-                // Validate email format
-                if (field.type === 'email' && field.value) {
-                    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    if (!emailPattern.test(field.value)) {
-                        valid = false;
-                        field.classList.add('error');
-                        alert('Please enter a valid email address.');
-                    } else {
-                        field.classList.remove('error');
-                    }
-                }
-    
-                // Validate gender
-                if (field.name === 'gender' && field.value) {
-                    const validGenders = ['Male', 'Female', 'Other'];
-                    if (!validGenders.includes(field.value)) {
-                        valid = false;
-                        field.classList.add('error');
-                        alert('Gender must be Male, Female, or Other.');
-                    } else {
-                        field.classList.remove('error');
-                    }
-                }
-    
-                // Add more validation as necessary for other fields
-            }
-    
-            if (!valid) {
-                event.preventDefault(); // Prevent form submission if validation fails
-            }
+        document.addEventListener('DOMContentLoaded', function() {
+            flatpickr(".calendar-input", {
+                dateFormat: "Y-m-d",
+                maxDate: new Date().fp_incr(-18 * 365),
+                minDate: new Date().fp_incr(-100 * 365),
+                disableMobile: true,
+                animate: true,
+                theme: "material_red",
+                yearAriaLabel: 'Year',
+                monthAriaLabel: 'Month',
+                weekAriaLabel: 'Week',
+                allowInput: true
+            });
         });
     </script>
-    </body>
+</body>
 </html>

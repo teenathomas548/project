@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipient Registration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f6f8fd 0%, #f1f4f9 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .registration-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .registration-card {
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card-left {
+            background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);
+            color: white;
+            padding: 60px 40px;
+            position: relative;
+            z-index: 1;
+            height: 100%;
+        }
+
+        .card-left::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTQ0MCIgaGVpZ2h0PSI1MDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiIGlkPSJhIj48c3RvcCBzdG9wLWNvbG9yPSIjRkZGIiBzdG9wLW9wYWNpdHk9Ii4xIiBvZmZzZXQ9IjAlIi8+PHN0b3Agc3RvcC1jb2xvcj0iI0ZGRiIgc3RvcC1vcGFjaXR5PSIuMDUiIG9mZnNldD0iMTAwJSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxwYXRoIGZpbGw9InVybCgjYSkiIGQ9Ik0wIDBoMTQ0MHY1MDBIMHoiLz48L3N2Zz4=');
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .card-right {
+            padding: 60px 40px;
+            background: white;
+        }
+
+        .form-title {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #2d3436;
+            text-transform: capitalize;
+        }
+
+        .form-subtitle {
+            font-size: 1.1em;
+            color: #636e72;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .form-control {
+            border-radius: 15px;
+            padding: 15px 20px;
+            border: 2px solid #eef2f7;
+            margin-bottom: 25px;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #FF416C;
+            box-shadow: 0 0 0 3px rgba(255, 65, 108, 0.1);
+        }
+
+        .btn-register {
+            background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 15px 40px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 65, 108, 0.3);
+            color: white;
+        }
+
+        .feature-item {
+            margin-bottom: 40px;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .feature-icon {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .feature-title {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .feature-text {
+            font-size: 1em;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .login-link {
+            color: #FF416C;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .login-link:hover {
+            color: #FF4B2B;
+            text-decoration: none;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: #2d3436;
+        }
+
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,...");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 15px;
+        }
+
+        .alert {
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border: none;
+            padding: 15px 20px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+            }
+
+            .registration-container {
+                padding: 20px;
+            }
+
+            .card-left {
+                display: none;
+            }
+
+            .card-right {
+                padding: 40px 20px;
+            }
+
+            .form-title {
+                font-size: 2em;
+            }
+        }
+
+        /* Added animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        .form-row {
+            margin-bottom: 20px;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #FF416C;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FF4B2B;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .form-control {
+            height: 55px;
+            border-radius: 15px;
+            padding: 10px 20px 10px 50px;
+            font-size: 16px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .is-invalid {
+            border-color: #e74c3c !important;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,...");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a0aec0;
+            z-index: 10;
+        }
+
+        textarea.form-control {
+            height: auto;
+            min-height: 100px;
+        }
+
+        .btn-register {
+            height: 55px;
+            background: linear-gradient(45deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 0 40px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(231, 76, 60, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="registration-container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="registration-card">
+            <div class="row no-gutters">
+                <!-- Left Side - Features -->
+                <div class="col-md-4 card-left">
+                    <h3 class="mb-4">Why Register?</h3>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="feature-title">Find Blood Quickly</div>
+                        <div class="feature-text">Access our extensive network of blood donors</div>
+                    </div>
+
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="feature-title">Instant Notifications</div>
+                        <div class="feature-text">Get alerts when blood becomes available</div>
+                    </div>
+
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-hospital"></i>
+                        </div>
+                        <div class="feature-title">Hospital Connect</div>
+                        <div class="feature-text">Direct connection with nearby hospitals</div>
+                    </div>
+                </div>
+
+                <!-- Right Side - Registration Form -->
+                <div class="col-md-8 card-right">
+                    <h2 class="form-title">Recipient Registration</h2>
+                    <p class="form-subtitle">Create your account to start requesting blood donations</p>
+
+                    <form method="POST" action="{% url 'recipient_register' %}">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="text" name="name" class="form-control" placeholder="Full Name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <select name="blood_type" class="form-control"placeholder="select blood type" required>
+                                    <option value="">Select Blood Type</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="number" name="age" class="form-control" placeholder="Age" required>
+                            </div>
+                            <div class="col-md-6">
+                                <select name="gender" class="form-control"placeholder="select gender" required>
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="tel" name="contact" class="form-control" placeholder="Contact Number" required>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="email" name="email" class="form-control" placeholder="Email Address" required>
+                            </div>
+                        </div>
+
+                        <textarea name="address" class="form-control" placeholder="Full Address" rows="2" required></textarea>
+                        <textarea name="medical_history" class="form-control" placeholder="Medical History (Optional)" rows="2"></textarea>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="password" name="password" class="form-control" placeholder="Password" required>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="password" name="confirm_password" class="form-control" placeholder="Confirm Password" required>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-register">
+                                <i class="fas fa-user-plus mr-2"></i>Register
+                            </button>
+                            <span class="ml-3">Already have an account? 
+                                <a href="#" class="login-link">Login here</a>
+                            </span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        let isValid = true;
+        clearAllErrors(); // Clear previous errors
+
+        // Name Validation (only characters and spaces)
+        const name = document.querySelector('input[name="name"]').value;
+        if (!name.match(/^[A-Za-z\s]{3,30}$/)) {
+            isValid = false;
+            showError('name', 'Name must contain only letters and spaces (3-30 characters)');
+        }
+
+        // Age Validation (1 or 2 digits, between 18-99)
+        const age = document.querySelector('input[name="age"]').value;
+        if (!age.match(/^\d{1,2}$/) || age < 18 || age > 99) {
+            isValid = false;
+            showError('age', 'Age must be between 18 and 99');
+        }
+
+        // Contact Number Validation (10 digits starting with 6,7,8,9)
+        const contact = document.querySelector('input[name="contact"]').value;
+        if (!contact.match(/^[6-9]\d{9}$/)) {
+            isValid = false;
+            showError('contact', 'Contact number must be 10 digits and start with 6, 7, 8, or 9');
+        }
+
+        // Email Validation
+        const email = document.querySelector('input[name="email"]').value;
+        if (!email.match(/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)) {
+            isValid = false;
+            showError('email', 'Please enter a valid email address');
+        }
+
+        // Address Validation (characters, spaces, numbers, and basic punctuation)
+        const address = document.querySelector('textarea[name="address"]').value;
+        if (!address.match(/^[A-Za-z0-9\s,.-]{10,200}$/)) {
+            isValid = false;
+            showError('address', 'Address must be between 10-200 characters');
+        }
+
+        // Blood Type Validation
+        const bloodType = document.querySelector('select[name="blood_type"]').value;
+        if (!bloodType) {
+            isValid = false;
+            showError('blood_type', 'Please select a blood type');
+        }
+
+        // Gender Validation
+        const gender = document.querySelector('select[name="gender"]').value;
+        if (!gender) {
+            isValid = false;
+            showError('gender', 'Please select a gender');
+        }
+
+        // Password Validation
+        const password = document.querySelector('input[name="password"]').value;
+        const confirmPassword = document.querySelector('input[name="confirm_password"]').value;
+
+        if (password.length < 6) {
+            isValid = false;
+            showError('password', 'Password must be at least 6 characters');
+        }
+
+        if (password !== confirmPassword) {
+            isValid = false;
+            showError('confirm_password', 'Passwords do not match');
+        }
+
+        if (isValid) {
+            this.submit();
+        }
+    });
+
+    // Function to show error messages
+    function showError(fieldName, message) {
+        const field = document.querySelector(`[name="${fieldName}"]`);
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+        
+        // Remove any existing error message
+        const existingError = field.parentElement.querySelector('.error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+
+        field.classList.add('is-invalid');
+        field.parentElement.appendChild(errorDiv);
+    }
+
+    // Function to clear all errors
+    function clearAllErrors() {
+        document.querySelectorAll('.error-message').forEach(error => error.remove());
+        document.querySelectorAll('.is-invalid').forEach(field => field.classList.remove('is-invalid'));
+    }
+
+    // Real-time validation
+    document.querySelectorAll('input, select, textarea').forEach(field => {
+        field.addEventListener('input', function() {
+            this.classList.remove('is-invalid');
+            const errorMessage = this.parentElement.querySelector('.error-message');
+            if (errorMessage) {
+                errorMessage.remove();
+            }
+        });
+    });
+    </script>
+</body>
+</html>

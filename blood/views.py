@@ -29,6 +29,12 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.hashers import make_password
 from .forms import EditCampaignForm
 from.models import BloodDonor
+from django.shortcuts import render
+from django.http import HttpResponse
+import qrcode
+import base64
+from io import BytesIO
+from .models import DonorProfile
 
 # About page view
 def about(request):
@@ -163,6 +169,8 @@ def custom_login_view(request):
         form = LoginForm()  # Create an empty form for GET requests
 
     return render(request, 'login.html', {'form': form})
+
+
 
 
 
@@ -376,51 +384,31 @@ import logging
 logger = logging.getLogger(__name__)
 
 def donor_dashboard(request):
-    if 'donor_id' not in request.session:
-        return render(request, 'error.html', {'message': 'Donor not logged in.'})
-
-    donor = get_object_or_404(DonorProfile, donor_id=request.session['donor_id'])
+    donor_id = request.session.get('donor_id')
+    if not donor_id:
+        messages.error(request, 'Please login first')
+        return redirect('donor_login')
     
-    logger.debug(f"Donor ID: {donor.donor_id}")
-
-    upcoming_appointments = Appointment.objects.filter(
-        donor=donor,
-        appointment_date__gte=timezone.now().date()
-    ).order_by('appointment_date')
-
-    upcoming_count = upcoming_appointments.count()
-    logger.debug(f"Upcoming Appointments Count: {upcoming_count}")
-
-    past_appointments = Appointment.objects.filter(
-        donor=donor,
-        appointment_date__lt=timezone.now().date()
-    ).order_by('-appointment_date')
-
-    if donor.last_donation_date:
-        days_since_last_donation = (timezone.now().date() - donor.last_donation_date).days
-        if days_since_last_donation >= 56:
-            eligibility_status = "Eligible for donation"
-        else:
-            eligibility_status = f"Not eligible for donation until {donor.last_donation_date + timedelta(days=56)}"
-    else:
-        eligibility_status = "Eligible for first-time donation"
+    try:
+        donor = get_object_or_404(DonorProfile, donor_id=donor_id)
+        
+        # Get the latest pending request for basic screening
+        pending_request = BloodDonationRequest.objects.filter(
+            donor=donor,
+            status='pending'
+        ).order_by('-request_date').first()
+        
+        context = {
+            'donor': donor,
+            'pending_request': pending_request
+        }
+        
+        return render(request, 'donor_dashboard.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'Error loading dashboard: {str(e)}')
+        return redirect('donor_login')
     
-    first_time_donor = not donor.last_donation_date
-
-    context = {
-        'donor': donor,
-        'upcoming_appointments': upcoming_appointments,
-        'past_appointments': past_appointments,
-        'eligibility_status': eligibility_status,
-        'first_time_donor': first_time_donor,
-        'blood_type': donor.blood_type.blood_group if donor.blood_type else "Not specified",
-        'upcoming_count': upcoming_count,
-        'past_count': past_appointments.count(),
-    }
-
-    return render(request, 'donor_dashboard.html', context)
-
-
 def campaign_list(request):
     campaigns = Campaign.objects.all()  # Fetch all campaigns from the database
     return render(request, 'campaign_list.html', {'campaigns': campaigns})
@@ -959,7 +947,7 @@ from .models import Hospital
 def hospital_dashboard(request):
     hospital_id = request.session.get('hospital_id')
     if not hospital_id:
-        return redirect('hospital_register')  # Redirect to login if not logged in
+        return redirect('register_hospital')  # Redirect to login if not logged in
     
     # Fetch the hospital object using 'hospital_id' as the primary key
     hospital = get_object_or_404(Hospital, hospital_id=hospital_id)
@@ -1231,7 +1219,6 @@ def apply_blood(request):
         form = BloodApplyWithhospitalForm()
     
     return render(request, 'apply_blood.html', {'blood_apply_form': form})
-
 
 # views.py
 from django.shortcuts import render, redirect, get_object_or_404
@@ -1561,69 +1548,11 @@ def feedback_success(request):
 
 
 from django.shortcuts import render
-from django.http import HttpResponse
-from django.template.loader import get_template
-from xhtml2pdf import pisa
 from .models import Feedback  # Assuming you have a Feedback model
 
 def manage_feedback(request):
     feedbacks = Feedback.objects.all()  # Fetch all feedback from the database
     return render(request, 'manage_feedback.html', {'feedbacks': feedbacks})
-
-def render_to_pdf(template_src, context_dict):
-    template = get_template(template_src)
-    html = template.render(context_dict)
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="donor_feedback.pdf"'
-    pisa_status = pisa.CreatePDF(html, dest=response)
-    if pisa_status.err:
-        return HttpResponse('Error generating PDF', status=400)
-    return response
-
-from django.http import HttpResponse
-from reportlab.lib.pagesizes import letter
-from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
-from .models import Feedback  # Import your Feedback model
-
-def download_feedback_pdf(request):
-    # Retrieve all feedback data from the Feedback model
-    feedback_data = Feedback.objects.all()
-
-    # Prepare the data for the table (list of lists)
-    table_data = [['Donor Name', 'Feedback', 'Date']]  # Table header
-
-    # Add feedback data to the table
-    for feedback in feedback_data:
-        table_data.append([feedback.donor.donor_name, feedback.feedback_text[:100], str(feedback.created_at)])
-
-    # Create the HTTP response object with PDF content type
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="feedback.pdf"'
-
-    # Create the PDF document
-    doc = SimpleDocTemplate(response, pagesize=letter)
-
-    # Create the table object
-    table = Table(table_data)
-
-    # Apply styles to the table (like borders, alignment, etc.)
-    table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),  # Header background color
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),  # Header text color
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Center align all cells
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Bold font for header
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  # Padding for header
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),  # Alternate row background color
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Add grid lines
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),  # Regular font for data rows
-        ('FONTSIZE', (0, 0), (-1, -1), 10),  # Font size
-    ]))
-
-    # Build the PDF with the table
-    doc.build([table])
-
-    return response
 
 
 
@@ -1653,7 +1582,7 @@ def emergency_alert_page(request):
                 subject="Urgent: Blood Donation Needed",
                 message=f"Dear {donor.donor_name},\n\n"
                         f"There is an urgent need for blood donations of your type ({blood_group_needed}). "
-                        "If you are available to donate, please contact your nearest blood bank.\n\n"
+                        "If you are available to donate, please contact us phone no:7568954329.\n\n"
                         "Thank you for your support.\n\n"
                         "Lifeline Blood Bank",
                 from_email="teenathomas2025@mca.ajce.in",
@@ -1812,3 +1741,1707 @@ def download_hospital_report_pdf(request):
     p.save()
 
     return response
+
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import DonorProfile, BloodDonationRequest
+from datetime import datetime, timedelta
+
+def request_blood_donation(request):
+    donor_id = request.session.get('donor_id')
+    if not donor_id:
+        messages.error(request, 'Please login first')
+        return redirect('donor_login')
+        
+    donor_profile = get_object_or_404(DonorProfile, donor_id=donor_id)
+    
+    # Check for pending requests
+    if BloodDonationRequest.objects.filter(donor=donor_profile, status='pending').exists():
+        messages.warning(request, 'You already have a pending donation request.')
+        return redirect('donation_history')
+    
+    if request.method == 'POST':
+        preferred_date = request.POST.get('preferred_date')
+        preferred_time = request.POST.get('preferred_time')
+        
+        # Create donation request
+        donation_request = BloodDonationRequest.objects.create(
+            donor=donor_profile,
+            preferred_date=preferred_date,
+            preferred_time=preferred_time,
+            status='pending'
+        )
+        
+        messages.success(request, 'Your donation request has been submitted successfully!')
+        return redirect('donation_steps')
+        
+    return render(request, 'request_donation.html', {
+        'donor': donor_profile,
+        'today': datetime.now().date()
+    })
+
+def donation_steps(request):
+    donor_id = request.session.get('donor_id')
+    if not donor_id:
+        messages.error(request, 'Please login first')
+        return redirect('donor_login')
+        
+    donor_profile = get_object_or_404(DonorProfile, donor_id=donor_id)
+    
+    try:
+        donation_request = BloodDonationRequest.objects.get(
+            donor=donor_profile, 
+            status='pending'
+        )
+    except BloodDonationRequest.DoesNotExist:
+        messages.warning(request, 'No pending donation request found.')
+        return redirect('donor_dashboard')
+    
+    return render(request, 'donation_steps.html', {
+        'donor': donor_profile,
+        'donation_request': donation_request
+    })
+
+def donor_donation_history(request):
+    donor_id = request.session.get('donor_id')
+    if not donor_id:
+        messages.error(request, 'Please login first')
+        return redirect('donor_login')
+        
+    donor_profile = get_object_or_404(DonorProfile, donor_id=donor_id)
+    donation_requests = BloodDonationRequest.objects.filter(
+        donor=donor_profile
+    ).order_by('-request_date')
+    
+    return render(request, 'donation_history.html', {
+        'donor': donor_profile,
+        'donation_requests': donation_requests
+    })
+
+def cancel_donation(request, request_id):
+    # Get donor_id from session
+    donor_id = request.session.get('donor_id')
+    if not donor_id:
+        messages.error(request, 'Please login first')
+        return redirect('donor_login')
+    
+    try:
+        # Get the donation request
+        donation_request = get_object_or_404(
+            BloodDonationRequest, 
+            id=request_id,
+            donor__donor_id=donor_id,
+            status='pending'
+        )
+        
+        # Update the donation request
+        donation_request.status = 'cancelled'
+        donation_request.notes = 'Cancelled by donor'
+        donation_request.save()
+        
+        messages.success(request, 'Donation request cancelled successfully.')
+        
+    except BloodDonationRequest.DoesNotExist:
+        messages.error(request, 'Donation request not found or cannot be cancelled.')
+    except Exception as e:
+        messages.error(request, f'Error cancelling donation: {str(e)}')
+    
+    return redirect('donation_history')
+def reschedule_donation(request, request_id):
+    donation_request = get_object_or_404(
+        BloodDonationRequest, 
+        id=request_id,
+        donor__donor_id=donor_id
+    )
+    
+    if request.method == 'POST':
+        if donation_request.status == 'pending':
+            new_date = request.POST.get('preferred_date')
+            new_time = request.POST.get('preferred_time')
+            
+            donation_request.preferred_date = new_date
+            donation_request.preferred_time = new_time
+            donation_request.notes = 'Rescheduled by donor'
+            donation_request.save()
+            
+            messages.success(request, 'Donation request rescheduled successfully.')
+            return redirect('donation_history')
+        else:
+            messages.error(request, 'Cannot reschedule this donation request.')
+    
+    return render(request, 'blood/reschedule_donation.html', {
+        'donation_request': donation_request,
+        'today': datetime.now().date()
+    })
+
+from .models import BloodDonationRequest, BasicScreening
+from decimal import Decimal
+
+
+def basic_screening(request, request_id):
+    donor_id = request.session.get('donor_id')
+    if not donor_id:
+        messages.error(request, 'Please login first')
+        return redirect('donor_login')
+        
+    donation_request = get_object_or_404(
+        BloodDonationRequest, 
+        id=request_id,
+        donor__donor_id=donor_id
+    )
+    
+    # Check if screening already exists
+    if BasicScreening.objects.filter(donation_request=donation_request).exists():
+        messages.warning(request, 'Screening already completed for this donation request')
+        return redirect('donation_history')
+    
+    if request.method == 'POST':
+        try:
+            blood_pressure = request.POST.get('blood_pressure')
+            temperature = Decimal(request.POST.get('temperature'))
+            weight = Decimal(request.POST.get('weight'))
+            pulse_rate = int(request.POST.get('pulse_rate'))
+            hemoglobin = Decimal(request.POST.get('hemoglobin'))
+            notes = request.POST.get('notes')
+
+            # Basic eligibility checks
+            is_eligible = True
+            messages_list = []
+
+            # Weight check
+            if weight < 50:
+                is_eligible = False
+                messages_list.append("Weight must be at least 50 kg")
+
+            # Temperature check
+            if temperature > 37.5:
+                is_eligible = False
+                messages_list.append("Temperature is above normal range")
+
+            # Blood pressure check
+            try:
+                systolic, diastolic = map(int, blood_pressure.split('/'))
+                if systolic < 90 or systolic > 180 or diastolic < 60 or diastolic > 100:
+                    is_eligible = False
+                    messages_list.append("Blood pressure is out of normal range")
+            except ValueError:
+                messages.error(request, "Invalid blood pressure format. Use format like '120/80'")
+                return render(request, 'blood/basic_screening.html', {'donation_request': donation_request})
+
+            # Create screening record
+            BasicScreening.objects.create(
+                donation_request=donation_request,
+                blood_pressure=blood_pressure,
+                temperature=temperature,
+                weight=weight,
+                pulse_rate=pulse_rate,
+                hemoglobin=hemoglobin,
+                is_eligible=is_eligible,
+                notes=notes
+            )
+
+            if is_eligible:
+                donation_request.status = 'approved'
+                donation_request.save()
+                messages.success(request, 'Basic screening completed successfully!')
+            else:
+                donation_request.status = 'cancelled'
+                donation_request.save()
+                for msg in messages_list:
+                    messages.error(request, msg)
+
+            return redirect('donation_history')
+            
+        except ValueError as e:
+            messages.error(request, f'Please enter valid numerical values: {str(e)}')
+            
+    return render(request, 'basic_screening.html', {
+        'donation_request': donation_request
+    })
+def reschedule_donation(request, request_id):
+    # Get donor_id from session
+    donor_id = request.session.get('donor_id')
+    if not donor_id:
+        messages.error(request, 'Please login first')
+        return redirect('donor_login')
+    
+    # Get the donation request
+    donation_request = get_object_or_404(
+        BloodDonationRequest, 
+        id=request_id,
+        donor__donor_id=donor_id,
+        status='pending'
+    )
+    
+    if request.method == 'POST':
+        preferred_date = request.POST.get('preferred_date')
+        preferred_time = request.POST.get('preferred_time')
+        
+        if preferred_date and preferred_time:
+            try:
+                # Update the donation request
+                donation_request.preferred_date = preferred_date
+                donation_request.preferred_time = preferred_time
+                donation_request.notes = 'Rescheduled by donor'
+                donation_request.save()
+                
+                messages.success(request, 'Donation request rescheduled successfully.')
+                return redirect('donation_history')
+            except Exception as e:
+                messages.error(request, f'Error rescheduling donation: {str(e)}')
+        else:
+            messages.error(request, 'Please provide both date and time.')
+    
+    # For GET request, show the reschedule form
+    context = {
+        'donation_request': donation_request,
+        'today': datetime.now().date()
+    }
+    return render(request, 'reschedule_donation.html', context)
+
+def manage_donation_requests(request):
+    try:
+        # Get all donation requests ordered by date
+        donation_requests = BloodDonationRequest.objects.all().order_by('-request_date')
+        
+        context = {
+            'donation_requests': donation_requests
+        }
+        
+        return render(request, 'manage_donation_requests.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'Error: {str(e)}')
+        return redirect('blood_admin')
+
+def update_donation_status(request, request_id):
+    try:
+        # Get the donation request
+        donation_request = get_object_or_404(BloodDonationRequest, id=request_id)
+        
+        if request.method == 'POST':
+            new_status = request.POST.get('status')
+            notes = request.POST.get('notes', '')
+            
+            # Validate the status
+            if new_status in ['pending', 'approved', 'completed', 'cancelled']:
+                # Update the status
+                donation_request.status = new_status
+                donation_request.notes = notes
+                
+                # If marking as completed, update completion date
+                if new_status == 'completed':
+                    donation_request.completion_date = datetime.now()
+                    # Update donor's last donation date
+                    donor = donation_request.donor
+                    donor.last_donation_date = datetime.now().date()
+                    donor.save()
+                
+                donation_request.save()
+                messages.success(request, 'Status updated successfully')
+            else:
+                messages.error(request, 'Invalid status')
+                
+        return render(request, 'update_donation_status.html', {
+            'donation_request': donation_request
+        })
+        
+    except Exception as e:
+        messages.error(request, f'Error updating status: {str(e)}')
+        return redirect('manage_donation_requests')
+    
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import BloodTest, BloodDonationRequest
+from datetime import datetime
+
+def apply_test(request, donation_id):
+    donation = get_object_or_404(BloodDonationRequest, id=donation_id)
+    
+    # Check if test already exists
+    existing_test = BloodTest.objects.filter(donation=donation).first()
+    if existing_test:
+        messages.warning(request, 'Blood test already exists for this donation')
+        return redirect('view_test', test_id=existing_test.id)
+    
+    if request.method == 'POST':
+        try:
+            blood_test = BloodTest(
+                donation=donation,
+                hiv=request.POST.get('hiv', False) == 'on',
+                hepatitis_b=request.POST.get('hepatitis_b', False) == 'on',
+                hepatitis_c=request.POST.get('hepatitis_c', False) == 'on',
+                syphilis=request.POST.get('syphilis', False) == 'on',
+                malaria=request.POST.get('malaria', False) == 'on',
+                hemoglobin=float(request.POST.get('hemoglobin')),
+                tested_by=request.POST.get('tested_by'),
+                remarks=request.POST.get('remarks', '')
+            )
+            blood_test.save()
+            blood_test.check_safety()
+            
+            messages.success(request, 'Blood test results recorded successfully')
+            return redirect('view_test', test_id=blood_test.id)
+            
+        except Exception as e:
+            messages.error(request, f'Error recording test results: {str(e)}')
+    
+    return render(request, 'apply_test.html', {
+        'donation': donation
+    })
+
+def view_test(request, test_id):
+    blood_test = get_object_or_404(BloodTest, id=test_id)
+    return render(request, 'view_test.html', {
+        'blood_test': blood_test
+    })
+
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import BloodTest, BloodDonationRequest
+
+def test_list(request):
+    # Debug prints
+    print("Session data:", request.session.items())
+    print("Donor ID:", request.session.get('donor_id'))
+    print("Donor Name:", request.session.get('donor_name'))
+
+    if 'donor_id' not in request.session:
+        messages.error(request, 'Please login first')
+        return redirect('donor_login')
+
+    try:
+        donor_id = request.session.get('donor_id')
+        
+        # Get all tests for this donor
+        blood_tests = BloodTest.objects.filter(
+            donation__donor__donor_id=donor_id
+        ).order_by('-test_date')
+        
+        # Debug print
+        print(f"Found {blood_tests.count()} tests for donor {donor_id}")
+        
+        context = {
+            'blood_tests': blood_tests,
+        }
+        
+        return render(request, 'test_list.html', context)
+        
+    except Exception as e:
+        print(f"Error in test_list: {str(e)}")
+        messages.error(request, f'Error loading test list: {str(e)}')
+        return redirect('donor_login')
+
+def pending_test(request):
+    # Debug prints
+    print("Session data:", request.session.items())
+    print("Donor ID:", request.session.get('donor_id'))
+
+    if 'donor_id' not in request.session:
+        messages.error(request, 'Please login first')
+        return redirect('donor_login')
+
+    try:
+        donor_id = request.session.get('donor_id')
+        
+        # Get pending donations for this donor
+        pending_donations = BloodDonationRequest.objects.filter(
+            donor__donor_id=donor_id,
+            status='approved'
+        ).exclude(
+            bloodtest__isnull=False
+        ).order_by('request_date')
+        
+        # Debug print
+        print(f"Found {pending_donations.count()} pending donations for donor {donor_id}")
+        
+        context = {
+            'pending_donations': pending_donations,
+        }
+        
+        return render(request, 'pending_test.html', context)
+        
+    except Exception as e:
+        print(f"Error in pending_test: {str(e)}")
+        messages.error(request, f'Error loading pending tests: {str(e)}')
+        return redirect('donor_login')
+    
+        
+def print_test(request, test_id):
+    blood_test = get_object_or_404(BloodTest, id=test_id)
+    return render(request, 'print_test.html', {
+        'blood_test': blood_test
+    })
+
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import DonorProfile
+
+def change_password(request):
+    # Check if donor is logged in via session
+    donor_id = request.session.get('donor_id')
+    
+    if not donor_id:
+        messages.error(request, 'Please login to change password')
+        return redirect('login')
+    
+    try:
+        # Get the donor profile
+        donor = DonorProfile.objects.get(donor_id=donor_id)
+
+        if request.method == 'POST':
+            old_password = request.POST.get('old_password')
+            new_password = request.POST.get('new_password')
+            confirm_password = request.POST.get('confirm_password')
+
+            # Check if current password is correct
+            if donor.password != old_password:
+                messages.error(request, 'Current password is incorrect')
+                return redirect('change_password')
+
+            # Validate new password
+            if new_password != confirm_password:
+                messages.error(request, 'New passwords do not match')
+                return redirect('change_password')
+
+            if len(new_password) < 6:
+                messages.error(request, 'Password must be at least 6 characters long')
+                return redirect('change_password')
+
+            # Update password
+            donor.password = new_password
+            donor.save()
+            
+            messages.success(request, 'Password changed successfully')
+            return redirect('donor_profile')
+
+        return render(request, 'change_password.html')
+
+    except DonorProfile.DoesNotExist:
+        messages.error(request, 'Donor profile not found')
+        return redirect('login')
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('login')
+    
+    
+    
+from django.shortcuts import render
+from .models import BloodTest, DonorProfile
+
+def admin_test_list(request):
+    donor_name = request.GET.get('donor_name', '')
+    
+    if donor_name:
+        # Find the donor by donor_name
+        donors = DonorProfile.objects.filter(donor_name__icontains=donor_name)
+        # Find donations for these donors
+        donations = BloodDonationRequest.objects.filter(donor__in=donors)
+        # Get tests for these donations
+        tests = BloodTest.objects.filter(donation__in=donations).order_by('-test_date')
+    else:
+        tests = BloodTest.objects.all().order_by('-test_date')
+    
+    context = {
+        'tests': tests,
+        'donor_name': donor_name
+    }
+    return render(request, 'admin_donor_tests.html', context)
+
+
+
+import requests
+from django.shortcuts import render
+from blood.models import Campaign
+
+def get_coordinates(location):
+    """Fetch latitude & longitude using OpenStreetMap API"""
+    api_url = "https://nominatim.openstreetmap.org/search"
+    params = {
+        "q": location,
+        "format": "json",
+        "limit": 1
+    }
+    headers = {
+        "User-Agent": "LifelineBloodBank/1.0 (contact@example.com)"  # Replace with your email
+    }
+
+    response = requests.get(api_url, params=params, headers=headers)
+    
+    if response.status_code == 200 and response.json():
+        data = response.json()[0]
+        return float(data["lat"]), float(data["lon"])
+    
+    return None, None  # Return None if API fails
+
+def blood_camp_locator(request):
+    """Fetch campaigns and add coordinates dynamically"""
+    campaigns = Campaign.objects.all()
+    campaign_data = []
+
+    for camp in campaigns:
+        lat, lon = get_coordinates(camp.location)
+        if lat and lon:
+            campaign_data.append({
+                "name": camp.name,
+                "lat": lat,
+                "lon": lon,
+                "description": camp.description
+            })
+
+    return render(request, "camp_locator.html", {"campaign_data": campaign_data})
+
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import BloodApply, DonorProfile, DonorRecipientMatch
+from .ml_matching import MLMatchingSystem
+from datetime import datetime, timedelta
+
+def find_matches(request):
+    if request.method == 'POST':
+        request_id = request.POST.get('request_id')
+        try:
+            blood_request = BloodApply.objects.get(id=request_id)
+            matching_system = MLMatchingSystem()
+            
+            eligible_donors = DonorProfile.objects.filter(
+                is_active=True,
+                blood_type__isnull=False
+            ).exclude(
+                last_donation_date__gte=datetime.now().date() - timedelta(days=90)
+            )
+            
+            matches = []
+            for donor in eligible_donors:
+                ml_score = matching_system.predict_match_score(blood_request, donor)
+                
+                if ml_score > 0.5:
+                    match = DonorRecipientMatch.objects.create(
+                        blood_request=blood_request,
+                        donor=donor,
+                        match_score=ml_score * 100,  # Convert to percentage
+                        ml_confidence=ml_score
+                    )
+                    matches.append(match)
+            
+            if matches:
+                messages.success(request, f"Found {len(matches)} potential donors!")
+            else:
+                messages.warning(request, "No suitable donors found at this time.")
+                
+            return render(request, 'matching_results.html', {
+                'matches': matches,
+                'blood_request': blood_request
+            })
+            
+        except BloodApply.DoesNotExist:
+            messages.error(request, "Blood request not found!")
+            return redirect('find_matches')
+    
+    return render(request, 'find_matches.html')
+def match_details(request, match_id):
+    try:
+        match = DonorRecipientMatch.objects.get(id=match_id)
+        
+        if request.method == 'POST':
+            action = request.POST.get('action')
+            if action == 'accept':
+                match.status = 'accepted'
+                match.save()
+                messages.success(request, 'Match accepted successfully!')
+            elif action == 'reject':
+                match.status = 'rejected'
+                match.save()
+                messages.success(request, 'Match rejected successfully!')
+                
+        return render(request, 'match_details.html', {'match': match})
+    except DonorRecipientMatch.DoesNotExist:
+        messages.error(request, "Match not found!")
+        return redirect('find_matches')
+
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import (
+    Hospital, 
+    BloodType, 
+    BloodDemandPrediction,
+    DemandHistory
+)
+from datetime import datetime, timedelta
+import random
+
+def predict_demand(request):
+    print("View called")  # Debug print
+    
+    # For GET request - show the form
+    hospitals = Hospital.objects.all()  # Get all hospitals, not just active ones
+    blood_types = BloodType.objects.all()
+    
+    print(f"Found {hospitals.count()} hospitals and {blood_types.count()} blood types")  # Debug print
+    
+    if request.method == 'POST':
+        try:
+            hospital_id = request.POST.get('hospital')
+            blood_type_id = request.POST.get('blood_type')
+            days = int(request.POST.get('days', 30))
+            
+            print(f"POST data: hospital={hospital_id}, blood_type={blood_type_id}, days={days}")  # Debug print
+            
+            # Get the hospital and blood type
+            hospital = Hospital.objects.get(hospital_id=hospital_id)
+            blood_type = BloodType.objects.get(blood_group=blood_type_id)
+            
+            # Generate predictions
+            predictions = []
+            start_date = datetime.now().date()
+            
+            for i in range(days):
+                pred_date = start_date + timedelta(days=i)
+                
+                # Generate demand based on blood type
+                base_demand = {
+                    'A+': random.randint(8, 15),
+                    'A-': random.randint(5, 10),
+                    'B+': random.randint(7, 12),
+                    'B-': random.randint(4, 8),
+                    'O+': random.randint(10, 18),
+                    'O-': random.randint(6, 12),
+                    'AB+': random.randint(3, 7),
+                    'AB-': random.randint(2, 5),
+                }.get(blood_type.blood_group, 10)
+                
+                predicted_demand = base_demand
+                confidence_score = random.uniform(75, 95)  # 75% to 95% confidence
+                
+                prediction = BloodDemandPrediction.objects.create(
+                    hospital=hospital,
+                    blood_type=blood_type,
+                    prediction_date=pred_date,
+                    predicted_demand=predicted_demand,
+                    confidence_score=confidence_score
+                )
+                predictions.append(prediction)
+            
+            # Calculate statistics
+            total_demand = sum(p.predicted_demand for p in predictions)
+            avg_demand = total_demand / len(predictions)
+            min_demand = min(p.predicted_demand for p in predictions)
+            max_demand = max(p.predicted_demand for p in predictions)
+            
+            # Generate seasonal patterns
+            seasonal_pattern = {
+                'Winter': random.randint(8, 12),
+                'Spring': random.randint(10, 15),
+                'Summer': random.randint(12, 18),
+                'Fall': random.randint(9, 14)
+            }
+            
+            # Generate holiday impact
+            holiday_impact = {
+                0: random.randint(8, 12),  # Regular days
+                1: random.randint(15, 20)   # Holidays
+            }
+            
+            return render(request, 'demand_prediction.html', {
+                'predictions': predictions,
+                'seasonal_pattern': seasonal_pattern,
+                'holiday_impact': holiday_impact,
+                'hospital': hospital,
+                'blood_type': blood_type,
+                'days': days,
+                'total_demand': total_demand,
+                'avg_demand': avg_demand,
+                'min_demand': min_demand,
+                'max_demand': max_demand
+            })
+            
+        except Exception as e:
+            print(f"Error occurred: {str(e)}")  # Debug print
+            messages.error(request, f"Error: {str(e)}")
+            return render(request, 'predict_demand_form.html', {
+                'hospitals': hospitals,
+                'blood_types': blood_types,
+                'error': str(e)
+            })
+    
+    # Render the form template
+    return render(request, 'predict_demand_form.html', {
+        'hospitals': hospitals,
+        'blood_types': blood_types
+    })
+
+
+
+def show_campaign_success(request, campaign_id):
+    try:
+        campaign = get_object_or_404(Campaign, campaign_id=campaign_id)
+        
+        # Calculate duration
+        duration = (campaign.end_date - campaign.start_date).days + 1
+
+        # Calculate estimated donors
+        donors_per_day = {
+            'Urban': 35,
+            'Suburban': 25,
+            'Rural': 15
+        }.get(campaign.location, 25)
+        
+        estimated_donors = duration * donors_per_day
+
+        # Calculate resources
+        resources = {
+            'Staff Required': max(3, int(estimated_donors / (duration * 20))),
+            'Beds Needed': max(2, int(estimated_donors / (duration * 15))),
+            'Needles': int(estimated_donors * 1.2),
+            'Cotton Swabs': int(estimated_donors * 3),
+            'Blood Bags': int(estimated_donors * 1.1),
+            'Antiseptic (liters)': max(1, int(estimated_donors * 0.05)),
+            'Gloves (pairs)': int(estimated_donors * 2),
+            'Bandages': int(estimated_donors * 1.2)
+        }
+
+        # Calculate costs
+        costs = {
+            'Staff Cost': resources['Staff Required'] * duration * 1200,
+            'Needles Cost': resources['Needles'] * 15,
+            'Cotton Cost': resources['Cotton Swabs'] * 5,
+            'Blood Bags Cost': resources['Blood Bags'] * 350,
+            'Antiseptic Cost': resources['Antiseptic (liters)'] * 200,
+            'Gloves Cost': resources['Gloves (pairs)'] * 25,
+            'Bandages Cost': resources['Bandages'] * 10,
+            'Refreshments': estimated_donors * 50,
+            'Miscellaneous': estimated_donors * 20
+        }
+
+        # Format costs with Indian number system
+        def format_indian_currency(amount):
+            s = str(amount)
+            l = len(s)
+            if l > 3:
+                i = l - 3
+                while i > 0:
+                    s = s[:i] + ',' + s[i:]
+                    i -= 2
+            return s
+
+        formatted_costs = {k: format_indian_currency(v) for k, v in costs.items()}
+        total_cost = format_indian_currency(sum(costs.values()))
+
+        # Calculate success rate
+        base_success_rate = 75
+        location_bonus = {'Urban': 10, 'Suburban': 5, 'Rural': 0}.get(campaign.location, 5)
+        duration_bonus = min(15, duration/7 * 2)
+        success_rate = min(100, base_success_rate + location_bonus + duration_bonus)
+
+        context = {
+            'campaign': campaign,
+            'success_rate': round(success_rate, 1),
+            'estimated_donors': estimated_donors,
+            'duration': duration,
+            'location_type': campaign.location,
+            'resources': resources,
+            'costs': formatted_costs,
+            'total_cost': total_cost
+        }
+        
+        return render(request, 'predict_campaign_success.html', context)
+        
+    except Exception as e:
+        messages.error(request, f"An error occurred: {str(e)}")
+        return redirect('latest_campaigns')
+    
+    
+from django.shortcuts import render
+from .models import DonorProfile  # Change from Donor to DonorProfile
+from .health_risk_assessment import HealthRiskAnalyzer
+
+def donor_health_list(request):
+    donors = DonorProfile.objects.all().order_by('donor_name')  # Changed from name to donor_name
+    return render(request, 'donor_health_list.html', {'donors': donors})
+
+def assess_donor_health(request, donor_id):
+    try:
+        donor = DonorProfile.objects.get(donor_id=donor_id)  # Changed from id to donor_id
+        analyzer = HealthRiskAnalyzer()
+        
+        # Perform risk assessment
+        risk_assessment = analyzer.assess_risk(donor)
+        
+        context = {
+            'donor': donor,
+            'risk_assessment': risk_assessment,
+            'risk_factors': risk_assessment['risk_factors'],
+            'recommendations': risk_assessment['recommendations']
+        }
+        
+        return render(request, 'health_risk_assessment.html', context)
+        
+    except DonorProfile.DoesNotExist:
+        return render(request, 'error.html', {'message': 'Donor not found'})
+    except Exception as e:
+        return render(request, 'error.html', {'message': str(e)})
+
+from django.shortcuts import render
+from .models import DonorProfile
+from .health_risk_assessment import HealthRiskAnalyzer
+
+def health_risk_view(request):
+    try:
+        donors = DonorProfile.objects.all().order_by('donor_name')
+        
+        if request.method == 'POST':
+            donor_id = request.POST.get('donor_id')
+            
+            # Add validation for empty donor_id
+            if not donor_id:
+                return render(request, 'health_risk.html', {
+                    'donors': donors,
+                    'error': 'Please select a donor.'
+                })
+                
+            try:
+                # Convert donor_id to integer
+                donor_id = int(donor_id)
+                donor = DonorProfile.objects.get(donor_id=donor_id)
+                analyzer = HealthRiskAnalyzer()
+                risk_assessment = analyzer.assess_risk(donor)
+                
+                context = {
+                    'donors': donors,
+                    'selected_donor': donor,
+                    'risk_assessment': risk_assessment,
+                    'risk_factors': risk_assessment['risk_factors'],
+                    'recommendations': risk_assessment['recommendations'],
+                    'donor_points': risk_assessment['donor_points'],
+                    'age': risk_assessment['age'],
+                    'next_eligible_date': risk_assessment['next_eligible_date']
+                }
+                
+                return render(request, 'health_risk.html', context)
+                
+            except (ValueError, DonorProfile.DoesNotExist):
+                return render(request, 'health_risk.html', {
+                    'donors': donors,
+                    'error': 'Invalid donor selection.'
+                })
+        
+        # For GET request, just show the form
+        return render(request, 'health_risk.html', {
+            'donors': donors
+        })
+        
+    except Exception as e:
+        return render(request, 'health_risk.html', {
+            'error': str(e)
+        })
+    
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import Hospital, BloodType, BloodTransfer
+from django.utils import timezone
+
+def inter_hospital_request(request):
+    if 'hospital_id' not in request.session:
+        return redirect('hospital_login')
+    
+    requesting_hospital = Hospital.objects.get(hospital_id=request.session['hospital_id'])
+    
+    if request.method == 'POST':
+        to_hospital_id = request.POST.get('to_hospital')
+        blood_type_id = request.POST.get('blood_type')
+        units = request.POST.get('units')
+        priority = request.POST.get('priority')
+        notes = request.POST.get('notes')
+        
+        try:
+            transfer = BloodTransfer.objects.create(
+                from_hospital=requesting_hospital,
+                to_hospital_id=to_hospital_id,
+                blood_type_id=blood_type_id,
+                units=units,
+                priority=priority,
+                notes=notes,
+                status='pending'
+            )
+            messages.success(request, 'Inter-hospital blood request sent successfully')
+            return redirect('hospital_requests')
+        except Exception as e:
+            messages.error(request, str(e))
+    
+    hospitals = Hospital.objects.exclude(hospital_id=requesting_hospital.hospital_id)
+    blood_types = BloodType.objects.all()
+    
+    return render(request, 'inter_hospital_request.html', {
+        'hospitals': hospitals,
+        'blood_types': blood_types
+    })
+
+def hospital_requests(request):
+    if 'hospital_id' not in request.session:
+        return redirect('hospital_login')
+    
+    hospital = Hospital.objects.get(hospital_id=request.session['hospital_id'])
+    
+    sent_requests = BloodTransfer.objects.filter(from_hospital=hospital)
+    received_requests = BloodTransfer.objects.filter(to_hospital=hospital)
+    
+    return render(request, 'hospital_requests.html', {
+        'sent_requests': sent_requests,
+        'received_requests': received_requests
+    })
+
+
+def process_request(request, transfer_id):
+    if 'hospital_id' not in request.session:
+        return redirect('hospital_login')
+    
+    transfer = get_object_or_404(BloodTransfer, transfer_id=transfer_id)
+    hospital = Hospital.objects.get(hospital_id=request.session['hospital_id'])
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'accept':
+            transfer.status = 'approved'
+            transfer.approval_date = timezone.now()
+            transfer.save()
+            
+            request.session['alert_message'] = {
+                'type': 'success',
+                'message': f"Blood request from {transfer.from_hospital.hospital_name} for {transfer.units} units of {transfer.blood_type} has been accepted",
+                'timestamp': timezone.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+            messages.success(request, 'Request accepted successfully')
+                
+        elif action == 'reject':
+            transfer.status = 'cancelled'
+            transfer.save()
+            
+            request.session['alert_message'] = {
+                'type': 'danger',
+                'message': f"Blood request rejected",
+                'timestamp': timezone.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+            messages.success(request, 'Blood request rejected')
+
+        elif action == 'deliver':
+            transfer.status = 'delivered'
+            transfer.delivery_date = timezone.now()
+            transfer.save()
+            
+            request.session['alert_message'] = {
+                'type': 'success',
+                'message': f"Blood transfer of {transfer.units} units of {transfer.blood_type} has been delivered",
+                'timestamp': timezone.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+            messages.success(request, 'Blood transfer marked as delivered')
+    
+    return redirect('hospital_requests')
+
+from django.shortcuts import render
+from django.http import HttpResponse
+from datetime import datetime, timedelta
+import qrcode
+import base64
+from io import BytesIO
+from .models import DonorProfile
+
+def donor_card(request):
+    try:
+        # Get donor_id from session
+        donor_id = request.session.get('donor_id')
+        if not donor_id:
+            return HttpResponse("Please login first", status=401)
+            
+        donor = DonorProfile.objects.get(donor_id=donor_id)
+        
+        # Calculate age from date_of_birth
+        today = datetime.now()
+        age = today.year - donor.date_of_birth.year - ((today.month, today.day) < (donor.date_of_birth.month, donor.date_of_birth.day))
+        
+        # Calculate next eligible donation date
+        next_donation_date = None
+        if donor.last_donation_date:
+            next_donation_date = donor.last_donation_date + timedelta(days=90)
+        
+        # Generate QR Code
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr_data = (
+            f"Donor ID: {donor.donor_id}\n"
+            f"Name: {donor.donor_name}\n"
+            f"Blood Group: {donor.blood_type}\n"
+            f"Contact: {donor.contact_number}\n"
+            f"Email: {donor.email}"
+        )
+        qr.add_data(qr_data)
+        qr.make(fit=True)
+        qr_image = qr.make_image(fill_color="black", back_color="white")
+        
+        # Convert QR code to base64 string
+        buffer = BytesIO()
+        qr_image.save(buffer, format="PNG")
+        qr_code = base64.b64encode(buffer.getvalue()).decode()
+        
+        context = {
+            'donor': donor,
+            'age': age,
+            'qr_code': qr_code,
+            'organization_name': 'Blood Bank Management System',
+            'next_donation_date': next_donation_date,
+            'points': donor.points,
+            'valid_until': (datetime.now() + timedelta(days=365)).date()
+        }
+        
+        return render(request, 'donor_card.html', context)
+        
+    except DonorProfile.DoesNotExist:
+        return HttpResponse("Donor not found", status=404)
+    
+# blood/views.py
+from django.shortcuts import render
+from .models import DonorProfile, BloodRequest
+from .donor_prediction import DonorAvailabilityPredictor
+
+# Initialize the predictor
+predictor = DonorAvailabilityPredictor()
+
+def train_donor_predictor():
+    """
+    Function to train the donor prediction model
+    Can be called from views or wherever needed
+    """
+    predictor = DonorAvailabilityPredictor()
+    
+    # Train the model
+    accuracy = predictor.train_model()
+    return accuracy
+
+# blood/views.py
+from django.shortcuts import render, get_object_or_404
+from .models import DonorProfile, BloodRequest
+from .donor_prediction import DonorAvailabilityPredictor
+
+# Initialize the predictor
+predictor = DonorAvailabilityPredictor()
+
+def find_available_donors(request, blood_request_id):
+    # Use get_object_or_404 to handle non-existent BloodRequest
+    blood_request = get_object_or_404(BloodRequest, id=blood_request_id)
+    
+    matching_donors = DonorProfile.objects.filter(
+        blood_type=blood_request.blood_type,
+        is_active=True
+    )
+    
+    available_donors = []
+    for donor in matching_donors:
+        prediction = predictor.predict_availability(donor)
+        if prediction['is_available']:
+            donor.availability_probability = prediction['probability']
+            available_donors.append(donor)
+    
+    # Sort donors by availability probability
+    available_donors.sort(key=lambda x: x.availability_probability, reverse=True)
+    
+    return render(request, 'available_donors.html', {
+        'blood_request': blood_request,
+        'available_donors': available_donors
+    })
+
+def some_view(request):
+    # Train the model when needed
+    accuracy = train_donor_predictor()
+    # Use the trained model for predictions
+    # ... rest of your view logic
+
+# blood/views.py
+# blood/views.py
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import DonorProfile, DonorIronStatus, BloodType
+from .ai_model import IronStatusPredictor
+
+# Initialize the AI predictor
+predictor = IronStatusPredictor()
+
+def donor_iron_status_list(request):
+    """Display iron status for the logged-in donor with AI predictions"""
+    # Debug prints
+    print("Session data:", request.session.items())
+    print("Donor ID:", request.session.get('donor_id'))
+    print("Donor Name:", request.session.get('donor_name'))
+
+    if 'donor_id' not in request.session:
+        messages.error(request, 'Please login first')
+        return redirect('donor_login')
+
+    try:
+        donor_id = request.session.get('donor_id')
+        
+        # Get iron status for the logged-in donor only
+        iron_status_list = DonorIronStatus.objects.filter(
+            donor__donor_id=donor_id
+        ).select_related('donor')
+        
+        # Debug print
+        print(f"Found {iron_status_list.count()} iron status records for donor {donor_id}")
+        
+        # Process donor's data with AI
+        donors_data = []
+        for status in iron_status_list:
+            features = [
+                status.hemoglobin_level,
+                status.serum_ferritin,
+                status.transferrin_saturation_index,
+                status.total_iron_binding_capacity,
+                status.donation_count_last_year
+            ]
+            
+            predicted_status = predictor.predict(features)
+            diet_recommendation = predictor.get_diet_recommendation(predicted_status)
+            
+            donors_data.append({
+                'donor_name': status.donor.donor_name,
+                'blood_type': status.donor.blood_type,
+                'current_status': status.iron_deficiency_status,
+                'predicted_status': predicted_status,
+                'hemoglobin': status.hemoglobin_level,
+                'ferritin': status.serum_ferritin,
+                'tsi': status.transferrin_saturation_index,
+                'tibc': status.total_iron_binding_capacity,
+                'donations': status.donation_count_last_year,
+                'diet_recommendation': diet_recommendation,
+                'last_donation_date': status.donor.last_donation_date,
+                'contact': status.donor.contact_number,
+                'email': status.donor.email,
+                'points': status.donor.points
+            })
+
+        context = {
+            'donors_data': donors_data,
+            'donor_name': request.session.get('donor_name')
+        }
+        
+        return render(request, 'all_donors_iron_status.html', context)
+        
+    except Exception as e:
+        print(f"Error in iron status list: {str(e)}")
+        messages.error(request, f'Error loading iron status: {str(e)}')
+        return redirect('donor_login')
+
+
+# bloodbank/blood/views.py
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import DonorProfile, DonorIronStatus
+
+def add_donor_iron_status(request):
+    if request.method == 'POST':
+        try:
+            # Get form data
+            name = request.POST.get('donor_name')
+            gender = request.POST.get('gender')
+            age = request.POST.get('age')
+            hemoglobin = request.POST.get('hemoglobin')
+            ferritin = request.POST.get('ferritin')
+            transferrin_sat = request.POST.get('transferrin_sat')
+            tibc = request.POST.get('tibc')
+            donations = request.POST.get('donations')
+
+            # Validate required fields
+            if not all([name, gender, age, hemoglobin, ferritin, transferrin_sat, tibc, donations]):
+                messages.error(request, 'All fields are required.')
+                return render(request, 'add_donor_iron.html')
+
+            # Convert to appropriate types
+            age = int(age) if age else 0  # Default to 0 if None
+            hemoglobin = float(hemoglobin) if hemoglobin else 0.0  # Default to 0.0 if None
+            ferritin = float(ferritin) if ferritin else 0.0  # Default to 0.0 if None
+            transferrin_sat = float(transferrin_sat) if transferrin_sat else 0.0  # Default to 0.0 if None
+            tibc = float(tibc) if tibc else 0.0  # Default to 0.0 if None
+            donations = int(donations) if donations else 0  # Default to 0 if None
+
+            # Create or update donor profile
+            donor, created = DonorProfile.objects.get_or_create(
+                donor_name=name,
+                defaults={'gender': gender, 'age': age}
+            )
+
+            # Create or update iron status
+            DonorIronStatus.objects.update_or_create(
+                donor=donor,
+                defaults={
+                    'hemoglobin_level': hemoglobin,
+                    'serum_ferritin': ferritin,
+                    'transferrin_saturation_index': transferrin_sat,
+                    'total_iron_binding_capacity': tibc,
+                    'donation_count_last_year': donations,
+                }
+            )
+
+            messages.success(request, 'Iron status and diet plan updated successfully!')
+            return redirect('donor_iron_status_list')  # Ensure this matches your URL pattern
+
+        except ValueError as ve:
+            messages.error(request, f'Invalid input: {str(ve)}')
+        except Exception as e:
+            messages.error(request, f'Error: {str(e)}')
+
+    return render(request, 'add_donor_iron.html')
+
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import BloodRecipient, BloodType
+import re
+
+def recipient_register(request):
+    if request.method == 'POST':
+        try:
+            # Get form data
+            name = request.POST.get('name', '').strip()
+            blood_type = request.POST.get('blood_type', '')
+            age = request.POST.get('age', '')
+            gender = request.POST.get('gender', '')
+            contact = request.POST.get('contact', '')
+            email = request.POST.get('email', '').strip()
+            address = request.POST.get('address', '').strip()
+            medical_history = request.POST.get('medical_history', '').strip()
+            password = request.POST.get('password', '')
+            confirm_password = request.POST.get('confirm_password', '')
+
+            # Debug print
+            print(f"Received blood type: {blood_type}")
+            
+            # Get blood type instance
+            try:
+                blood_type_instance = BloodType.objects.get(blood_group=blood_type)
+            except BloodType.DoesNotExist:
+                print(f"Blood type not found: {blood_type}")
+                messages.error(request, f'Invalid blood type: {blood_type}')
+                return redirect('recipient_register')
+
+            # Convert age to integer
+            try:
+                age_int = int(age)
+            except ValueError:
+                messages.error(request, 'Invalid age format')
+                return redirect('recipient_register')
+
+            # Create recipient
+            try:
+                recipient = BloodRecipient(
+                    recipient_name=name,
+                    blood_type=blood_type_instance,
+                    age=age_int,
+                    gender=gender,
+                    contact_number=contact,
+                    email=email,
+                    address=address,
+                    medical_history=medical_history,
+                    password=make_password(password)
+                )
+                recipient.save()
+                print("Recipient created successfully")
+                
+                messages.success(request, 'Registration successful! Please login.')
+                return redirect('login')
+                
+            except Exception as e:
+                print(f"Error creating recipient: {str(e)}")
+                messages.error(request, f'Error creating recipient: {str(e)}')
+                return redirect('recipient_register')
+
+        except Exception as e:
+            print(f"Outer exception: {str(e)}")
+            messages.error(request, f'Registration error: {str(e)}')
+            return redirect('recipient_register')
+
+    return render(request, 'recipient_register.html')
+
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.hashers import make_password, check_password
+from .models import BloodRecipient, BloodRequest  # Import your models
+from django.db.models import Q
+from datetime import datetime
+
+def recipient_dashboard(request):
+    # Check if user is logged in
+    recipient_id = request.session.get('recipient_id')
+    if not recipient_id:
+        messages.error(request, 'Please login to access dashboard')
+        return redirect('login')
+
+    try:
+        # Get recipient details
+        recipient = BloodRecipient.objects.get(recipient_id=recipient_id)
+        
+        # Get recipient's blood requests using requester_name
+        blood_requests = BloodRequest.objects.filter(
+            requester_name=recipient.recipient_name
+        ).order_by('-request_date')
+
+        context = {
+            'recipient': recipient,
+            'blood_requests': blood_requests,
+        }
+        return render(request, 'recipient_dashboard.html', context)
+
+    except BloodRecipient.DoesNotExist:
+        messages.error(request, 'Recipient not found')
+        return redirect('login')
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('login')
+
+def update_recipient_profile(request):
+    if not request.session.get('recipient_id'):
+        return redirect('login')
+    
+    try:
+        recipient = BloodRecipient.objects.get(recipient_id=request.session['recipient_id'])
+        
+        if request.method == 'POST':
+            recipient.recipient_name = request.POST.get('name')
+            recipient.contact_number = request.POST.get('contact')
+            recipient.address = request.POST.get('address')
+            recipient.medical_history = request.POST.get('medical_history')
+            recipient.save()
+            
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('recipient_dashboard')
+            
+        return redirect('recipient_dashboard')
+        
+    except BloodRecipient.DoesNotExist:
+        messages.error(request, 'Recipient not found')
+        return redirect('login')
+    
+from django.shortcuts import render, get_object_or_404
+from .models import DonorProfile, BloodTest, BloodDonationRequest
+from .ml_model import IronPredictionModel
+from datetime import datetime
+
+def predict_iron_diet(request, donor_id):
+    try:
+        # Get donor profile
+        donor = get_object_or_404(DonorProfile, donor_id=donor_id)
+        
+        # Get latest blood test
+        latest_blood_test = BloodTest.objects.filter(
+            donation__donor=donor
+        ).order_by('-test_date').first()
+        
+        if not latest_blood_test:
+            return render(request, 'error.html', {
+                'error': 'No blood test found',
+                'error_details': 'Please complete a blood test first.'
+            })
+        
+        # Initialize AI model
+        model = IronPredictionModel()
+        
+        # Get prediction
+        prediction = model.predict_iron_status(latest_blood_test.hemoglobin)
+        
+        # Get recommendations based on severity
+        recommendations = get_diet_recommendations(prediction['severity'])
+        
+        context = {
+            'donor': donor,
+            'blood_test': latest_blood_test,
+            'hemoglobin': float(latest_blood_test.hemoglobin),
+            'severity': prediction['severity'],
+            'confidence': prediction['confidence'],
+            'diet_recommendations': recommendations['diet'],
+            'supplements': recommendations['supplements'],
+            'lifestyle_tips': recommendations['lifestyle_tips'],
+            'meal_plan': recommendations['meal_plan'],
+            'test_date': latest_blood_test.test_date,
+            'prediction_date': datetime.now()
+        }
+        
+        return render(request, 'iron_diet_recommendation.html', context)
+        
+    except Exception as e:
+        print(f"Error in view: {e}")
+        return render(request, 'error.html', {
+            'error': 'An error occurred',
+            'error_details': str(e)
+        })
+from django.shortcuts import render, get_object_or_404
+from .models import DonorProfile, BloodTest
+from .ml_model import IronPredictionModel
+from datetime import datetime
+
+def get_diet_recommendations(severity):
+    """Get diet and supplement recommendations based on severity level"""
+    recommendations = {
+        'severe': {
+            'diet': [
+                'Iron-fortified cereals',
+                'Spinach and leafy greens',
+                'Legumes and lentils',
+                'Red meat (if non-vegetarian)',
+                'Vitamin C rich fruits'
+            ],
+            'supplements': {
+                'Iron': '100-200mg daily',
+                'Vitamin C': '500mg daily',
+                'Vitamin B12': '1000mcg daily'
+            },
+            'meal_plan': {
+                'Breakfast': 'Iron-fortified cereal with vitamin C rich fruit',
+                'Lunch': 'Spinach salad with citrus dressing',
+                'Dinner': 'Lentil soup with dark leafy greens',
+                'Snacks': 'Dried fruits and nuts'
+            },
+            'lifestyle_tips': [
+                'Take iron supplements on empty stomach',
+                'Avoid tea/coffee with meals',
+                'Include vitamin C rich foods with meals',
+                'Regular exercise but avoid overexertion',
+                'Get adequate rest'
+            ]
+        },
+        'moderate': {
+            'diet': [
+                'Whole grain breads',
+                'Green vegetables',
+                'Beans and pulses',
+                'Fish (if non-vegetarian)',
+                'Citrus fruits'
+            ],
+            'supplements': {
+                'Iron': '50-100mg daily',
+                'Vitamin C': '250mg daily',
+                'Vitamin B12': '500mcg daily'
+            },
+            'meal_plan': {
+                'Breakfast': 'Whole grain toast with eggs',
+                'Lunch': 'Bean soup with vegetables',
+                'Dinner': 'Fish/tofu with green vegetables',
+                'Snacks': 'Fresh fruits and nuts'
+            },
+            'lifestyle_tips': [
+                'Regular iron-rich meals',
+                'Moderate exercise',
+                'Good sleep schedule',
+                'Stay hydrated',
+                'Monitor iron levels'
+            ]
+        },
+        'mild': {
+            'diet': [
+                'Iron-enriched foods',
+                'Dark green vegetables',
+                'Nuts and seeds',
+                'Lean meats',
+                'Dried fruits'
+            ],
+            'supplements': {
+                'Iron': '25-50mg daily',
+                'Vitamin C': '100mg daily',
+                'Multivitamin': 'As directed'
+            },
+            'meal_plan': {
+                'Breakfast': 'Oatmeal with nuts and fruits',
+                'Lunch': 'Mixed vegetable salad',
+                'Dinner': 'Lean protein with vegetables',
+                'Snacks': 'Trail mix'
+            },
+            'lifestyle_tips': [
+                'Balanced diet',
+                'Regular exercise',
+                'Adequate hydration',
+                'Regular check-ups',
+                'Healthy lifestyle'
+            ]
+        },
+        'normal': {
+            'diet': [
+                'Balanced diet',
+                'Variety of vegetables',
+                'Whole grains',
+                'Lean proteins',
+                'Fresh fruits'
+            ],
+            'supplements': {
+                'Multivitamin': 'As directed',
+                'Iron': 'Not required unless prescribed',
+                'Vitamin C': 'From natural sources'
+            },
+            'meal_plan': {
+                'Breakfast': 'Balanced breakfast with fruits',
+                'Lunch': 'Mixed vegetables and protein',
+                'Dinner': 'Light and nutritious meal',
+                'Snacks': 'Healthy snacks'
+            },
+            'lifestyle_tips': [
+                'Maintain healthy diet',
+                'Regular exercise',
+                'Good sleep habits',
+                'Stay hydrated',
+                'Regular check-ups'
+            ]
+        }
+    }
+    
+    return recommendations.get(severity, recommendations['normal'])
+
+def predict_iron_diet(request, donor_id):
+    try:
+        # Get donor profile
+        donor = get_object_or_404(DonorProfile, donor_id=donor_id)
+        
+        # Get latest blood test
+        latest_blood_test = BloodTest.objects.filter(
+            donation__donor=donor
+        ).order_by('-test_date').first()
+        
+        if not latest_blood_test:
+            return render(request, 'error.html', {
+                'error': 'No blood test found',
+                'error_details': 'Please complete a blood test first.'
+            })
+        
+        # Initialize AI model
+        model = IronPredictionModel()
+        
+        # Get prediction
+        prediction = model.predict_iron_status(latest_blood_test.hemoglobin)
+        
+        # Get recommendations based on severity
+        recommendations = get_diet_recommendations(prediction['severity'])
+        
+        context = {
+            'donor': donor,
+            'blood_test': latest_blood_test,
+            'hemoglobin': float(latest_blood_test.hemoglobin),
+            'severity': prediction['severity'],
+            'confidence': prediction['confidence'],
+            'diet_recommendations': recommendations['diet'],
+            'supplements': recommendations['supplements'],
+            'lifestyle_tips': recommendations['lifestyle_tips'],
+            'meal_plan': recommendations['meal_plan'],
+            'test_date': latest_blood_test.test_date,
+            'prediction_date': datetime.now()
+        }
+        
+        return render(request, 'iron_diet_recommendation.html', context)
+        
+    except Exception as e:
+        print(f"Error in view: {e}")
+        return render(request, 'error.html', {
+            'error': 'An error occurred',
+            'error_details': str(e)
+        })
+
+
+from django.contrib.auth.hashers import make_password
+from .models import Admin
+
+def admin_register(request):
+    # Only allow access if an admin is already logged in
+    if not request.session.get('admin_email'):
+        messages.error(request, "Only existing administrators can register new admins.")
+        return redirect('admin_login')
+
+    if request.method == 'POST':
+        try:
+            username = request.POST.get('username')
+            email = request.POST.get('email')
+            password = request.POST.get('password')
+            confirm_password = request.POST.get('confirm_password')
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+
+            # Validation
+            if Admin.objects.filter(username=username).exists():
+                messages.error(request, 'Username already exists.')
+                return redirect('admin_register')
+
+            if Admin.objects.filter(email=email).exists():
+                messages.error(request, 'Email already exists.')
+                return redirect('admin_register')
+
+            if password != confirm_password:
+                messages.error(request, 'Passwords do not match.')
+                return redirect('admin_register')
+
+            if len(password) < 8:
+                messages.error(request, 'Password must be at least 8 characters long.')
+                return redirect('admin_register')
+
+            # Create new admin
+            new_admin = Admin(
+                username=username,
+                email=email,
+                password=make_password(password),  # Hash the password
+                first_name=first_name,
+                last_name=last_name,
+                is_active=True
+            )
+            new_admin.save()
+
+            messages.success(request, 'New administrator registered successfully!')
+            return redirect('blood_admin')
+
+        except Exception as e:
+            messages.error(request, f'An error occurred: {str(e)}')
+            return redirect('admin_register')
+
+    return render(request, 'admin_register.html')
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import BloodType, Admin
+
+def add_blood_type(request):
+    try:
+        # Get all blood types for display
+        blood_types = BloodType.objects.all().order_by('blood_group')
+        
+        if request.method == 'POST':
+            blood_group = request.POST.get('blood_group').upper()  # Convert to uppercase
+            
+            # Validation
+            if not blood_group:
+                messages.error(request, 'Blood group is required.')
+                return redirect('add_blood_type')
+                
+            # Check if blood group already exists
+            if BloodType.objects.filter(blood_group=blood_group).exists():
+                messages.error(request, f'Blood group {blood_group} already exists.')
+                return redirect('add_blood_type')
+                
+            try:
+                # Create new blood type
+                blood_type = BloodType.objects.create(blood_group=blood_group)
+                messages.success(request, f'Blood group {blood_group} added successfully!')
+                return redirect('add_blood_type')
+            except Exception as e:
+                messages.error(request, f'An error occurred: {str(e)}')
+                return redirect('add_blood_type')
+
+        return render(request, 'add_blood_type.html', {
+            'blood_types': blood_types,
+            'admin_email': request.session.get('admin_email', None)
+        })
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('blood_admin')
